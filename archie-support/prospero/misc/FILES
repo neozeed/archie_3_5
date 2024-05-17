@@ -1,0 +1,4 @@
+FILES
+install.sh
+osetenv.c
+regex.c

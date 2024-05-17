@@ -1,0 +1,71 @@
+INCS = \
+       _prog.h ansi.h aprint.h class.h debug.h defs.h epath.h \
+       error.h gopher.h host_access.h io.h local_attrs.h menu.h \
+       misc.h my_rd_vlink.h net.h os_indep.h output.h \
+       parchie.h ppc.h ppc_front_end.h ppc_tcl.h ppc_time.h prosp.h psearch.h \
+       ptrval.h quoting.h redirect.h srch.h str.h strval.h token.h vlink.h \
+       waisattrib.h
+
+LSRCS = class.c debug.c epath.c error.c gopher.c host_access.c io.c \
+        misc.c my_rd_vlink.c net.c output.c pattrib.c ppc_front_end.c \
+        ppc_tcl.c ppc_time.c prospquery.c psearch.c os_indep.c \
+        ptrval.c quoting.c redirect.c srch.c str.c strval.c stubs.c token.c \
+        vlink.c waisattrib.c
+
+LOBJS = \
+        class.o debug.o epath.o error.o gopher.o host_access.o io.o \
+        misc.o my_rd_vlink.o net.o os_indep.o output.o pattrib.o ppc_front_end.o \
+        ppc_tcl.o ppc_time.o prospquery.o psearch.o ptrval.o quoting.o redirect.o srch.o \
+        str.o strval.o stubs.o token.o vlink.o waisattrib.o
+
+SRCS = main.c $(LSRCS)
+OBJS = main.o $(LOBJS)
+EXES = libppc.a
+
+
+PDIR = ../../prospero
+ADIR = ../..
+MLIB = $(PDIR)/user/menu
+PLIB = $(PDIR)/lib
+IDIR = \
+       -I../lib \
+       -I$(PDIR)/include \
+       -I$(MLIB) \
+       -I$(ADIR)/include \
+       -I/local/packages/tcl/include
+
+CC     = gcc
+
+# All recognized defines...
+# -DDEBUG -DSOME_MISSING_PROTOS
+DEFS   = -DDEBUG
+CFLAGS = -ansi -pipe -g3 -Wall $(DEFS) $(IDIR)
+
+# For depend
+DFLAGS = $(CDEFS) $(IDIR)
+
+# ----------------------------------------------------------------------------
+
+libppc.a: $(OBJS)
+	ar rc $@ $(LOBJS) && ranlib $@ || { rm -f $@ ; echo Failed. ; }
+
+Makefile: Makefile.in
+	cp Makefile.in Makefile
+
+clean:
+	rm -f *.o $(EXES) TAGS core
+
+edit_clean:
+	rm -f *.~*~ .*.~*~
+
+depend:
+	@echo Depending in \`pwd\`
+	@( echo '/^# DO NOT DELETE THIS LINE/,$$c' ; \
+	   echo '# DO NOT DELETE THIS LINE -- make depend depends on it' ; \
+	   echo "" ; \
+	   $(CC) -M $(DFLAGS) $(SRCS) ; \
+	   echo . ; \
+	   echo w ; \
+	   echo q ) | ed - Makefile
+
+# DO NOT DELETE THIS LINE -- make depend depends on it.

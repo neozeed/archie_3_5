@@ -1,0 +1,17 @@
+# Each line should be of the form:
+#
+#  <src-string> <srch-string> <replace-str> <result-string>
+#
+a b c a
+a a b b
+# Make a string longer
+a a 0123 0123
+# Make a string shorter
+abcd b x axcd
+# Multiple substitutions
+ababa a x xbxbx
+ababa b 0123 a0123a0123a
+# Muli-character search string
+ababa ba foo afoofoo
+abcdabcd bc foo afoodafood
+stuff${var}blah ${var} VALUE stuffVALUEblah

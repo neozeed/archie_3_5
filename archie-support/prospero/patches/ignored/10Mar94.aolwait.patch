@@ -1,0 +1,246 @@
+This patch was created on pand05 at Fri Apr  1 04:53:41 EST 1994
+The command used to create it was: gnudiff -b -r -c 10Mar94.all 10Mar94+
+
+It is made available on an as-is basis, and carries no guarrantee that
+it even works, much less that it is fit for its purpose.
+
+If you find any problems with it, please report to mitra@pand05
+You may use it as you wish, but if you make it pulicly available anywhere
+please notify me.
+
+To apply the patch cd to the directory with the source in it, and run
+
+patch -l -p1 <patchfile 
+
+diff -b -r -c -N 10Mar94.all/include/ardp.h 10Mar94+/include/ardp.h
+*** 10Mar94.all/include/ardp.h	Fri Apr  1 04:37:23 1994
+--- 10Mar94+/include/ardp.h	Wed Mar 30 22:12:12 1994
+***************
+*** 221,226 ****
+--- 221,227 ----
+  #define	ARDP_REFUSED 	       10	/* Connection refused by server     */
+  #define	ARDP_FAILURE 	       11	/* Unspecified ARDP failure         */
+  #define ARDP_TOOLONG	       12       /* Buffer too long for packet       */
++ #define ARDP_WAIT_TOO_LONG     13       /* AOL user is waiting too long     */
+  /* These are the interface used to the ARDP library's error reporting.
+     These are the same as definitions used in the Prospero PFS library. */
+  /* extern int perrno;              /* Place where error codes are set. */
+diff -b -r -c -N 10Mar94.all/include/plog.h 10Mar94+/include/plog.h
+*** 10Mar94.all/include/plog.h	Fri Mar 11 05:29:51 1994
+--- 10Mar94+/include/plog.h	Fri Apr  1 02:51:38 1994
+***************
+*** 115,135 ****
+  
+  /* If L_FILEDS_STIME selected, then... */
+  #ifndef L_WTTIME_THRESHOLD
+! #define L_WTTIME_THRESHOLD   1  /* log waiting time if >= seconds */
+  #endif
+  #ifndef L_SYSTIME_THRESHOLD
+! #define L_SYSTIME_THRESHOLD  1  /* log systime if >= seconds */
+  #endif
+  #ifndef L_SVCTIME_THRESHOLD
+! #define L_SVCTIME_THRESHOLD  1  /* log svctime if >= seconds */
+  #endif
+  
+  /* If L_QUEUE_COMP selected, then the following conditions are ANDed */
+  #ifndef L_COMP_SVC_THRESHOLD
+! #define L_COMP_SVC_THRESHOLD 30 /* Log L_QUEUE_COMP only if svctime exceeds */
+  #endif
+  #ifndef L_COMP_SYS_THRESHOLD
+! #define L_COMP_SYS_THRESHOLD  0 /* Log L_QUEUE_COMP only if systime exceeds */
+  #endif
+  
+  /*
+--- 115,135 ----
+  
+  /* If L_FILEDS_STIME selected, then... */
+  #ifndef L_WTTIME_THRESHOLD
+! #define L_WTTIME_THRESHOLD    9999  /* log waiting time if >= seconds */
+  #endif
+  #ifndef L_SYSTIME_THRESHOLD
+! #define L_SYSTIME_THRESHOLD   30  /* log systime if >= seconds */
+  #endif
+  #ifndef L_SVCTIME_THRESHOLD
+! #define L_SVCTIME_THRESHOLD   30  /* log svctime if >= seconds */
+  #endif
+  
+  /* If L_QUEUE_COMP selected, then the following conditions are ANDed */
+  #ifndef L_COMP_SVC_THRESHOLD
+! #define L_COMP_SVC_THRESHOLD  0 /* Log L_QUEUE_COMP only if svctime exceeds */
+  #endif
+  #ifndef L_COMP_SYS_THRESHOLD
+! #define L_COMP_SYS_THRESHOLD 30 /* Log L_QUEUE_COMP only if systime exceeds */
+  #endif
+  
+  /*
+***************
+*** 152,158 ****
+   */
+  #ifndef INITIAL_LOG_VECTOR
+  #define INITIAL_LOG_VECTOR { \
+!     L_FIELDS_USER|L_FIELDS_HADDR|L_FIELDS_SW_ID,  /* L_FIELDS       */       \
+      LOG_PROSPERO|LOG_NOTICE|PLOG_TOFILE,	  /* L_STATUS       */       \
+      LOG_PROSPERO|LOG_CRIT|PLOG_TOFILE,	  	  /* L_FAILURE      */       \
+      PLOG_TOFILE,			  	  /* L_STATS        */       \
+--- 152,158 ----
+   */
+  #ifndef INITIAL_LOG_VECTOR
+  #define INITIAL_LOG_VECTOR { \
+!     L_FIELDS_USER|L_FIELDS_HADDR|L_FIELDS_SW_ID|L_FIELDS_STIME,  /* L_FIELDS       */       \
+      LOG_PROSPERO|LOG_NOTICE|PLOG_TOFILE,	  /* L_STATUS       */       \
+      LOG_PROSPERO|LOG_CRIT|PLOG_TOFILE,	  	  /* L_FAILURE      */       \
+      PLOG_TOFILE,			  	  /* L_STATS        */       \
+***************
+*** 160,166 ****
+      LOG_PROSPERO|LOG_ERR|PLOG_TOFILE,	  	  /* L_NET_RDPERR   */       \
+      0,					  	  /* L_NET_INFO     */       \
+      LOG_PROSPERO|LOG_INFO|PLOG_TOFILE,	  	  /* L_QUEUE_INFO   */       \
+!     0,					  	  /* L_QUEUE_COMP   */       \
+      LOG_PROSPERO|LOG_ERR|PLOG_TOFILE,	  	  /* L_DIR_PERR     */       \
+      LOG_PROSPERO|LOG_WARNING|PLOG_TOFILE, 	  /* L_DIR_PWARN    */       \
+      LOG_PROSPERO|LOG_INFO|PLOG_TOFILE,	  	  /* L_DIR_PINFO    */       \
+--- 160,166 ----
+      LOG_PROSPERO|LOG_ERR|PLOG_TOFILE,	  	  /* L_NET_RDPERR   */       \
+      0,					  	  /* L_NET_INFO     */       \
+      LOG_PROSPERO|LOG_INFO|PLOG_TOFILE,	  	  /* L_QUEUE_INFO   */       \
+!     LOG_PROSPERO|LOG_INFO|PLOG_TOFILE,	  	  /* L_QUEUE_COMP   */       \
+      LOG_PROSPERO|LOG_ERR|PLOG_TOFILE,	  	  /* L_DIR_PERR     */       \
+      LOG_PROSPERO|LOG_WARNING|PLOG_TOFILE, 	  /* L_DIR_PWARN    */       \
+      LOG_PROSPERO|LOG_INFO|PLOG_TOFILE,	  	  /* L_DIR_PINFO    */       \
+diff -b -r -c -N 10Mar94.all/lib/ardp/ardp_accept.c 10Mar94+/lib/ardp/ardp_accept.c
+*** 10Mar94.all/lib/ardp/ardp_accept.c	Fri Apr  1 04:53:33 1994
+--- 10Mar94+/lib/ardp/ardp_accept.c	Thu Mar 31 23:28:26 1994
+***************
+*** 29,34 ****
+--- 29,35 ----
+  #include <pmachine.h>
+  #include <pfs.h>		/* For assert */
+  #include <pfs_threads.h>	/* Mutex stuff */
++ #include <implicit_fixes.h>
+  
+  #define LOG_PACKET(REQ,QP) \
+      if((REQ)->priority || (pQlen > 4)) \
+***************
+*** 626,631 ****
+--- 627,639 ----
+      /* Archie servers should request a longer wait.   Other heavily used
+         databases may want to have this command defined too. */
+      ardp_rwait(nreq,900,nreq->inf_queue_pos,nreq->inf_sys_time); 
++ #endif
++ 
++ #ifdef PFS_THREADS
++     if((nreq->inf_queue_pos > (P_MAX_NUM_THREADS + 3)) &&
++        (nreq->inf_queue_pos < 100)) {
++       ardp_rwait(nreq,0,nreq->inf_queue_pos,nreq->inf_sys_time); 
++     }
+  #endif
+  
+      goto check_for_more;
+diff -b -r -c -N 10Mar94.all/lib/ardp/ardp_pr_actv.c 10Mar94+/lib/ardp/ardp_pr_actv.c
+*** 10Mar94.all/lib/ardp/ardp_pr_actv.c	Fri Apr  1 04:53:33 1994
+--- 10Mar94+/lib/ardp/ardp_pr_actv.c	Thu Mar 31 19:37:59 1994
+***************
+*** 27,32 ****
+--- 27,35 ----
+  extern int	       pfs_debug;     /* Debug level                */
+  int         ardp_activeQ_len;         /* Length of activeQ          */
+  
++ /* temporary to test theory, indicates that rwait received */
++ int something_received = 0;
++ 
+  static struct timeval  zerotime = {0, 0}; /* Used by select        */
+  
+  #define max(x,y) (x > y ? x : y)
+***************
+*** 100,106 ****
+--- 103,114 ----
+  			    ntohs(req->cid) );
+  		    (void) fflush(stderr);
+  		}
++ 		if(something_received) {
++ 		  req->status = ARDP_WAIT_TOO_LONG;
++ 		  }
++ 		else {
+  		  req->status = ARDP_TIMEOUT;
++ 		}
+  		EXTRACT_ITEM(req,ardp_activeQ);
+                      --ardp_activeQ_len;
+  		APPEND_ITEM(req,ardp_completeQ);
+***************
+*** 120,125 ****
+--- 128,135 ----
+  	return(ardp__pr_ferror(ARDP_SELECT_FAILED));
+      }
+  
++     something_received = 1;
++ 
+      /* Process incoming packets */
+      pkt = ardp_ptalloc();
+      pkt->start = pkt->dat;
+***************
+*** 205,211 ****
+  	    req->timeout_adj.tv_sec = max(req->timeout.tv_sec,req->svc_rwait);
+  	    req->wait_till.tv_sec = now + req->timeout_adj.tv_sec;
+  	    /* Reset the retry count */
+! 	    req->retries_rem = req->retries;
+  	}
+  	ctlptr += 2;
+      }
+--- 215,221 ----
+  	    req->timeout_adj.tv_sec = max(req->timeout.tv_sec,req->svc_rwait);
+  	    req->wait_till.tv_sec = now + req->timeout_adj.tv_sec;
+  	    /* Reset the retry count */
+! /*	    req->retries_rem = req->retries; */
+  	}
+  	ctlptr += 2;
+      }
+diff -b -r -c -N 10Mar94.all/lib/ardp/ardp_send.c 10Mar94+/lib/ardp/ardp_send.c
+*** 10Mar94.all/lib/ardp/ardp_send.c	Fri Apr  1 04:40:19 1994
+--- 10Mar94+/lib/ardp/ardp_send.c	Thu Mar 31 19:38:52 1994
+***************
+*** 36,42 ****
+  int		       ardp_port = -1;	      /* Opened UDP port	    */
+  
+  extern int	       pfs_debug;             /* Debug level                */
+! 
+  static ardp_init();
+  static short ardp_next_cid();
+  
+--- 36,42 ----
+  int		       ardp_port = -1;	      /* Opened UDP port	    */
+  
+  extern int	       pfs_debug;             /* Debug level                */
+! extern int             something_received; /* Received response - server up */
+  static ardp_init();
+  static short ardp_next_cid();
+  
+***************
+*** 114,119 ****
+--- 114,120 ----
+      int		tmp;		/* To temporarily hold return values  */
+  
+      p_clear_errors();
++     something_received = 0 ;	/* Flag whether anything received */
+  
+      if((ardp_port < 0) && (tmp = ardp_init())) return(tmp);
+  
+diff -b -r -c -N 10Mar94.all/lib/pfs/perrmesg.c 10Mar94+/lib/pfs/perrmesg.c
+*** 10Mar94.all/lib/pfs/perrmesg.c	Fri Apr  1 04:37:16 1994
+--- 10Mar94+/lib/pfs/perrmesg.c	Wed Mar 30 23:26:27 1994
+***************
+*** 65,71 ****
+      /*   9 */ "Timed out (ardp)",
+      /*  10 */ "Connection refused by server (ardp)",
+      /*  11 */ "Generic failure sending or receiving message (ardp)",
+!     /*  12 */ "Undefined error  12 (prospero)",
+      /*  13 */ "Undefined error  13 (prospero)",
+      /*  14 */ "Undefined error  14 (prospero)",
+      /*  15 */ "Undefined error  15 (prospero)",
+--- 65,71 ----
+      /*   9 */ "Timed out (ardp)",
+      /*  10 */ "Connection refused by server (ardp)",
+      /*  11 */ "Generic failure sending or receiving message (ardp)",
+!     /*  12 */ "Wait is too long for AOL users (ardp)",
+      /*  13 */ "Undefined error  13 (prospero)",
+      /*  14 */ "Undefined error  14 (prospero)",
+      /*  15 */ "Undefined error  15 (prospero)",

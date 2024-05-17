@@ -1,0 +1,19 @@
+set status
+set max_split_size 30000
+set maxhits 15
+
+set server archie.rutgers.edu
+servers
+list ^c.*\.c[ah]
+manpage roff
+set search regex
+find a.*[bc].*d$
+domains
+set autologout 500
+set search sub
+find ntp
+mail wheelan
+whatis xnlock
+set search subcase
+find etc
+show

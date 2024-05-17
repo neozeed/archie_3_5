@@ -1,0 +1,74 @@
+#
+# tools
+#
+
+#MOD_CFLAGS = -ansi -pedantic -pipe
+MOD_DEBUG = -g3
+MOD_WARN  = -Wall -Wtraditional -Wshadow -Wpointer-arith -Wcast-align 
+MOD_INCS  = -I$(INCLUDE_MODULE) -I$(PATRIE_MODULE) -I$(STRIDX_MODULE) \
+            -I$(WEBINDEX_MODULE)/lib/ -I$(STARTDB_MODULE) -I.
+MOD_LIBS = \
+           -L$(ANONFTP_MODULE)/lib/$(SYSTYPE)  -lanonftp     \
+           -L$(LIBARCHIE_MODULE)/$(SYSTYPE)    -larchie      \
+           -L$(STRIDX_MODULE)/$(SYSTYPE)       -larchstridx  \
+           -L$(HOSTDB_MODULE)/$(SYSTYPE)       -lhostdb      \
+           -L$(PATRIE_MODULE)/$(SYSTYPE)       -lpatrie      \
+           -L$(STARTDB_MODULE)/$(SYSTYPE)      -lstartdb     \
+           -L$(WEBINDEX_MODULE)/lib/$(SYSTYPE) -lwebindex
+
+
+include $(ARCHIE_ROOT)/Makefile.pre
+
+
+INCS = \
+        host_manage.h \
+        lang_tools.h  \
+        listd.h       \
+        old_host_db.h \
+        old_hostdb.h  \
+        screen.h      \
+        utils.h
+
+SRCS = \
+        ardomain.c       \
+        convert_hostdb.c \
+        db_build.c       \
+        db_check.c       \
+        db_dump.c        \
+        db_reorder.c     \
+        db_siteidx.c     \
+        db_stats.c       \
+        dbspecs.c        \
+				dump_hostdb.c	 \
+				restore_hostdb.c \
+				fix_start_db.c   \
+        host_manage.c    \
+        lang_tools.c     \
+        old_hostdb.c     \
+        dump_hostdb.c    \
+        screen.c         \
+        utils.c
+
+OBJS = \
+        ardomain.o       \
+        convert_hostdb.o \
+        db_build.o       \
+        db_check.o       \
+        db_dump.o        \
+        db_reorder.o     \
+        db_siteidx.o     \
+        db_stats.o       \
+        dbspecs.o        \
+				dump_hostdb.o	 \
+				restore_hostdb.o \
+        fix_start_db.o   \
+        host_manage.o    \
+        lang_tools.o     \
+        old_hostdb.o     \
+        dump_hostdb.o    \
+        screen.o         \
+        utils.o
+
+EXES = ardomains host_manage convert_hostdb db_build db_stats \
+				db_dump db_reorder db_check db_siteidx dump_hostdb dump_hostdb_ndbm \
+				restore_hostdb fix_start_db

@@ -1,0 +1,138 @@
+.\" Copyright (c) 1992, 1994, 1996 Bunyip Information Systems Inc.
+.\" All rights reserved.  
+.\"	
+.\" Archie 3.5
+.\" August 1996
+.\"	
+.\"	@(#)parse_anonftp.n	
+.\"
+.TH PARSE_ANONFTP N "August 1996"
+.SH NAME
+.B parse_anonftp 
+\- parse the raw data for an Archie anonftp catalog site
+.SH SYNOPSIS
+.B parse_anonftp 
+.BI \-i \ <filename> 
+.BI \-o \ <template> 
+[ 
+.BI \-M \ <dir> 
+] [
+.BI \-h \ <dir> 
+] [ 
+.BI \-f \ <filter\ pgm>
+] [
+.BI \-t \ <dir> 
+] [
+.B \-v
+] [ 
+.BI \-l 
+] [ 
+.BI \-L \ <logfile> 
+] 
+.SH DESCRIPTION
+This program determines the appropriate parser for an Archie anonftp catalog
+raw data file and invokes it.
+.SH OPTIONS
+.TP
+.BI \-i \ <filename>   
+Input filename. Mandatory.
+.TP
+.BI \-o \ <template>   
+A "template" for the output filename. This argument is used
+to determine the base name of the output file which is
+used to generate the final output filename. Mandatory.
+.TP
+.BI \-M \ <dir>	
+The name of the master Archie database
+directory. If not given, the program tries to look in the
+directory 
+.B ~archie/db 
+and, failing that, defaults to 
+.B ./db.
+.TP
+.BI \-h \ <dir>	
+The name of the Archie host database directory. If not
+supplied the program will default first to
+.B ~archie/db/host_db 
+and failing that, to 
+.B ./host_db
+.TP
+.BI \-f \ <filter\ pgm>
+The name of the filter program to be run on the raw input before
+parsing. If not giving the name is automatically generated. See below.
+.TP
+.BI \-t \ <dir>	
+Sets the name of the directory used for temporary files.
+If not specified, the program uses 
+.B ~archie/db/tmp.
+.TP
+.BI \-v
+Verbose mode. Will tell you what it is doing.
+.TP
+.BI \-l
+Write any user output to the default log file
+.B ~archie/logs/archie.log. 
+If desired, this can be overridden with the 
+.B \-L 
+option. Errors will by default be written to stderr.
+.TP
+.BI \-L \ <logfile>	
+The name of the file to be used for logging information.
+Note that debugging information is also written to the
+log file. This implies the 
+.B \-l 
+option as well.		
+.PP
+This program is usually invoked by 
+.BR arcontrol (n) 
+automatically during the
+update cycle to coordinate the parsing of raw anonftp data files. By
+reading the header record the program can determine what type of
+parser is to be invoked. The raw data is first run through a
+preprocessing filter to remove errors and extraneous information. The
+name of this filter is automatically generated from the header of the
+input data unless overridden by the -f option and uses the following
+convention 
+.IP
+.B filter_anonftp_\fI<os name>\fR
+.PP
+where 
+.I <os name> 
+is the name of the operating system running at the source
+data site for the data. Thus for BSD UNIX systems the name would be,
+.B filter_anonftp_unix_bsd. 
+.PP
+.SH DIAGNOSTICS
+If a data file fails to be sucessfully parsed, a file with a ".parse_t"
+extension is left in the ~archie/db/tmp directory (unless another temporary
+directory is being used). The header record will report the parsing error
+in the "comment" field. If desired, the Archie administrator may attempt
+to correct the file manually. If this is done, the file need only be
+renamed with a ".parse" extension and will automatically be picked up by
+the next parse phase of the Update Cycle. 
+
+To help the administrator identify the problem, a file with the suffix
+".filtered" is also created. This file contains the raw data filtered
+through the pre-processing phase and is the actual file on which the
+parser was invoked.
+.SH BUGS
+Sites whose anonymous FTP tree does not start at "/" are not handled
+correctly. This will be fixed in a later release.
+
+The line numbers gernerated by this program when an error occurs are
+incorrect since the number of lines in the header at the top of the data
+file are not taken into account. The actual line causing the error is the
+line number given plus the number of lines in the header. This will be
+fixed in a later release.
+.FILES
+~archie/db/tmp/*
+.SH "SEE ALSO"
+.BR parser_output (n),
+.BR arcontrol (n)
+.SH AUTHOR
+Bunyip Information Systems
+.br
+Montr\o"\'e"al, Qu\o"\'e"bec, Canada
+.sp
+Archie is a registered trademark of Bunyip Information Systems Inc., Canda,
+1990.

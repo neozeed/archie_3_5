@@ -1,0 +1,12 @@
+PINC = p_include
+
+CC = gcc
+CFLAGS = -pipe -g3 -c -I$(PINC)
+
+
+libmenu.a: api.o bub.o comp.o io_util.o item_desc.o line.o menu.o objects.o search.o
+				ar r $@ *.o
+				ranlib $@
+
+clean:
+				rm -f *.o libmenu.a

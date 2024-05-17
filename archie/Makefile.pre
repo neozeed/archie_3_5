@@ -1,0 +1,161 @@
+#
+# Top level Makefile.pre.
+#
+
+#
+# ARCHIE_ROOT is an environment variable pointing to root of the
+# tree containing binaries and libraries for all platforms.
+#
+
+ANONFTP_MODULE     = $(ARCHIE_ROOT)/anonftp
+ARCHSEARCH_MODULE  = $(ARCHIE_ROOT)/lib/archsearch
+CLIENT_MODULE      = $(ARCHIE_ROOT)/clients
+CONTROL_MODULE     = $(ARCHIE_ROOT)/control
+DOC_MODULE         = $(ARCHIE_ROOT)/doc
+EXCHANGE_MODULE    = $(ARCHIE_ROOT)/exchange
+HOSTDB_MODULE      = $(ARCHIE_ROOT)/lib/hostdb
+INCLUDE_MODULE     = $(ARCHIE_ROOT)/include
+LESS_MODULE        = $(ARCHIE_ROOT)/less
+LIBARCHIE_MODULE   = $(ARCHIE_ROOT)/lib/libarchie
+LIBPARCHIE_MODULE  = $(ARCHIE_ROOT)/lib/libparchie
+LIBPSARCHIE_MODULE = $(ARCHIE_ROOT)/lib/libpsarchie
+PATRIE_MODULE      = $(ARCHIE_ROOT)/lib/patrie
+PPC_MODULE         = $(ARCHIE_ROOT)/ppc
+REGEX_MODULE       = $(ARCHIE_ROOT)/lib/regex
+REPOSIX_MODULE     = $(ARCHIE_ROOT)/lib/reposix
+STARTDB_MODULE     = $(ARCHIE_ROOT)/lib/startdb
+STRIDX_MODULE      = $(ARCHIE_ROOT)/lib/archstridx
+TOOLS_MODULE       = $(ARCHIE_ROOT)/tools
+WEBINDEX_MODULE    = $(ARCHIE_ROOT)/webindex
+
+DOC_MODULE = $(ARCHIE_ROOT)/doc
+
+DISTRIBUTION_MODULE = $(ARCHIE_ROOT)/dist
+
+
+BIN_SING_LEVEL_MODULES =  \
+    $(LESS_MODULE)        \
+    $(CONTROL_MODULE)     \
+    $(EXCHANGE_MODULE)    \
+    $(TOOLS_MODULE)
+
+BIN_MULTI_LEVEL_MODULES = \
+    $(CLIENT_MODULE)      \
+    $(PPC_MODULE)     
+
+LIB_SING_LEVEL_MODULES =  \
+    $(ARCHSEARCH_MODULE)  \
+    $(HOSTDB_MODULE)      \
+    $(LIBARCHIE_MODULE)   \
+    $(LIBPARCHIE_MODULE)  \
+    $(LIBPSARCHIE_MODULE) \
+    $(PATRIE_MODULE)      \
+    $(REGEX_MODULE)       \
+    $(REPOSIX_MODULE)     \
+    $(STARTDB_MODULE)     \
+    $(STRIDX_MODULE)
+
+LIB_MULTI_LEVEL_MODULES = \
+    $(ANONFTP_MODULE)     \
+    $(WEBINDEX_MODULE)   
+
+#
+# The modules are grouped into three classes, single level, multi-level and
+# generic.  Single level modules are directories, containing source code that
+# compiles to object files, immediately below the top level.  Multi-level
+# modules are similar, but they are subdirectories of directories at the top
+# level.  Generic modules are directories containing files that don't produce
+# object files.
+#
+
+SING_LEVEL_MODULES = \
+    $(LIB_SING_LEVEL_MODULES) \
+    $(BIN_SING_LEVEL_MODULES) 
+
+MULTI_LEVEL_MODULES = \
+    $(LIB_MULTI_LEVEL_MODULES) \
+    $(BIN_MULTI_LEVEL_MODULES)
+
+#
+# GEN_MODULES is the list of modules that are system independent.
+#
+
+GEN_MODULES = \
+    $(DOC_MODULE) \
+    $(INCLUDE_MODULE)
+
+
+#
+# The following variables may be used to define options common
+# to a particular module.  They should be used within the make
+# files in the various module directories.
+#
+# MOD_CFLAGS  --  Compiler options for a particular module.
+# MOD_DEBUG   --  Debugging options for a particular module.
+# MOD_DEFS    --  Defines for a particular module.
+# MOD_INCS    --  Include files depending on the particular module.
+# MOD_LIBS    --  Libraries required for the particular module.
+# MOD_OPT     --  Optimization options for a particular module.
+# MOD_WARN    --  Warning options for a particular module.
+#
+#
+# The following variables may be used to define options particular
+# to a specific system (machine or architecture).  They should be
+# used within the make files in the various system directories.
+#
+# SYS_CFLAGS  --  Compiler options for a particular system.
+# SYS_DEBUG   --  Debugging options for a particular system.
+# SYS_DEFS    --  Defines for a particular system.
+# SYS_DEPFLAG --  Compiler options used to generate dependencies.
+# SYS_INCS    --  Include files depending on the particular system.
+# SYS_LIBS    --  Libraries required for the particular system.
+# SYS_OPT     --  Optimization options for a particular system.
+# SYS_WARN    --  Warning options for a particular system.
+#
+
+CC     = gcc
+#
+# Note that MOD_LIBS and SYS_LIBS aren't included in the CFLAGS
+# macro.  Since they must appear after the .o files these two
+# flags must be included in the build commands of the module
+# Makefile.post file.
+#
+CFLAGS = $(MOD_CFLAGS) $(SYS_CFLAGS) \
+         $(MOD_DEBUG)  $(SYS_DEBUG)  \
+         $(MOD_WARN)   $(SYS_WARN)   \
+         $(MOD_OPT)    $(SYS_OPT)    \
+         $(MOD_DEFS)   $(SYS_DEFS)   \
+         $(MOD_INCS)   $(SYS_INCS)
+#
+# A special case: the flag to cause the compiler to generate
+# include file dependencies.  This may vary from system to
+# system.  Override this from within the system level make
+# file.
+#
+SYS_DEPFLAG = -M
+#
+# Pass these flags to the compiler when generating
+# dependencies.  This macro is just for convenience.
+#
+DEP_FLAGS   = $(MOD_CFLAGS) $(SYS_CFLAGS) \
+              $(MOD_DEFS)   $(SYS_DEFS)   \
+              $(MOD_INCS)   $(SYS_INCS)
+
+#
+# Auxilliary programs.
+#
+AR       = ar
+LD       = ld
+RANLIB   = ranlib
+SENTINEL = memadvise
+
+#
+# VPATH gives make [%] a set of directories to search for the
+# dependencies of the targets.  In the case of .o files this
+# would tell it where to look for the corresponding source files.
+#
+# [%] Well, any make that understands it (e.g. GNU make).  Not
+#     all do...
+#
+VPATH  = ..
+

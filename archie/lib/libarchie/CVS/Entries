@@ -1,0 +1,26 @@
+/Makefile.post/2.0/Tue Aug 20 22:48:25 1996//
+/Makefile.pre/2.0/Tue Aug 20 22:48:25 1996//
+/archie_dbm.c/2.0/Tue Aug 20 22:48:26 1996//
+/archie_dns.c/2.1/Wed Nov  6 17:23:07 1996//
+/archie_inet.c/2.1/Tue Nov 24 14:57:29 1998//
+/archie_mail.c/2.0/Tue Aug 20 22:48:29 1996//
+/archie_prospero.c/2.0/Tue Aug 20 22:48:29 1996//
+/archie_strings.c/2.0/Tue Aug 20 22:48:30 1996//
+/archie_xdr.c/2.0/Tue Aug 20 22:48:31 1996//
+/error.c/2.0/Tue Aug 20 22:48:32 1996//
+/files.c/2.2/Thu Dec  5 15:32:20 1996//
+/header.c/2.0/Tue Aug 20 22:48:35 1996//
+/lang_libarchie.c/2.0/Tue Aug 20 22:48:35 1996//
+/lang_libarchie.h/2.0/Tue Aug 20 22:48:36 1996//
+/log.h/2.0/Tue Aug 20 22:48:37 1996//
+/master.c/2.0/Tue Aug 20 22:48:38 1996//
+/misc.c/2.0/Tue Aug 20 22:48:38 1996//
+/options.c/2.0/Tue Aug 20 22:48:39 1996//
+/site_index.c/2.0/Tue Aug 20 22:48:40 1996//
+/stubs.c/2.0/Tue Aug 20 22:48:41 1996//
+/timelocal.c/2.0/Tue Aug 20 22:48:41 1996//
+/times.c/2.0/Tue Aug 20 22:48:42 1996//
+/version.c/2.0/Tue Aug 20 22:48:43 1996//
+D/AIX-2////
+D/SunOS-4.1.4////
+D/SunOS-5.4////

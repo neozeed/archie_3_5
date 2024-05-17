@@ -1,0 +1,47 @@
+/Makefile.b4/2.0/Tue Aug 20 22:47:06 1996//
+/Makefile.in.b4/2.0/Tue Aug 20 22:47:07 1996//
+/Makefile.post/2.0/Tue Aug 20 22:47:08 1996//
+/Makefile.pre/2.0/Tue Aug 20 22:47:08 1996//
+/archie_help.c/2.0/Tue Aug 20 22:47:09 1996//
+/brac.c/2.0/Tue Aug 20 22:47:10 1996//
+/ch.c/2.0/Tue Aug 20 22:47:11 1996//
+/charset.c/2.0/Tue Aug 20 22:47:11 1996//
+/cmd.h/2.0/Tue Aug 20 22:47:12 1996//
+/cmdbuf.c/2.0/Tue Aug 20 22:47:13 1996//
+/command.c/2.0/Tue Aug 20 22:47:13 1996//
+/decode.c/2.0/Tue Aug 20 22:47:14 1996//
+/defines.h/2.0/Tue Aug 20 22:47:15 1996//
+/edit.c/2.0/Tue Aug 20 22:47:16 1996//
+/filename.c/2.0/Tue Aug 20 22:47:16 1996//
+/forwback.c/2.0/Tue Aug 20 22:47:17 1996//
+/funcs.h/2.0/Tue Aug 20 22:47:18 1996//
+/help.c/2.0/Tue Aug 20 22:47:18 1996//
+/ifile.c/2.0/Tue Aug 20 22:47:19 1996//
+/input.c/2.0/Tue Aug 20 22:47:20 1996//
+/jump.c/2.0/Tue Aug 20 22:47:21 1996//
+/less.h/2.0/Tue Aug 20 22:47:21 1996//
+/lesskey.c/2.0/Tue Aug 20 22:47:22 1996//
+/line.c/2.0/Tue Aug 20 22:47:23 1996//
+/linenum.c/2.0/Tue Aug 20 22:47:24 1996//
+/lsystem.c/2.0/Tue Aug 20 22:47:25 1996//
+/main.c/2.0/Tue Aug 20 22:47:25 1996//
+/mark.c/2.0/Tue Aug 20 22:47:26 1996//
+/optfunc.c/2.0/Tue Aug 20 22:47:27 1996//
+/option.c/2.0/Tue Aug 20 22:47:28 1996//
+/option.h/2.0/Tue Aug 20 22:47:28 1996//
+/opttbl.c/2.0/Tue Aug 20 22:47:29 1996//
+/os.c/2.0/Tue Aug 20 22:47:30 1996//
+/output.c/2.0/Tue Aug 20 22:47:30 1996//
+/position.c/2.0/Tue Aug 20 22:47:31 1996//
+/position.h/2.0/Tue Aug 20 22:47:32 1996//
+/prompt.c/2.0/Tue Aug 20 22:47:33 1996//
+/screen.c/2.0/Tue Aug 20 22:47:33 1996//
+/search.c/2.0/Tue Aug 20 22:47:34 1996//
+/signal.c/2.0/Tue Aug 20 22:47:35 1996//
+/tags.c/2.0/Tue Aug 20 22:47:35 1996//
+/ttyin.c/2.0/Tue Aug 20 22:47:36 1996//
+/vecho.c/2.0/Tue Aug 20 22:47:37 1996//
+/version.c/2.0/Tue Aug 20 22:47:38 1996//
+D/AIX-2////
+D/SunOS-4.1.4////
+D/SunOS-5.4////

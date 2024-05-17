@@ -1,0 +1,71 @@
+#
+# This makefile is for the the libanonftp directory. See the Makefile at the
+# top of the source tree for instructions.
+#
+
+# Basic definitions (May be overriden by command line defines)
+
+ARCHIETOPDIR	= /dorm/archie/archie_3.0
+ARCHIEBINDIR	= ${ARCHIETOPDIR}/bin
+OWNER		= archie
+GROUP		= archie
+
+
+# Tools ( May be overriden by command line defines)
+
+INSTALL	= install
+
+#CC	= gcc
+#BASECFLAGS	= -ansi -g -W -Wall -Wshadow
+
+CC	= cc
+BASECFLAGS	= -g
+
+BASEINCLUDES	= -I../include -I../prospero/include
+MAKE	= make
+AR	= ar
+
+BASEDEFINES= -DCERFNET
+
+# The source files to be built 
+
+LIB_SRC = gindexdb_ops.c\
+	  lang_libgopherindex.c
+
+
+
+# And the objects that they create...
+
+LIB_OBJ = gindexdb_ops.o\
+	  lang_libgopherindex.o
+
+LIB_LIB = libgopherindex.a
+
+# Local definitions
+
+LOCALINCLUDES = -I.
+
+INCLUDES = ${BASEINCLUDES} ${LOCALINCLUDES}
+CFLAGS = ${BASECFLAGS} ${INCLUDES} ${BASEDEFINES}
+
+
+all: ${LIB_LIB}
+
+${LIB_LIB}: ${LIB_OBJ}
+	     ${AR} rc ${LIB_LIB} ${LIB_OBJ}
+	     ranlib ${LIB_LIB}
+
+
+tags: ${LIB_SRC}
+	ctags ${LIB_SRC}
+
+clean:
+	-\rm -f ${LIB_OBJ} ${LIB_LIB} *~ core
+
+install:
+	@echo "This directory produces only libraries, not executables"
+
+depend:
+	makedepend ${INCLUDES} ${LIB_SRC}
+
+# DO NOT DELETE THIS LINE -- make depend depends on it.

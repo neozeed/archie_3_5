@@ -1,0 +1,2447 @@
+% If you somehow got this file without fullpage.sty,  delete
+% ``fullpage'' from the list of style options.  It just pulls out the
+% margins a bit.
+\documentstyle[11pt,twoside,fullpage]{report}
+% New commands
+%-------------
+
+% for meta-symbols
+\newcommand{\meta}[1]{{\bf \mbox{\(<\)#1\(>\)}}}
+% for literal tokens. 
+\newcommand{\lit}[1]{{\tt \mbox{#1}}}
+%for attributes
+\newcommand{\atr}[1]{\mbox{\sc #1}}
+% for identifying text
+\newcommand{\text}[1]{{\em #1}\/}
+
+% Start and end of One or More
+\newcommand{\ooms}{\([\,\)}
+\newcommand{\oome}{\(\,]^+\)}
+% start and end of zero or more
+\newcommand{\zoms}{\([\,\)}
+\newcommand{\zome}{\(\,]^*\)}
+% Start and end of zero or one
+\newcommand{\zoos}{\([\,\)}
+\newcommand{\zooe}{\(\,]\)}
+% start an OR
+\newcommand{\ors}{{\bf (\,}}
+\newcommand{\ore}{{\bf \,) }}
+\newcommand{\metaor}{{\em \,or\, }}
+\newcommand{\hexnum}[1]{\(\mbox{#1}_{16}\)}
+\newcommand{\unix}{{\sc unix}}
+\newcommand{\selectlines}{\zoms\meta{LF} \\ \lit{SELECT} \meta{applies-to}
+	\ors\lit{FIELD} \metaor \lit{INTRINSIC}
+	 \metaor \lit{APPLICATION}\ore \meta{attribute-name} 
+		\meta{attribute-value-type}\ore
+	 \zoms\meta{value-tuple-element}\zome\zome}
+\newenvironment{command}{\begin{verse}\sloppy}{\end{verse}}
+\newcommand{\commandsize}{\large}
+
+%\newtheorem{example}{Example}
+% Uncomment this for almost-double spacing
+%\renewcommand{\baselinestretch}{1.7}
+%\newcommand{\hozline}{\rule{\textwidth}{0.3mm}}
+%\newcommand{\hozline}{\makebox[\textwidth]{\hrulefill}}
+%\newcommand{\bex}{\begin{example} \begin{rm}}
+%\newcommand{\eex}{$\Box$ \end{rm} \end{example}}
+%\newcommand{\cbs}{\chgbarbegin}
+%\newcommand{\cbe}{\chgbarend}
+%\newcommand{\cbs}{}
+%\newcommand{\cbe}{}
+
+%\newcommand{\ptag}{\begin{flushright} {\rm ($P$)} \end{flushright} }
+
+
+\begin{document}
+
+\pagenumbering{arabic}
+\pagestyle{plain}
+
+\renewcommand{\thepage}{\arabic{page}}
+
+
+%\title{The Prospero Protocol, version 5\thanks{
+%	This research was supported in part by the National Science
+%	Foundation (Grant No. CCR-8619663), the Washington Technology Center,
+%	Digital Equipment Corporation, and the Defense Advanced Research
+%	Projects Agency under NASA Cooperative Agreement NCC-2-539}
+%}
+%
+%\author{B. Clifford Neuman\thanks{
+%	To Contact the Authors: \protect\\
+%Electronic Mail: \protect\mbox{\protect\verb"info-prospero@isi.edu"} \\
+%    Telephone: +1 (310) 822-1511 \protect\\
+%    Mail: USC Information Sciences Institute \\
+%    4676 Admiralty Way \\
+%  Marina del Rey, California  90292--6695 U.S.A. }
+% \and Steven Seger Augart
+%\and   Information Sciences Institute \\
+%	University of Southern California
+%}
+%%
+%%
+%\date{
+
+%\maketitle
+\begin{titlepage}
+
+\renewcommand{\thefootnote}{}
+\footnotetext{\hspace*{-21pt}
+Digital copies of the latest revision of this document may be obtained
+through Prospero as
+\mbox{\verb"/papers/subjects/operating-systems/prospero/doc/protocol.PS.Z"},
+in the \mbox{\tt \#/INET/EDU/ISI/swa} virtual system, or through
+Anonymous FTP from \mbox{\tt PROSPERO.ISI.EDU} as
+\mbox{\verb"/pub/prospero/doc/prospero-protocol.PS.Z"}
+}
+\footnotetext{\hspace*{-21pt}
+This work was supported in part by the National Science
+Foundation (Grant No. CCR-8619663), the Washington Technology Center,
+Digital Equipment Corporation, and the Defense Advance Research
+Projects Agency under NASA Cooperative Agreement NCC-2-539.
+The views and conclusions contained in
+this document are those of the authors and should not be interpreted as
+representing the official policies, either expressed or implied, of
+any of the funding agencies.
+The authors may be reached
+at USC/ISI, 4676 Admiralty Way, Marina del Rey, California\ \ 90292-6695, USA.
+Telephone +1 (310) 822-1511, email \mbox{\verb"info-prospero@isi.edu"}.  }
+\renewcommand{\thefootnote}{\arabic{footnote}}
+
+
+\vspace*{\fill}
+\begin{center}
+\LARGE The Prospero Protocol\\
+\Large Version 5\\
+\vskip 1.5em
+{\large Draft of 12 June 1993} \\
+{\large Document Revision No. 0.3} \\
+\end{center}
+\vspace{.5in}
+
+\Large \hspace*{\fill} B. Clifford Neuman
+%\footnotetext{\hspace*{-18pt}
+%	To Contact the Authors: \\
+%	Electronic Mail: \mbox{\verb"info-prospero@isi.edu"} \\
+%    Telephone: +1 (310) 822-1511 \\
+%    Mail: USC Information Sciences Institute, 4676 Admiralty Way,
+%  Marina del Rey, California  90292--6695\ \ U.S.A.
+%}
+\hfill Steven Seger Augart \hspace*{\fill} \\
+\vspace{.2in}
+\begin{center}
+\Large Information Sciences Institute \\
+University of Southern California
+\end{center}
+\vspace*{1.2in}
+\vspace*{\fill}
+\end{titlepage}
+
+\tableofcontents
+
+\chapter{Introduction}
+
+This document describes version 5 of the Prospero protocol.
+Communication with directory servers uses a reliable delivery protocol
+described in Appendix~\ref{ardp}.
+Requests and responses are human readable commands and multiple
+commands may be sent in a single message.
+
+Prospero is implemented on top of a message-based protocol to reduce the
+overhead that would otherwise be incurred when establishing
+connections to multiple directory servers.  The decision to use a
+message protocol directly, instead of through a higher level
+mechanism such as remote procedure call, was made for reasons of
+portability.  We did not want Prospero to depend on another protocol,
+software package, or other resource, unless that resource was almost
+universally supported by every computer on the Internet.
+
+The use of humanly readable commands in the protocol has several
+advantages. It eliminates problems with byte ordering, and it makes
+future changes or additions to the protocol easier to incorporate
+while maintaining compatibility across versions; new commands or
+additional options to existing commands can be easily added.
+
+The ability to request multiple operations in a single message
+improves performance, and it provides a simple way to request that a
+collection of operations (on a single server) be performed atomically.
+
+The concept of an ``attribute'' appears frequently in the following
+command description.  For a discussion of attributes, read
+appendix~\ref{db} of this document.
+
+\section{Additional Documents}
+
+The Prospero documentation series will include the following:
+\begin{description}
+
+\item[Prospero Protocol Specification]  You're reading it.  Right now,
+this is the most current document we have, but it will eventually be
+re-targeted towards a more specialized audience when the other guides
+in the series are written and revised.
+
+\item[Prospero System User's Guide]  This will describe the general
+features of the Prospero system that will be common to almost all user
+interfaces, such as ACL types and filters.
+
+\item[Prospero Command-Line Client User's Guide] Describes the
+command-line client package; this is the client that's been shipped
+with all Prospero releases.
+
+\item[Prospero Gopher Client User's Guide]  This describes the
+Gopher menu-based client package, which is in progress.
+
+%\item[Prospero World-Wide Web Client User's Guide]  This describes the
+%World-Wide Web hypertext client package, which hasn't yet been written
+%but is going to be done Real Soon Now.
+
+\item[Prospero Programmer's Manual] This describes the \lit{pfs}
+and \lit{pcompat} libraries, which Prospero applications programmers
+use to interface with Prospero.
+
+\end{description}
+
+\chapter{Command Introduction}
+
+\section{Spaces, quoting, and line-feeds}
+
+Prospero messages are divided into lines.  Lines are divided into
+tokens.  Commands and lines sent in response are separated by an
+unquoted {\sc ASCII} \meta{LF} character.
+
+Within a line, tokens are separated by unquoted horizontal whitespace
+(one or more {\sc ASCII} spaces and/or tabs).  Client and server
+implementations are not required to accept lines which begin or end
+with horizontal whitespace, but are encouraged to do so.  Similarly,
+implementations are encouraged to accept \meta{CR} or
+\meta{CR}\meta{LF} as alternative acceptable line terminators, but are
+not required to do so. 
+
+% ``Be conservative in what you send, generous
+%in what you accept.'' (J. Postel)
+
+Special characters within a command token, or null tokens, can be
+quoted using single quotes (\lit{'}). 
+While inside quotes, a quote can be included by doubling it.  The only
+character that cannot be quoted is the ASCII null character
+(character code zero; \verb"'\0'" for C programmers).  This is really
+a limitation of the server implementation, which passes Prospero
+packets, commands, and tokens around internally as null-terminated
+C strings.\footnote{If you wish to send binary data around, we
+recommend that you
+encode it into a null-less form using the \lit{pfs} library's
+\lit{binencode()} and \lit{bindecode()} routines.}
+
+Any token may be quoted (although most will not need quoting), except
+for literal command tokens (\lit{VERSION}, \lit{ID}, etc.).
+Also, the \meta{multi-component} token uses the quoting system in a
+special way --- see the \lit{LIST} command for details.
+
+\section{Options}
+
+Many Prospero Protocol commands take options.  If multiple options are
+to be specified for a single command, the options are separated by a
+``\lit{+}''.  If no options are specified, then the null string should be
+sent to indicate this.  The null string will need to be quoted, like
+so: \lit{'{}'}
+
+\section{Metasyntax}
+
+In this document, we will use some meta-syntactic features to describe
+commands.  Literal tokens (such as \lit{LITERAL-TOKEN}) appear in a
+typewriter font.  Non-terminals look like this: \meta{non-terminal}.
+The line-feed, carriage-return, and space characters are represented
+as \meta{LF}, \meta{CR}, and \meta{SPC}, respectively.  Alternation
+(choice among two or more possibilities) looks like:
+\ors\meta{option1} \metaor \meta{option2} \ore
+
+  We also use
+the following meta-syntactic constructs:
+
+%\begin{table}[htb]
+\begin{center}
+\begin{tabular}{|c|c|l|}  \hline 
+\multicolumn{3}{|c|}{Metasyntax used to describe commands} \\ \hline
+Start   & End   	& \multicolumn{1}{c|}{Meaning} \\ \hline
+[       & ]		& One or zero repetitions. \\ \hline
+[       & \(]^*\)	& Zero or more repetitions. \\ \hline
+[       & \(]^+\)	& One repetition or more. \\ \hline
+\end{tabular}
+\end{center}
+%\end{table}
+
+
+\section{Objects}
+
+A Prospero object is anything to which a normal link (\meta{link-type} =
+\lit{L}) can be made, except for \lit{EXTERNAL} objects.  
+
+\subsection{Base Type\label{base type}}
+
+Every Prospero object has one or more base types associated with it.  
+All Prospero objects have a base type of OBJECT.  This means that they
+can have attributes attached to them.  In addition, objects with a base
+type of FILE can store data, and objects with a base type of DIRECTORY
+can store directory information. 
+
+\begin{sloppypar}
+The base type of a Prospero object is accessible
+through the \atr{base-type} intrinsic attribute.  The primitive
+value for \atr{base-type} is \lit{OBJECT}.  If an object's
+\atr{base-type} attribute has a value of %\linebreak[3]
+\lit{OBJECT+FILE+DIRECTORY}, 
+then the object can have attributes attached to it, can contain data,
+and can contain links.  As a shorthand, since all objects have
+\lit{OBJECT} as one of their base types, an object with more than one
+base type can have the \lit{OBJECT} implied, so that the \atr{base-type}
+value \lit{OBJECT+FILE+DIRECTORY} is equivalent to the value
+\lit{FILE+DIRECTORY} and the value \lit{FILE} is equivalent to the 
+value \lit{FILE+OBJECT}.  The order of values in the \atr{base-type}
+attribute is unimportant, so \lit{DIRECTORY+FILE} is equivalent to
+\lit{FILE+DIRECTORY}.
+\end{sloppypar}
+
+In the rest of this document, when
+we say ``directory,'', we mean ``an object which has
+\lit{DIRECTORY} as part of its \atr{base-type}.''  When we say ``file,''
+we mean ``an object which has \lit{FILE} as part of its \atr{base-type}.''
+
+One may use \lit{EDIT-OBJECT-INFO} to edit the \atr{base-type}
+attribute to remove the \lit{FILE} type from it only if the file is
+empty (zero length), and one may remove the \lit{DIRECTORY} type from
+it only if the directory is empty (contains no links).  To add a type
+to the \atr{base-type}, one must use the \lit{ADD} option to
+\lit{CREATE-OBJECT}.  
+
+\subsection{Host-Specific Object Names ({\sc hsoname}s)}
+
+Every Prospero object has an
+\meta{hsoname}.  {\sc hsoname}s are not guaranteed to be unique across time; if
+an object is deleted, 
+a new
+object may be created that re-uses the old object's handle.  However,
+at any particular moment, two Prospero objects on the same server are
+guaranteed to have unique hsonames, unless they are different versions
+of the same object (i.e., unless their \atr{version-number} fields are
+different.)
+
+Two objects on different servers might have identical
+hsonames.  
+In the current server implementation, the \meta{hsoname-type} is always 
+\lit{ASCII} and the \meta{hsoname} is almost always a full
+(i.e., starting with a slash (\lit{/})) \unix\ 
+filesystem pathname.  See appendix~\ref{conventions} for more
+discussion of this.
+The \meta{hsoname-type} token exists because some special
+filesystems may have non-\lit{ASCII} \meta{hsoname}s.
+
+\subsection{Versions\label{object version numbers}}
+
+We intend to allow versioned objects.  All objects, including
+directories,  have a
+\atr{version-number} field.  In the current server
+implementation, the \atr{version-number} field is always zero, which means
+``unversioned''.  It need not be in future server implementations.  
+
+In commands and responses, providing a zero value for the
+\meta{object-version} token means to retrieve the current version of
+the object.  Specifying explicit values means that a particular
+version of the object is required.  Explicit object version numbers
+(when they are established) will always be positive integers.
+
+\subsection{Object \lit{ID} fields}
+
+The \lit{ID} field is a unique (or nearly unique)
+identifier for an object.  If the underlying object changes (such as
+by editing), then some types of \lit{ID}s will change and
+others will not.  If two
+objects have the same \lit{ID}, then they are considered by Prospero
+to be the same object.  This is useful for distinguishing between two
+cases: (a) two 
+links which happen to have the same \meta{name-component} but
+different storage locations (a different host and handle pair), and which
+do not actually represent the same object, and (b) two links which have the
+same \meta{name-component} and same \lit{ID}, but possibly different storage
+locations --- in case (b), the  objects are replicas and the client
+should access whichever one it 
+chooses to.  (Code is currently under development to enable
+servers to return a list of replicas in order of nearness to
+the client.)  Two links with the same \meta{name-component} and no
+\lit{ID} specification are considered by Prospero to be different
+objects, not replicas of one another.
+
+A problem with the \lit{ID} field is that there is not an accepted
+standard for universal document identifiers.  An IETF working group has
+been formed to consider such identifiers, and the \lit{ID}
+field exists in anticipation of their eventual agreement upon a standard.
+We expect that there will be more than one type of universal document
+identifier; therefore, there will be more than one \meta{id-type}.
+Prospero supports objects with several possible \lit{ID}s.%
+\footnote{This will go into the user's manual when we revise it.  The
+  user-level names for two links distinguished only by their \lit{ID}
+  fields are: 
+  \begin{command}
+	\ors\meta{name-component}\lit{\#}\lit{\#}\(\mbox{\meta{id-type}}_1\)\lit{\#}\(\mbox{\meta{id-value-token}}_{1,1}\)\lit{\#}\(\mbox{\meta{id-value-token}}_{1,2}\)\ldots % permit a line break here
+	\lit{\#}\lit{\#}\(\mbox{\meta{id-type}}_2\)\lit{\#}\(\mbox{\meta{id-value-token}}_{2,1}\)\lit{\#}\(\mbox{\meta{id-value-token}}_{2,2}\)\ldots \\
+  \metaor \meta{name-component}\lit{\#}\(\mbox{\meta{id-value-token}}_1\)\lit{\#}\meta{id-value-token$_2$}\ldots \ore
+  \end{command}
+
+The second form matches any \meta{id-type}.  The first form is used to
+explicitly specify one or more \meta{id-type}s.
+
+}
+
+For now, there are only two \meta{id-type}s defined.  The \lit{REMOTE}
+\meta{id-type} is used by the server when it has magic
+knowledge (perhaps through a local database) that
+two objects are the same.  The  \lit{REMOTE} id type is a single
+element which is the printed decimal representation of a positive
+integer.  This positive integer should be able to be stored in a 32
+bit integer.  A \lit{REMOTE} id value of 0 means ``unspecified''.
+The \lit{REMOTE} 
+\meta{id-type} cannot be sent across the network by clients in
+queries.%
+\footnote{The \meta{id-value} of the \lit{REMOTE} type
+is the same as the \meta{magic-no} token specified in version 1 of the
+Prospero protocol.}  It is not guaranteed to be consistent across different 
+queries to the server, but server implementors are encouraged to make
+the \meta{id-value} token consistent across queries. 
+
+Many clients will locally generate \lit{ID} fields to
+help the human user differentiate between conflicting links.  These
+\lit{ID} fields will have an \meta{id-type} of \lit{LOCAL} and an
+arbitrarily generated string as their \meta{id-value}.  They may not be
+sent over the network, and are not guaranteed to be unique from
+directory read to directory read, although implementors are encouraged
+to make them so.  All available \lit{ID} fields will be returned with
+every \lit{LIST} operation.  
+
+\chapter{Commands Reference}
+
+All Prospero commands are listed below.
+
+\section{VERSION}
+
+\begin{command}
+ \commandsize \lit{VERSION} \meta{version-number} 
+	\zoos\meta{software-identifier}\zooe
+\end{command}
+
+This command requests or specifies the protocol version number.  If
+the specified protocol version number is not supported, the response
+will be:
+
+\begin{command}
+ \lit{VERSION-NOT-SUPPORTED TRY} \meta{min-version-number}\lit{-}\meta{max-version-number}
+\end{command}
+or
+\begin{command}
+  \lit{VERSION-NOT-SUPPORTED TRY} \meta{version-number}
+\end{command}
+
+
+
+Where \meta{version-number} or
+\meta{min-version-number}\lit{-}\meta{max-version-number} are those
+versions that are supported.   
+If no arguments are supplied (or if the argument is not a 
+number), then the \lit{VERSION} command will return the current
+protocol version number being used by the server in the form:
+
+\begin{command}
+  \lit{VERSION} \meta{version-number} \zoos\meta{software-identifier}\zooe 
+\end{command}
+
+If the \meta{software-identifier} is specified, it identifies
+the software and version of the software that is generating the
+message.\footnote{Software developers wishing to obtain software
+identifiers should send electronic mail to {\tt pfs-administrator@isi.edu}.}
+
+\section{AUTHENTICATE}
+
+\begin{command}
+  \commandsize \lit{AUTHENTICATE} \meta{options} \meta{authenticator-type}
+	\meta{authentication-data} \zoms\meta{principal-name}\zome
+\end{command}
+
+This command authenticates the principal making the request.  The
+\meta{authenticator-type} is the type of the authenticator.  It might
+be a password, a Kerberos 
+authenticator, or data used by an alternative authentication
+mechanism.  The currently supported values for
+\meta{authenticator-type} are \lit{UNAUTHENTICATED}, \lit{KERBEROS},
+and \lit{HANDLE}.
+
+If the \meta{authenticator-type} is \lit{UNAUTHENTICATED}, this is
+honored by the \lit{ASRTHOST} ACL type.  It is also honored by the \lit{TRSTHOST} ACL
+type if the client is
+using a privileged port.  If the \meta{authenticator-type} is 
+\lit{UNAUTHENTICATED}, then the \meta{authentication-data} should be
+the username of the user running the client.  This username is be the
+principal referred to by the ACL.  
+
+If the \meta{authenticator-type} is \lit{KERBEROS}, then the
+\meta{authentication-data} is a Kerberos authentication message
+authenticating the 
+principal to the Prospero server.  The ACL principal will be the same as the
+Kerberos principal.  The ACL type will be \lit{AUTHENT} \lit{KERBEROS}.
+
+If the \meta{authenticator-type} is \lit{HANDLE}, then the
+\meta{authentication-data} is a handle returned in response to a
+previous \lit{AUTHENTICATE} command.  
+
+The optional \meta{principal-name}s are informational only for some
+authentication types, and exist only for human convenience.  The
+server will extract the principal names from the
+\meta{authentication-data}, but the names might be encrypted in the
+\meta{authentication-data} or otherwise represented in a way that
+humans cannot easily decipher them.  (For instance, this is the case
+with Kerberos version 5.)  In the case of the \lit{P\_PASSWORD}
+authentication type, the \meta{principal-name}s are not optional.
+
+More than one \lit{AUTHENTICATE} command may be sent in a single
+message.  This can be used both to authenticate oneself as multiple
+simultaneous principals and to authenticate oneself using several methods.
+
+The response may take one of several forms.  If the authentication
+fails, then the response is:
+\begin{command}
+\lit{FAILURE} \lit{AUTHENTICATION-DATA} \zoos\text{explanatory text}\zooe
+\end{command}
+One might get this response if an authentication handle has expired.
+
+If it is computationally expensive for the server to validate the
+authentication data, it may want to cache the fact that the data has
+been validated, and return a handle that the client may use in future
+requests to the server:
+\begin{command}
+\lit{AUTHENTICATED} \zoos\meta{authentication-handle} 
+ \zoos\meta{handle-expiration-time}\zooe \zooe
+\end{command}
+The \meta{handle-expiration-time}, if provided, is in ASN-TIME format.
+
+The response may be another \lit {AUTHENTICATE} command if the server
+needs to authenticate itself to the client.\footnote{XXX: Not
+currently implemented.}  The response may simply be:
+\begin{command}
+        \lit{AUTHENTICATED}
+\end{command}
+to indicate that the authentication succeeded.  If other commands are
+included in the same packet as the \lit{AUTHENTICATE} request (this
+will almost always be the case), then successful execution of theose
+other commands implies that the authentication succeeded; in this case,
+the server is not required to include the \lit{AUTHENTICATED} response.
+
+Currently, no options are defined, so the \meta{options} token is
+always the null string.
+
+\section{DIRECTORY}
+
+\begin{command}
+  \commandsize \lit{DIRECTORY} \meta{hsoname-type} \meta{hsoname}
+	\zoos\meta{object-version}\zooe \selectlines
+\end{command}
+
+
+This command specifies the directory to be read or modified by the
+commands that follow as part of the same request.  This command
+does not generate a response unless the selected directory is not a
+directory.  In that case, the response:
+\begin{command}
+  \lit{FAILURE NOT-A-DIRECTORY}
+\end{command}
+is returned, and the remainder of the request ignored.
+
+\section{ATOMIC}
+
+\begin{command}
+  \commandsize \lit{ATOMIC}
+\end{command}
+
+This command specifies that all commands that follow are to be
+completed atomically.  If one of the commands fails, then none of the
+commands are to have an effect.  This may require undoing the effects
+of commands which have already completed.  Note that this command works
+only for requests issued in the same message, and all commands must
+be executable on the single server to which the message was sent.
+
+This command is not currently implemented.
+
+\section{LIST}
+
+\begin{command}
+  \commandsize \lit{LIST} \meta{options} \lit{COMPONENTS}
+	\zoms\meta{name-component}\zome\selectlines\meta{LF}\\
+	\lit{FILTER} ... 
+\end{command}
+
+\lit{LIST} is used to look up information stored in a directory.  It
+must be preceded by a \lit{DIRECTORY} command in the same request.  Each
+optional \meta{name-component} is a component of a
+multiple-component name relative to the directory specified in the
+\lit{DIRECTORY} command.  The last component may include wildcards.  If no
+\meta{name-component} is specified, the wildcard ``*'' is implied
+(i.e., all listable components in the directory will be listed).\footnote{
+The protocol is currently in transition.  The old format was as
+follows:
+Multiple component names are allowed, and are specified as a single
+token following the \meta{name-component}.  The multiple components within
+a single name are separated by the unquoted slash (\lit{/}).  Servers
+and clients for now are accepting both versions of the protocol
+message, which means that the 1st component of a multiple-component
+name must be quoted if it contains a slash.}
+  If the result of
+the lookup of one component is another directory at the same storage
+site, then the directory server will repeat the process and look up
+the next component.  When a lookup results in a dead-end, or a
+directory at another site, the server will return an \lit{UNRESOLVED}
+message, indicating which components remain to be resolved by the client.
+
+If a space, tab, slash, or \meta{LF} is to be included in a component
+of a single-component or multi-component name, the component must be
+quoted.  Quoting a slash in a single-component or multi-component name
+means that the slash is not considered to separate components of a
+multi-component name, but rather to be a part of a single component.
+This somewhat awkward syntax allows us to have single components
+which contain slashes or horizontal whitespace or \meta{LF}s.
+
+\subsection{Wildcards}
+
+The \meta{name} tokens in the \lit{LIST} command are the
+only places in the Prospero protocol where components may be specified
+with wildcards.    There are two wildcard characters supported:
+\begin{description}
+\item[\lit{*}] Match zero or more characters.   
+\item[\lit{?}] Match exactly one character.  
+\end{description}
+Wildcards may only be used to expand at a single-component level; by
+this, we mean that the wildcarded \meta{name}
+\lit{foo?bar} would match the single-component name whose name in
+the current directory was \lit{foo-bar},
+but would not match the object whose multiple-component name in the
+current directory was \verb"foo/bar".
+
+One may also wildcard a name by giving a full regular expression.  To
+do this, the regular expression should be enclosed within parentheses.
+For instance, specifying (Anne.*) is equivalent to specifying the
+wildcarded name 'Anne*'.  
+
+In addition to any wildcards specified, a literal match for the
+wildcard will also happen.
+
+\subsection{Options}
+
+\meta{options} contains a (possibly empty) list of options to the
+\lit{LIST} command.  If no options are specified, an empty
+list of options should be sent as
+a null token (\lit{'{}'}.)
+
+\subsubsection{Miscellaneous Options}
+
+Among the options supported are \lit{EXPAND} which tells the remote directory
+server to expand any union entries in the directory.  By default, the
+response will contain the names of union links to be included, and the
+client must submit a new query.  A directory server can ignore the
+\lit{EXPAND} option to the list command if it so desires.  The \lit{LEXPAND}
+option is the same as \lit{EXPAND}, but indicates that the server should
+only expand union entries for local directories.  The \lit{LEXPAND} option
+is implied if a multiple component name is being resolved.
+
+The \lit{VERIFY} option tells the remote server that the purpose of the
+query is to verify whether the remote directory exists and is a
+directory.  No components are to be returned; instead, the message
+returned on success is \lit{NONE-FOUND}.
+
+\subsubsection{\protect\lit{ATTRIBUTES} option}
+
+The \lit{ATTRIBUTES} option indicates that the attributes associated with
+the link are to be returned.  (If the object is on the same host as
+the directory, then the server may ignore CACHED attributes and return
+OBJECT attributes instead.
+
+  \lit{ATTRIBUTES} is optionally immediately
+followed by an argument list, which is a parenthesized \mbox{\lit{+}-se}para\-ted
+list of attributes to be 
+returned.  If the \lit{ATTRIBUTES} option is specified without any
+attributes requested, then it is just the same as if one had specified
+\lit{ATTRIBUTES(\#INTERESTING)}.  Note that union links do not
+normally have any interesting attributes attached to them, except
+for \lit{FILTER}.
+
+\lit{ATTRIBUTES(ID+FILTER)} is always implied.  For \lit{EXTERNAL}
+links, \lit{ATTRIBUTES(ACCESS-METHOD)} is always implied.\footnote{
+	This restriction seems odd, but it makes certain details of
+programming the client libraries much easier.} 
+
+There are some special arguments to the
+\lit{ATTRIBUTES} option.  It is not a good idea for application-defined
+attributes to have names that conflict with these special arguments; if
+there are such application-defined attributes, you may have to use the
+\lit{\#ALL} special argument to look at their values.  More than one
+special argument may be specified, and one may mix special and
+non-special arguments.  Also, note that it is never erroneous
+for a server to return more attributes
+than were asked for, nor is it erroneous for a server to return
+attribute information even if no \lit{ATTRIBUTES} option was specified
+to the \lit{LIST} command.  A server that always behaved as if the
+\lit{ATTRIBUTES(\#ALL)} option were specified would be behaving
+legally, although it would not be terribly efficient. 
+
+\begin{description}
+  \item[\lit{\#INTERESTING}] Return only interesting attributes.  What
+	constitutes an ``interesting'' attribute is server-dependent.
+	This allows one to use Prospero for special applications.
+  \item[\lit{\#ALL}] If this argument is specified, and the object resides
+on the same host as 
+the link, then the attributes stored with the object referenced by the
+link will be returned in addition to those stored with the link, and
+no cached attributes will be returned (they would be irrelevant).  If
+the object resides on a host different from the link, then all
+attributes stored with the link are returned, but not those stored
+with the object referenced by the link.
+   \item[\lit{\#CACHED}] Return all attributes of type \lit{CACHED}.
+If you specify \lit{\#CACHED} with \lit{\#ALL}, the server will return cached
+attributes in addition to those that would be returned if you'd just
+specified \lit{\#ALL}.  It is not clear how useful this behavior is.
+   \item[\lit{\#OBJECT}] Return all attributes of type \lit{OBJECT}.  Note that
+this will not work if the object does not reside on the same host as
+the link.
+   \item[\lit{\#ADDITIONAL}] Return all \lit{ADDITIONAL} attributes
+   \item[\lit{\#REPLACEMENT}] Return all \lit{REPLACEMENT} attributes.
+   \item[\lit{\#LINK}] Return all \lit{LINK} attributes.
+   \item[\lit{\#FIELD}] Return all fields (all system-defined standard
+attributes), except for ones that have already been returned as part of
+the \lit{LINK} response, such as \atr{host}, \atr{handle}, and
+\atr{dest-exp}.
+   \item[\lit{\#\#FIELD}] Return all fields.  (This option will be
+rarely used.)
+   \item[\lit{\#APPLICATION}] Return all application-defined
+attributes.
+\end{description}
+
+\subsubsection{\protect\lit{FILTER} option}
+
+If the \lit{FILTER} option is specified, the \lit{LIST} command will
+be followed by one or more lines representing one or more
+\lit{PREDEFINED} filters to
+be applied at the server.
+
+The filters are applied in the order in which they follow the
+\lit{LIST} command.  Their format is just like that of 
+\lit{FILTER} information returned from the \lit{LIST} command (see
+subsection~\ref{filter}), except that the \meta{execution-location} field must always
+be \lit{SERVER}, and the first four tokens (``\lit{ATTRIBUTE LINK
+FIELD FILTER}'') are omitted.  The format is:
+\begin{command}
+  \lit{FILTER} \meta{filter-type} \lit{SERVER} \meta{pre-or-post}
+\lit{PREDEFINED} \meta{filter-name} \\
+	         \zoos \lit{ARGS} \zoms\meta{filter-arg}\zome \zooe
+\end{command}
+The server will know that there are no more filter-specifying lines
+either when the end of the message is reached or it encounters a line
+that does not begin with the token \lit{FILTER}.
+
+\subsection{Returned Information}
+
+On failure, a standard error response will be returned.  On success,
+the response will be a sequence of entries containing information
+about the requested files.
+
+\subsubsection{Links}
+
+\begin{command}
+  \lit{LINK} \meta{link-type} \meta{target} \meta{name-component} \meta{host-type} \meta{host-name} 
+	\meta{hsoname-type} \meta{hsoname} \meta{object-version}
+	 [ \lit{DEST-EXP} \meta{dest-expiration} ]
+\end{command}
+
+In the case of links to objects, \meta{dest-expiration} is the value
+of the object's \atr{dest-exp} field.  
+
+The \meta{link-type}
+token is defined as follows:
+\begin{description}
+\item[\lit{L}] Normal link (Symbolic link, link to a Prospero object,
+or link to an external object)
+\item[\lit{U}] Union link to a directory
+\end{description}
+
+The \meta{target} token is defined as follows: \label{target-token}(Also see
+the discussion of this in section~\ref{target-attribute}.
+A link may be a link to an object.  In this case, the value of the
+\meta{target} token will be the same as the value of the
+object's \atr{base-type} attribute\footnote{For an explanation, see
+section~\ref{base type}.}
+(that is, \lit{OBJECT}, \lit{FILE},
+\lit{DIRECTORY}, or \lit{DIRECTORY+FILE}.)  Other values for
+\meta{target} are:
+\begin{description}
+\item[\lit{SYMBOLIC}] Symbolic link.  The \meta{host-type} token will be
+  \lit{VIRTUAL-SYSTEM}, the \meta{host-name} token will be the name of
+ the virtual system being linked to (specified as a path within the
+ current virtual system --- we usually use the conventional ugly-name of
+ the virtual system), the \meta{hsoname-type} will be \lit{ASCII},
+ and the \meta{hsoname} will be 
+ the full pathname of the object being linked to within the virtual
+ system.
+
+\item[\lit{EXTERNAL}] This is a link to an object which is not stored on a
+host running Prospero.   Unlike other types of links, \lit{EXTERNAL}
+links have an \atr{access-method}%
+\footnote{See
+ section~\ref{access-method} for a description of the
+ \atr{access-method} field.} 
+attribute which is returned as a cached attribute.
+This is because \lit{EXTERNAL} links
+cannot have any object attributes.  Therefore, if one wishes to add
+attributes to an \lit{EXTERNAL} link that would normally be object
+attributes, one must specify them as \lit{CACHED}, \lit{ADDITIONAL}, or
+\lit{REPLACEMENT} attributes.
+\end{description}
+
+
+If the principal requesting the listing has no read access to a link,
+all fields in the link except for \meta{name-component} will be
+returned with the token \lit{NULL}, which is not otherwise valid in a
+returned link.
+
+\subsubsection{Link Attributes\label{Link Attributes}}
+
+If attributes were requested, the link will be followed by lines that
+specify the values of the requested attributes.  The form of the
+response will depend on whether the attribute is associated with the
+link, or with the actual object.  If the attribute is associated with
+the link, the \meta{applies-to} token indicates whether it applies to the
+\lit{LINK} or the object, and if the object whether it is a \lit{CACHED}
+attribute, a \lit{REPLACEMENT} attribute, or an \lit{ADDITIONAL} attribute.  In
+case of conflicts between attributes associated with the link and
+those associated with the object, a cached attribute is superseded, a
+replacement attribute takes precedence, and an additional attributes
+leaves both intact.  
+
+Attributes may sometimes be returned even if they were not explicitly
+requested.  As a case of this, the \atr{ACCESS-METHOD} attribute is
+always returned for \lit{EXTERNAL} links.
+
+\begin{command}
+  \ors \lit{ATTRIBUTE} \meta{applies-to} 
+	\lit{FIELD} \meta{attribute-name} 
+	\ooms\meta{value-tuple-element}\oome%
+\\
+\metaor \\
+\lit{ATTRIBUTE} \meta{applies-to} 
+	\ors \lit{APPLICATION} \metaor \lit{INTRINSIC} \ore
+	\meta{attribute-name} \meta{attribute-value-type}
+	\ooms\meta{value-tuple-element}\oome \ore
+\end{command}
+\footnote{{\bf CHANGE IN FORMAT}:  It used to be the case that the
+  line returned for FIELD attributes did not include an
+  \meta{attribute-type} token.  This has been changed.  The older
+   format will continue to work until all Prospero applications before
+Alpha.5.1 are gone.
+}
+
+Attributes may have multiple values, in which case one \lit{ATTRIBUTE}
+line is returned for each value.  In the case of multiple values, the
+order in which attributes is returned may be significant to the
+application.  The Prospero server will maintain the order
+of attributes.  
+
+\meta{attribute-value-type}s are \lit{SEQUENCE},
+\lit{LINK}, and \lit{FILTER}.  \lit{SEQUENCE} is the most general
+\meta{attribute-value-type}.  It is  a sequence of zero or more ASCII
+strings, and all other attribute value types are subtypes of it.
+Since application attributes are, by definition, application-specific,
+we are not constraining the form of a sequence.  However, if an
+application wishes to use application-specific subtypes of
+\lit{SEQUENCE}, we encourage application authors to use the first
+element of the attribute's value as a keyword describing the particular
+subtype of \lit{SEQUENCE}.  
+
+One possible \meta{attribute-value-type} is \lit{LINK}.    The
+\meta{value-tuple-element} tokens returned in this case are the same as
+the \lit{LINK} response to the \lit{LIST} command. 
+In that
+case, the \meta{name-component} token will be ignored, and will usually be
+a zero-length string (\lit{'{}'}).)  The return format would be:
+
+\begin{command}
+\lit{ATTRIBUTE} \meta{applies-to} \lit{APPLICATION} \meta{attribute-name}  
+	\lit{LINK} \ors \lit{L} \metaor \lit{U}\ore \meta{target} \meta{name-component} \meta{host-type} \meta{host-name} 
+	\meta{hsoname-type} \meta{hsoname} \meta{object-version}
+	 \zoos \lit{DEST-EXP} \meta{dest-expiration} \zooe 
+\end{command}
+
+
+If the value of an attribute is a link, the link might itself have
+attributes.  When such sub-attributes are returned, the word
+\lit{ATTRIBUTE} is immediately followed by \lit{>} signs to the
+appropriate nexting level.   If a link attribute has sub-attributes,
+they will all be sent with the link.
+
+All available \lit{ID} fields will always be returned with
+every \lit{LIST} operation, using the \lit{ID} return
+format.\footnote{Please note again that ID fields have not been
+fully implemented, in the absence of an appropriate standard; comments about them in this document are subject to
+change.} 
+
+
+\subsubsection{Filters\label{filter}}
+
+User-defined attributes and the field \atr{filter} may have the
+\meta{attribute-value-type} of \lit{FILTER}.\footnote{
+	XXX: This should go into the attribute documentation
+}  If a link has one or more filters attached to it, they are
+specified as one or more instances of the link's \atr{filter} field.  
+One \lit{ATTRIBUTE} line will always be returned for each
+filter.  The 
+lines are returned in the same order in which the filters will be
+applied to the link.  The return format is:
+
+\begin{command}
+  \lit{ATTRIBUTE}\zoms\lit{>}\zome \lit{LINK FIELD FILTER} \meta{filter-type}
+	\meta{execution-location} \meta{pre-or-post} \\
+\ors\lit{PREDEFINED} \meta{filter-name} \\
+\metaor\ 
+	\lit{LINK} \lit{L} \meta{target} \meta{name-component} \meta{host-type} \meta{host-name} 
+	\meta{hsoname-type} \meta{hsoname} \meta{object-version}
+	 \zoos \lit{DEST-EXP} \meta{dest-expiration} \zooe \ore 
+	\zoms\lit{ID} \meta{id} \meta{info}\zome \\
+         \zoos \lit{ARGS} \zoms\meta{filter-arg}\zome \zooe
+\end{command}
+
+The values for \meta{filter-type} are: \lit{DIRECTORY}, filter is
+applied to the 
+current directory; \lit{HIERARCHY}, filter is applied to all directories
+reachable through the filtered link; \lit{OBJECT} filter is applied to an
+object other than a directory; \lit{UPDATE}, filter is applied when
+updating the directory.
+
+\meta{execution-location} refers to where the filter will be executed.
+Filters are usually executed on the \lit{CLIENT}, but may be executed
+on the \lit{SERVER}.
+
+\meta{pre-or-post} is \lit{PRE} if the filter is to be applied before
+union links are expanded and \lit{POST} if the filter is to be applied
+after union links are expanded.  \lit{POST} is the common case for
+client filters.  Server filters must be \lit{PRE} at this time, since
+the server does not yet perform remote expansion of union links.
+
+Filters may be \lit{PREDEFINED}, which means that it is expected that
+the appropriate client or server will understand the predefined name, or
+they may be \lit{LOADABLE}, which means that they are object 
+code that will be dynamically linked with the client or
+server.\footnote{
+ The security issues with loadable filters have
+ not yet been fully addressed.  Partly because of this,  right now, all
+ implementations except for the VAX implementation will only support
+ \lit{PREDEFINED} filters, and even the VAX implementation is not
+ configured to support loadable filters unless you specially compile it
+ to do so.
+}  
+There may also be server-specific \lit{PREDEFINED} filters
+for special applications (such as Archie).  Their
+\meta{execution-location} will always be \lit{SERVER}.
+
+One may specify zero or more arguments to the filter, following the
+\lit{ARGS} keyword.
+
+\subsubsection{Unresolved Components}
+
+An \lit{UNRESOLVED} response lists the components of the name that must be
+further resolved relative to the immediately preceding \lit{LINK}
+response or responses, and is used when not all components of a
+multiple-component name were resolved. 
+
+\begin{command}
+  \lit{UNRESOLVED} \meta{components}
+\end{command}
+
+The text of the \meta{components} must be a proper suffix of
+multiple-component name sent across as an argument to the \lit{LIST}
+command.  For instance, to the command 
+
+\begin{command}
+\lit{LIST '' COMPONENTS ulink-test2/murali/ROOT}
+\end{command}
+
+the only two legal \lit{UNRESOLVED} responses are 
+\begin{command}
+  \lit{UNRESOLVED} \lit{murali/ROOT}
+  \lit{UNRESOLVED} \lit{ROOT}
+\end{command}
+
+\subsubsection{No files found}
+
+If no files are found, the reply will be:
+
+\begin{command}
+  \lit{NONE-FOUND}
+\end{command}
+
+\section{LIST-ACL}
+
+\begin{command}
+\commandsize
+\lit{LIST-ACL} \meta{options} \zoos\meta{name-component}\zooe\selectlines
+\end{command}
+
+This request is used to list the access control list for the directory
+specified in the previous \lit{DIRECTORY} command, or for a link within the
+directory.  The optional component is required only if requesting the
+\lit{ACL} for a link within the directory (option = \lit{LINK}).  It is to be left
+out when requesting the \lit{ACL} for the directory itself
+(option = \lit{DIRECTORY}).	
+
+The response will be zero or more lines of the form:
+
+\begin{command}
+  \lit{ACL} \meta{entry-type} \zoos\meta{authentication-type} 
+	\zoos\meta{rights} \zoms\meta{principal-name}\zome\zooe\zooe
+\end{command}
+
+If no \lit{ACL} entries are listed, then the response is \lit{SUCCESS}.
+Fields inappropriate to a particular \meta{entry-type} need not be
+sent, but if they are sent, they should be sent as a zero-length
+string.  For instance, the \lit{DEFAULT}, \lit{SYSTEM}, and
+\lit{DIRECTORY} ACL types do not use the \meta{authentication-type},
+\meta{rights}, and \meta{principal-name} fields.
+
+If the ACL's permissions state that it cannot be viewed (\lit{v} or
+\lit{V} permission), then the
+response is  
+\begin{command}
+  \lit{FAILURE} \lit{NOT-AUTHORIZED} \zoos\text{optional multi-token explanatory text.}\zooe
+\end{command}
+
+Possible values for \meta{entry-type} include \lit{NONE} (allows
+access to no principals; in other words, it's a no-op), \lit{ANY}
+(grants access to all 
+principals), \lit{OWNER} (grants access to the principal specified by
+the link or object's \atr{owner} field; i.e., the one who owns the
+link or object),  
+\lit{NAMED}, %(formerly called \lit{LGROUP}),
+\lit{GROUP} (In this case, the \meta{authentication-type} token
+represents the group certification method),
+\lit{DIRECTORY}, \lit{DEFAULT}, \lit{SYSTEM}, \lit{AUTHENT} (means
+that an 
+authentication method is used; the \meta{authentication-type} token
+specifies the 
+authentication method.  The only currently supported value for
+\meta{authentication-type} is \lit{KERBEROS}.),  \lit{ASRTHOST}, and
+\lit{TRSTHOST}.  An example:  
+\begin{command}
+\tt
+ACL ANY '{}' rlvY \\
+ACL ASRTHOST '{}' ALRMDI prospero \\
+ACL AUTHENT KERBEROS ALRMDI swa@ISI.EDU bcn@ISI.EDU \\
+ACL DEFAULT '{}' '{}' \\
+ACL SYSTEM '{}' '{}' \\
+\end{command}
+
+We interpret a null link ACL as the \lit{DIRECTORY} ACL.  
+We interpret a null directory ACL as the \lit{DEFAULT} ACL.
+
+See the Prospero User's Manual for a discussion of the order of
+evaluation of ACLs.
+
+If we want to find out the value of a \lit{NAMED} ACL (named ACLs are
+shorthand for longer lists, and are local to the server) (\lit{XXX} this
+should go into the user's manual), then we use
+the \lit{NAMED} option, and the 
+\meta{name-component} is replaced with the (possibly quoted) name
+of the named ACL.   Note that named ACLs are not currently supported.
+
+If we want to find out the value of an included ACL (Currently, the
+only included ACLs are \lit{SYSTEM}, \lit{DEFAULT}, and \lit{OVERRIDE}.  \lit{DIRECTORY} is
+also an included ACL for the purposes of the protocol, but the value
+of the \lit{DIRECTORY} ACL will change from directory to directory, and
+therefore it is not a server-wide stable name.) \footnote{XXX: this
+information will go into the user's manual when we revise it}, then we use
+the \lit{INCLUDED} option, and the 
+\meta{name-component} is replaced with the name
+of the included ACL.   Note that retrieval of included ACLs is not
+currently supported. 
+
+If we want the ACL for a filesystem object (instead of for a link or
+directory), then we use the \lit{OBJECT} option, and the
+\meta{name-component} is replaced with \meta{hsoname-type}
+\meta{hsoname} \zoos\meta{object-version}\zooe.  Object ACLs are not currently implemented, because
+they wouldn't do anything useful --- we currently do not have an
+access method which understands Prospero ACLs.
+
+Within the Prospero protocol, the quoting mechanism works on principal
+names, and works recursively for distinguishing components of
+principal names.  (This is currently only used by Kerberos, but may also
+be needed by other authentication mechanisms.)
+
+See the Prospero User's manual for a further discussion of ACLs.
+
+\section{GET-OBJECT-INFO}
+
+\begin{command}
+\commandsize
+\lit{GET-OBJECT-INFO} \meta{requested-attributes} 
+\meta{hsoname-type} \meta{hsoname}
+\meta{object-version}\selectlines
+\end{command}
+
+This command requests information about an object.
+\meta{requested-attributes} is a list of those attributes
+that are desired.  Multiple attributes may be separated by ``\lit{+}'' signs
+(with no intervening white space), just as options lists are
+separated.
+
+Special attribute names may be specified, just as they may be for the
+\lit{LIST} command.  The special names are: \lit{\#OBJECT} (synonymous
+with \lit{\#ALL}), \lit{\#FIELD}, \lit{\#INTERESTING}, \lit{\#ALL}, and
+\lit{\#APPLICATION}. 
+
+The response can be multiple lines, each containing a value for an
+attribute.  The response will be the same as for the \lit{ATTRIBUTE}
+option to the \lit{LIST} command.  However, the \meta{applies-to}
+field will always be \lit{OBJECT}
+
+An object that has migrated to another host may have its
+\atr{forwarding-pointer} attribute queried with \lit{GET-OBJECT-INFO},
+but attempts to retrieve any other attributes will return a
+\lit{FORWARDED} message.
+
+If no matching attributes for the object were found, the response is
+\lit{NONE-FOUND}. 
+
+\section{EDIT-OBJECT-INFO}
+
+\begin{command}
+  \commandsize
+  \lit{EDIT-OBJECT-INFO} \meta{modification-request}
+\meta{hsoname-type} \meta{hsoname} 
+\end{command}
+
+This command is used to change the attributes of a Prospero object.
+It is followed by an arbitrary (zero or more) number of
+\lit{ATTRIBUTE} specification lines.  See the
+\lit{LIST} command for a definition of these lines.    The
+\meta{applies-to} will always be \lit{OBJECT}.
+
+In the command, one may request to add a new instance of an attribute, delete
+an instance, delete all instances, or replace all instances.  The
+\meta{modification-request} will be \lit{ADD}, \lit{DELETE},
+\lit{DELETE-ALL}, or \lit{REPLACE}.  If you want to do more than one
+thing to an object in 
+the same request (e.g., if you want to add one attribute instance and
+replace another), and you want to avoid letting the object exist in an
+intermediate and possibly inconsistent state, then you can send two
+\lit{EDIT-OBJECT-INFO} commands in the same message, along with the
+\lit{ATOMIC} command.
+
+If you are deleting all instances of an attribute, then the
+\meta{attribute-value} you specify in your \lit{ATTRIBUTE}
+specification lines will be ignored, and will usually just be the null
+string.  \lit{DELETE-ALL} just checks for matches on the attribute
+name and the attribute namespace (\lit{APPLICATION}, \lit{FIELD}, or
+\lit{INTRINSIC}). 
+
+\lit{DELETE}, on the other hand, checks for an exact match on the
+attribute name, namespace, type, and value.  (The current
+implementation does not check for sub-attributes of a value of type
+link.  
+
+\lit{REPLACE} may
+be specified even if the attribute does not yet have any instances
+specified for it.
+
+One may use \lit{EDIT-OBJECT-INFO} to edit the \atr{base-type}
+attribute to remove the \lit{FILE} type from it only if the file is
+empty (zero length), and one may remove the \lit{DIRECTORY} type from
+it only if the directory is empty (contains no links).
+
+
+\section{CREATE-LINK}
+
+\begin{command}
+  \commandsize
+	\lit{CREATE-LINK} \meta{options} \ors \lit{L} \metaor \lit{U} \ore 
+	\meta{name-component}
+\meta{target} \meta{host-type} \meta{host-name} \meta{hsoname-type}
+\meta{hsoname} \meta{object-version}  
+\zoos\lit{ID} \meta{id-type} \meta{id-value}\zooe
+\end{command}
+
+This command creates a new link in the current directory.   The
+\meta{name-component} may not be null, even if the link is a union link.  
+If filters
+or other information must be added, the \lit{EDIT-LINK-INFO} command should be
+used once the link has been created.
+
+The \meta{options} may include \lit{REPLICA} to add
+a link to a directory that already contains a link with the same
+\meta{name-component}.  \lit{REPLICA}  indicates  that the new link
+and the existing link or links with which it conflicts are replicas.
+Normally, if one attempts to add a link with a conflicting
+\meta{name-component}, the response is: 
+\begin{command}
+\lit{FAILURE ALREADY-EXISTS}
+\end{command}
+if the new link duplicates an existing link (if all of the arguments
+to it are the same as those of an existing link), and
+\begin{command}
+\lit{FAILURE NAME-CONFLICT}
+\end{command}
+if the new link has information which conflicts with an existing link.
+
+If \lit{CONFLICT} is among the options, then conflicting links will be
+inserted into the directory anyway.
+
+For directories whose \atr{directory-ordering} is \lit{UNSORTED},
+one of these three additional options may be specified:
+\begin{description}
+\item[\lit{BEFORE}] The \lit{CREATE-LINK} command is immediately
+followed by a \lit{LINK} line, describing the link before which the
+new link is to be inserted in the directory listing.     
+\item[\lit{AFTER}] Same as above, but the new link is inserted after the
+specified link rather than before it.
+\item[\lit{LAST}]  This is the default.  The new link will be the last
+item in the directory. 
+\end{description}
+
+\section{DELETE-LINK}
+
+\begin{command}
+  \commandsize
+  \lit{DELETE-LINK} \meta{options} \meta{name-component} \selectlines
+\end{command}
+
+This command is used to remove an entry from a directory.  The options
+are currently blank.
+
+If the \lit{SELECT} lines are not specified and there are multiple
+links with the same \meta{name-component}, the first one matching will
+be deleted.
+
+\section{EDIT-LINK-INFO}
+
+\begin{command}
+  \commandsize
+  \lit{EDIT-LINK-INFO}  \meta{modification-request} \meta{name-component}
+	\zoos\lit{ID} \meta{id-type} \meta{id-value}\zooe  
+\end{command}
+
+\begin{sloppypar}
+This command modifies information associated with a link.
+The interpretation of the %\ \linebreak[3]
+\meta{modification-request} and of
+subsequent lines is exactly the same as in the \lit{EDIT-OBJECT-INFO} command.
+\end{sloppypar}
+
+%\vspace{-.1in}
+
+\section{EDIT-ACL}
+
+\begin{command}
+\commandsize
+\lit{EDIT-ACL}
+ \ors \lit{LINK+}\meta{options} \meta{name-component} \\
+	\hspace{.6in} \metaor \lit{OBJECT+}\meta{options}
+	\meta{hsoname-type} \meta{hsoname} \\
+	\hspace{.6in} \metaor \lit{DIRECTORY+}\meta{options}
+\ore	\\
+	\zoos\lit{ID} \meta{id-type} \meta{id-value}\zooe \meta{LF} \\
+  \lit{ACL} \meta{entry-type} \meta{authentication-type} \meta{rights}
+	 \meta{principal}
+\end{command}
+
+This command is used to modify an access control list for a directory,
+for a link within a directory, or for an object.  If modifying the ACL
+for a directory or for a link within a directory, the directory is
+specified in the previous \lit{DIRECTORY} command.
+Another option indicates the operations to be
+performed (one of \lit{ADD}, \lit{SUBTRACT}, \lit{INSERT}, \lit{DELETE}, \lit{SET} or \lit{DEFAULT}), and
+whether to override the automatic inclusion of the system
+ACL (\lit{NOSYSTEM}), or limited administer access for the client
+(\lit{NOSELF}).
+
+The server will return \lit{SUCCESS}, \lit{FAILURE}, or
+\lit{FORWARDED}, as appropriate.
+
+\section{CREATE-OBJECT}
+
+\begin{command}
+  \commandsize \ors\lit{CREATE-OBJECT} \lit{PHYSICAL+}\meta{options} 
+		\zoos\meta{hsoname-type} \meta{hsoname}\zooe \\ 
+	\metaor \lit{CREATE-OBJECT} \lit{ADD+}\meta{options}
+		\zoos\meta{hsoname-type} \meta{hsoname}\zooe \\ 
+	\metaor \lit{CREATE-OBJECT} \lit{VIRTUAL+}\meta{options}
+		\meta{name-component}\ore \meta{LF} \\
+	\zoms\lit{ATTRIBUTE}
+	\meta{attribute-specifying-tokens}\meta{LF}\zome \\
+	\zoms\lit{ACL} \meta{ACL-specifying-tokens}\meta{LF}\zome
+\end{command}
+
+This command will create an object with the specified
+\meta{name-component} and will 
+return the identifier that can be used to open it.   The
+\meta{options} may include any or all of 
+\lit{DIRECTORY}, \lit{FILE}, and \lit{OBJECT}.
+If the \lit{FILE} option is specified, the new file is
+created empty.    If the \lit{DIRECTORY} option is specified, the
+new directory is created empty (i.e., not containing any links.).  
+
+The object will be created with whatever attributes present that are
+specified in the \lit{ATTRIBUTE} lines.
+
+If \meta{options} includes \lit{VIRTUAL}, then
+\meta{name-component} is a name relative to the current directory, and a
+link to the new object is added to the current directory.
+
+If the \lit{ADD} option is specified, then one is adding a base type to
+an already created object.   Exactly one of the \lit{ADD},
+\lit{VIRTUAL}, and \lit{PHYSICAL} options must be specified.
+
+\begin{sloppypar}
+If the \lit{PHYSICAL} option and a  \meta{hsoname-type}
+\meta{hsoname} pair are specified, then the server will attempt to create an object with that
+\meta{hsoname-type} \meta{handle-pair}.  If the \lit{PHYSICAL} option
+without a following pair is
+specified
+then the server will choose a free \meta{hsoname-type}
+\meta{hsoname} pair.
+\end{sloppypar}
+
+Upon success, the server will return:
+\begin{command}
+\lit{CREATED} \meta{hsoname-type} \meta{hsoname}
+\end{command}
+It is up to the application to create a link to the new object.  
+
+\subsection{Specifying Attributes}
+
+The new object's fields will be set to system defaults, but
+specifying a following series of \lit{ATTRIBUTE} descriptions allows
+the creator of a file to override those defaults, and to specify any
+application-defined attributes.  The form for each \lit{ATTRIBUTE} line is
+the same as that returned by the
+\lit{LIST} command.
+
+\subsection{ACLs}
+
+If creating an object with the \lit{VIRTUAL} option, the access
+control list for the new object will initially be a copy of the access control
+list for its containing directory.  If creating an object with the
+\lit{PHYSICAL} option, the access control list for the new object will
+contain the \lit{DEFAULT} ACL and the \lit{SYSTEM} ACL.
+In addition,
+for both options, one or more entries will be automatically added to the ACL
+granting its creator all rights.  The entry authentication type or types
+will be appropriate for whatever the user used to authenticate himself
+or herself.  (Either \lit{AUTHENT} \lit{KERBEROS} or \lit{ASRTHOST} or
+\lit{TRSTHOST}.)
+
+If the \lit{LPRIV} option is
+specified for a directory, instead of this entry, only those rights needed to 
+allow the creator to set up the directory (list, read, insert, and
+administer) will be added, and (if \lit{VIRTUAL} was specified), only
+if the creator does not already have such rights through the ACL that
+was included from the parent directory.\footnote{If you really want to shoot yourself in the foot, you can
+then call \lit{EDIT-ACL} to remove these few rights.  We will let you
+do this, but we are not making it easy for you.} 
+
+If \lit{VIRTUAL} was specified, the ACL for the new link will
+by default be empty, which means that the default rights for the
+directory will apply to the link.
+
+After the ACL entries mentioned above are installed, the ACL
+entries specified as part of the \lit{CREATE-OBJECT} command will
+be added to the front of the list.
+
+\subsection{Some Error Conditions}
+
+If the user attempted to set a
+field whose name the server does not recognize, or to set a
+application-defined attribute to a type that the server does not recognize,
+or to set the value of any attribute with a string that the server
+cannot convert into the data type the server expects (e.g., too few
+tokens when setting an attribute of type \lit{LINK}), or to set an
+unrecognized ACL type,
+the response is:
+\begin{command}
+\lit{ERROR} \text{explanatory text}
+\end{command}
+If the user specified an explicit \meta{hsoname-type} and
+\meta{hsoname} with the \lit{PHYSICAL} option, but they were
+already in use, or if the user specified a component with
+\lit{VIRTUAL}, but the component is already in use, the error message is:
+\begin{command}
+\lit{FAILURE} \lit{NAME-CONFLICT} \zoos\text{explanatory text}\zooe
+\end{command}
+
+
+\subsection{No \protect\lit{DELETE-OBJECT} command}
+
+Although there is a \lit{DELETE-LINK} command, there is {\em no \/}
+\lit{DELETE-OBJECT} command.  That's because Prospero objects will have
+their storage reclaimed when their TTL expires (when no link to them
+is refreshed before their expiration date).  At the moment, this
+storage reclamation feature is not implemented.)  \footnote{XXX: This
+feature must be specified.  In addition, we must specify methods for
+refreshing links, garbage collection, and notification of the
+impending demise of objects.}
+
+\section{UPDATE}
+
+\begin{command}
+  \commandsize
+  \lit{UPDATE} \meta{options} \lit{COMPONENTS} \zoms\meta{name-component}\zome
+\end{command}
+
+This command tells the server to check each of the named components in
+the current directory for forwarding pointers.  If the referenced
+object has moved, the link will be updated.  The server will send
+Prospero protocol messages across the network to the targets of links
+to Prospero objects in order to check whether the target of a link has
+moved.   (External links and symbolic links will not be checked.)  If
+no components were specified, all components in the
+directory will be checked.  Each \meta{name-component} may contain
+wild cards.
+
+On success, the \lit{UPDATE} command returns the
+number of links that were modified.
+
+\begin{command}
+  \lit{UPDATED} \meta{number} \lit{LINKS}
+\end{command}
+
+On failure, the \lit{UPDATE} command returns the number of links it
+was unable to update.\footnote{
+	This error message may change in response to future needs.}
+
+\begin{command}
+  \lit{FAILED TO UPDATE} \meta{number} \lit{LINKS}
+\end{command}
+Wildcards 
+
+\section{STATUS}
+
+This command requests the current status of the server.  A humanly
+readable multiple line response is returned.  The response may be
+presented to the user without additional processing.  The response
+must conform to the following requirements so that it may be read by a
+program if desired.
+
+The first line must include the server's software version
+identification enclosed in parenthesis, and the host name of the
+server.  The name of the host should be the name that appears on local
+links generated by the server; it might not be the primary name of the
+host.  The version identifier must be the first string that appears in
+parenthesis, and the host name must be the string that immediately
+follows the version identifier.
+
+If a line contains a colon (:), the string preceding the colon
+identifies the meaning of the text that follows the colon.  Reserved
+identifiers include \lit{Contact}, \lit{Started}, \lit{Memory},
+\lit{Data}, \lit{Root}, \lit{AFTP}, \lit{AFS}, and \lit{DB}.  The
+identifiers are case insensitive.  If present, \lit{AFTP} 
+identifies the part of the file system accessible by anonymous \lit{FTP}.
+
+More than one \lit{DB} line may be present.  A \lit{DB} line may
+contain more than 
+one item on it; if it does, the items must be separated by spaces.
+Each item on a \lit{DB} line is an initial prefix which this particular
+server recognizes to mean that, if this server receives a system-level
+name with this prefix followed by a slash, the remaining contents of
+the line are fed to a database program which translates it into a
+reference to a virtual directory.  
+
+Other than for the first line of the response, implementations are
+free to add or modify lines that do not contain a colons.  A sample
+status response follows:
+
+\begin{verbatim}
+       Prospero server (Beta.4.2B) JUNE.CS.WASHINGTON.EDU
+       Requests since startup 4096 (3609+377+2 67+29+0 9 0+0+0 0 3) OF
+       Started: 26-Aug-91 15:14:56 UTC
+       Contact: bcn@cs.washington.edu
+        Memory: 0(118)vl 0(4)at 0(5)acl 0(1)fi 1(1)pr 2(2)pt 0(711)str
+          Data: /u1/vfs/pfsdat
+          Root: /
+            DB: ARCHIE GOPHER(70) GOPHERGW WAIS
+          AFTP: /homes/june/ftp
+\end{verbatim}
+
+Since the responses to this command are so free in form, it is
+unlikely you would want to send additional requests to the Prospero
+server along with the \lit{STATUS} request, since it would not be easy for a
+program to separate the replies to them from the free-form text.
+
+\chapter{Standard Responses}
+
+\section{SUCCESS}
+
+\begin{command}
+\commandsize
+ \protect\lit{SUCCESS} \zoos\protect\text{identifying-info}\zooe
+\end{command}
+
+A command that does not generate any output returns this response if
+successful.
+
+\section{FORWARDED}
+
+\begin{command}
+\commandsize
+\protect\lit{FORWARDED} \protect\meta{host-type} \protect\meta{host-name}
+	\protect\meta{hsoname-type} \protect\meta{hsoname}
+	\protect\meta{version} 	 [ \lit{DEST-EXP} \meta{dest-expiration} ] \\
+	\protect\zoms \protect\lit{ID} \protect\meta{id-type} \protect\meta{id-value}\protect\zome
+\end{command}
+
+This response is returned when the object that is the target of an
+operation has moved.  The client can retry the response using the
+corrected information.
+
+\section{ERROR}
+
+\begin{command}
+\commandsize
+\protect\lit{ERROR} \protect\text{text}
+\end{command}
+
+This response is returned to indicate an error encountered when
+parsing the request.  The error might be a protocol error, or it might
+be the result of the server's inability to recognize a keyword or data
+type. \text{text} describes the error.
+
+\section{FAILURE}
+
+\begin{command}
+\commandsize
+\protect\lit{FAILURE} \protect\meta{identifying-info}
+	\zoos\protect\text{optional text} \zooe
+\end{command}
+
+This response is returned when an operation can not be performed.  The
+defined values for \meta{identifying-info} appear below.
+If present, the \text{optional text} provides additional information
+about the failure.
+
+\begin{command}
+  \lit{NOT-FOUND} \ors\lit{FILE} \metaor \lit{ACL} \metaor
+	\lit{OBJECT} \metaor \lit{FILTER} \metaor \lit{PARAMETER} \metaor
+	\lit{ATTRIBUTE} \ore \\
+  \lit{ALREADY-EXISTS} \\
+  \lit{NAME-CONFLICT} \\
+  \lit{AUTHENTICATION-REQUIRED} \\
+  \lit{NOT-A-DIRECTORY} \\
+  \lit{NOT-AUTHORIZED} \\
+  \lit{AUTHENTICATION-DATA} \\
+  \lit{SERVER-FAILED}\footnote{This is used in the following
+	situations, among others: if
+	an internal table in the server fills up, or if the server cannot
+	allocate enough memory to handle the request, or if the server detects
+	an internal inconsistency in its database, or if the server
+has not implemented a command specified in the protocol.}\\
+  \lit{AMBIGUOUS} \\
+  \lit{BAD-VALUE} \\
+  \lit{FILTER-APPLICATION} \\
+\end{command}
+
+\section{WARNING}
+
+\begin{command}
+\commandsize
+\protect\lit{WARNING} \protect\meta{identifying-info}
+	\zoos\protect\text{optional text}\zooe
+\end{command}
+
+This response is returned to indicate a warning condition which does
+not affect the correctness of the response.  This message can be used
+to indicate that the client is using an old version of the protocol
+that, while supported, should be phased out.  It can also be used to
+inform the client of future changes on the server or scheduled
+downtime.  The defined values for \meta{identifying-info} appear
+below.  \text{optional text} is optional text that provides additional
+information about the warning.
+
+\begin{command}
+  \lit{OUT-OF-DATE} \\
+  \lit{MESSAGE} \\
+  {\em Any \meta{identifying-info} that can follow a \lit{FAILURE} message}
+\end{command}
+Prospero clients are strongly encouraged to present warnings to the user.
+
+
+\appendix
+
+\chapter{Directory, Link, and Object Attributes\label{db}}
+
+This appendix describes the object and directory information
+maintained by the Prospero file system.
+
+{\bf \large Please note that this appendix is in very rough
+form.  Many of the attribute definitions have not yet been properly
+written.  A lot of the attribute documentation can be found in
+section~\ref{Link Attributes} of this document.}
+
+Attributes have three namespaces
+associated with them: \lit{APPLICATION} attributes, \lit{INTRINSIC}
+attributes, and \lit{FIELD}s.
+Attributes in the \lit{FIELD} namespace have a registered meaning, and
+are understood by all clients and servers that use them.
+\lit{APPICATION} attributes are defined by users and application
+programs and are unrestricted.  Intrinsic attributes have special
+registered meanings, providing prossibly transient or derived
+information.  The server has flexibility about whether it allows you
+to change these things.  Modifying them may have special implications
+--- for instance, setting the \atr{SIZE} of a file to 
+``\lit{0 bytes}'' will truncate the file.  \lit{INTRINSIC} attributes
+gare either not modifiable, or else the server uses special mechanisms
+to modify them.
+
+In addition, there is a fourth namespace used internally by routines
+running on the Prospero server.   \lit{INTERNAL} attributes are never
+sent across the network; they cannot be read with GET-OBJECT-INFO or
+LIST and cannot be modified with EDIT-OBJECT-INFO.  However, they do
+appear in the server's data files.
+
+\section{Objects}
+
+\subsection{Attributes\label{access-method}}
+
+Valid attributes include {\sc access-method,
+closure, description, forwarding-pointer, keywords, last-referenced,
+last-writer, locks, owner, replicas, size, storage-location, ttl,
+ttl-expires.  version-number, virt-sys, well-known-names,} and {\sc
+write-date}.
+
+Prospero maintains the following system defined attributes for each
+Prospero object:
+
+\begin{description}
+\item[\atr{base-type}] See section~\ref{base type} for a description of
+this attribute.
+
+\footnotetext{
+  {\bf RATIONALE}: Under the version 1 protocol, the means of obtaining the
+  access method information for \lit{EXTERNAL} and \lit{FILE} links was
+  different; this made the code more complicated than it needed to be.
+
+  The reader may well ask why the host should be specified in
+  the value of the \atr{access-method} field.  Isn't the host name
+  already specified in the \atr{host} field?    Including the host
+  name as part of the attribute's value has some advantages:
+  \begin{itemize}
+  \item The value of the \atr{access-method} field is all one needs in
+  order to retrieve the file.  
+
+
+  \item One might have a Prospero server running on only one host in a
+  cluster, where the objects themselves are actually stored on another
+  fileserver.  Then, one would want to be able to have the
+  \atr{access-method} host be different from the host which is listed
+  as the one having the final word on the status of the object.
+
+  \item This system also allows us to have a gateway server, which is able to
+  translate directory formats from other distributed file systems (e.g.,
+  gopher), but directs the client to retrieve the files themselves from
+  a host that is not the gateway server.
+
+  \end{itemize}
+}
+
+\item[\atr{access-method}\footnotemark]
+
+This is a tuple of at least 5 elements.  The first element is the name
+of the access method.  Currently supported values are \lit{AFTP}, \lit{GOPHER},
+\lit{AFS}, \lit{NFS}, \lit{FTP}, \lit{WAIS}, and \lit{LOCAL}. 
+The next 2 elements are the \meta{host-type} and \meta{host-name} of
+the host to which the access method should connect in order to
+retrieve the object.  A port number may be included as part of the
+ hostname, if relevant.   If they are zero-length tokens (\lit{'{}'}), then
+they default to the \meta{host-type} and \meta{host-name} specified in
+the link.  The next 2 elements are the \meta{hsoname-type} and
+\meta{hsoname} which the access method will use to retrieve the
+object.  If they are zero-length tokens, then they default to the
+\meta{hsoname-type} and \meta{hsoname} specified in the link.
+This constraint on format applies to all access methods.  If a
+particular type of access method doesn't need one of these fields,
+then it still must be specified, but the access method is free to ignore it.  The whole
+point of the \lit{'{}'} shorthand is merely to save bytes in the
+protocol messages.  It is always appropriate to send them fully
+expanded, and not use the \lit{'{}'} shorthand.
+
+The sixth and subsequent elements are dependent upon the particular
+access method.  For \lit{AFTP} and \lit{FTP}, the sixth element will be
+\lit{BINARY} or \lit{TEXT}.  For \lit{NFS}, the sixth
+element will be the name of the filesystem on the remote host.
+\lit{LOCAL}, and \lit{AFS} have only five-element names.
+
+The \lit{GOPHER} access method may have five or six elements in the
+name.  The actual protocol used to retrieve a document or object
+through Gopher varies depending on its Gopher item-type.  (See
+Internet RFC 1436 for details on the interpretation of the Gopher
+item-type characters.).  This item type is usually the 1st character
+of a Gopher document or object's selector string (the \meta{hsoname}
+element of the access method).  However, the protocol does not require
+that this be the case.  If a sixth token is present in a \lit{GOPHER}
+access method, it will be treated as the Gopher item-type character;
+otherwise, the item-type will be taken from the 1st character of the
+\meta{hsoname} element.
+
+
+
+Some examples: 
+
+\begin{command}
+\tt \sloppy ATTRIBUTE FIELD ACCESS-METHOD GOPHER 
+%\linebreak[2]
+INTERNET-D~MERMAID.MICRO.UMN.EDU(150)
+ASCII~\mbox{'1/Fun Stuff/Pyrotechnics/PyroGuide\ 1'}%
+\footnote{This file recently
+	disappeared from the server.  If you have a copy, please send it to
+	\verb"swa@isi.edu".} 
+
+{\rm \par This access method could also be displayed in the six-token
+format as:}
+
+\tt \sloppy ATTRIBUTE FIELD ACCESS-METHOD GOPHER 
+%\linebreak[2]
+INTERNET-D~MERMAID.MICRO.UMN.EDU(150)
+ASCII~\mbox{'1/Fun Stuff/Pyrotechnics/PyroGuide\ 1'}~1%
+\footnote{This file recently
+	disappeared from the server.  If you have a copy, please send it to
+	\verb"swa@isi.edu".} 
+
+{\rm \par Andrew File System names are the same irrespective of what host
+one is using them from.  Therefore, the \meta{host-name} token in the
+access method is irrelevant and is ignored by the client.}
+
+ATTRIBUTE FIELD ACCESS-METHOD AFS DUMMY DUMMY
+ASCII~\mbox{/grand.central.org/doc/afs/dce/usenix90/README}
+
+{\rm \par This file can be retrieved by NFS mounting the {\tt /auto/gum/gum}
+filesystem on the host PROSPERO.ISI.EDU.  Note that the server is
+responsible for knowing which client machines it will allow to NFS
+mount that filesystem.}
+
+ATTRIBUTE FIELD ACCESS-METHOD NFS INTERNET-D~PROSPERO.ISI.EDU
+	ASCII~\mbox{ftp/pub/prospero/README-prospero-documents}
+	 \mbox{/auto/gum/gum}
+
+{\rm \par \meta{hsoname} tokens in the \lit{FTP} access method are full
+local hostname paths that one would give when using full FTP to the host.}
+
+ATTRIBUTE FIELD ACCESS-METHOD FTP INTERNET-D~PROSPERO.ISI.EDU
+	ASCII~\mbox{/ftp/pub/prospero/README-prospero-documents} TEXT
+
+{\rm \par \meta{hsoname} tokens in the \lit{AFTP} access method are
+pathnames relative to the root of the anonymous FTP area.}
+
+ATTRIBUTE FIELD ACCESS-METHOD AFTP INTERNET-D~PROSPERO.ISI.EDU
+	ASCII~\mbox{/pub/prospero/README-prospero-documents} TEXT 
+
+{\rm If one is querying from a host which has a file accessible via
+the local filesystem, and if the server has knowledge of this fact, a
+\lit{LOCAL} access method will also be returned for a file.  For the
+\lit{LOCAL} access method, the \meta{host-name} token in the access
+method is ignored.}
+
+ATTRIBUTE FIELD ACCESS-METHOD LOCAL '' ''
+	ASCII~\mbox{/auto/gum/gum/ftp/pub/prospero/README-prospero-documents}
+
+\end{command}
+
+
+\item[\atr{closure}]  The \meta{attribute-type} of thie attribute is
+\lit{LINK}.  It is a link to the virtual system to be
+used when resolving names embedded in the object.  The link's
+\meta{name-component} will be ignored, but by convention it is the
+ugly-name of the virtual system.
+
+\item[\atr{owning-virtual-system}]  The \meta{attribute-type} of this
+attribute is \lit{LINK}.  It is a link to the description of the
+virtual system which is considered to own the object.  (Every virtual
+system, by convention, has a link to its description named
+\lit{/VS-DESCRIPTION}.   For directories, if you are logged into
+the directory's \atr{owning-virtual-system}, then if you try to change
+the directory, your client will assume that you really want to try to
+change the directory.  If you are logged into a different virtual
+system from the directory's \atr{owning-virtual-system}, then if you
+try to change the directory, your client will assume that you really
+want to customize your own virtual system, but not affect the master
+directory.  Your intentions are completely distinct from whether you
+actually have write permission on the directory.  If you try to change
+a directory that you can't write to (if its \atr{owning-virtual-system} is
+the same as the virtual system you're logged into, but you don't have
+permission to write to it), then the current clients will all give you
+a ``permission denied'' error message, and the nice ones will suggest
+that you might want to change virtual systems and customize instead.
+The link's \meta{name-component} will be ignored, but by convention it is the
+ugly-name of the virtual system.
+
+\item[\atr{version-number}] The \meta{attribute-type} of this
+attribute is \lit{SEQUENCE}.  It is represented in the protocol as a
+decimal number.  It is currently always zero; see section~\ref{object
+version numbers} for further details.
+
+\item[\atr{owner}] The principal responsible for the object.  The
+\meta{attribute-type} of this attribute is \lit{SEQUENCE}.  It is a tuple
+of three or more elements.  The first element is an ACL
+\meta{entry-type} and the second element is an ACL
+\meta{authentication-type}.  The third and subsequent elements are
+\meta{principal-name}s.  The first two elements are needed because
+they indicate the namespace in which the \meta{principal-name}s are to
+be resolved.  There may be multiple instances of the \atr{owner}
+field, if the owner wants to be registered according to several
+authentication systems.  For instance, one of the authors of this
+document uses an \atr{owner} field that looks like this:
+\begin{command}
+\lit{ATTRIBUTE FIELD OWNER ASRTHOST '' swa@128.9.*.*} \\
+\lit{ATTRIBUTE FIELD OWNER AUTHENT KERBEROS swa@ISI.EDU swa/padmin@ISI.EDU} \\
+\end{command}
+Although the \atr{owner} field may be referred to with the \lit{OWNER}
+ACL type, we don't really encourage people to use it as a shorthand
+for granting access rights.  Its primary purpose is informational.
+
+\item[\atr{forwarding-pointer}]  This attribute has type \lit{LINK}.
+The link's \meta{target} is \lit{FP}.   It is set for objects that
+have migrated to another host.  The target of its value is the new
+location of the object.  If an object has moved to a new host,
+its \atr{forwarding-pointer} will be returned in a \lit{FORWARD}
+protocol message in response to any attempts to access it.
+
+\item[Last writer, write date, etc.] 
+
+\item[Version info] (optional).  Number of versions to keep,
+version number, etc. 
+
+\item[Attributes or keywords] (optional).  User specified.
+
+\item[Short description] (optional). 
+
+\item[Locks] (optional).
+
+\item[List of replicas] (optional).  
+
+\item[Replication type] (optional).  
+
+\item[Other replication information] (optional).  
+
+\item[Time to live].  The lifetime for newly created or refreshed
+links to the object.  
+
+\item[\atr{ttl-expires}]  This is the \atr{ttl} plus the
+time that a link to the object was last created or refreshed.
+
+\item[Back links].  A possibly incomplete list of directories
+with links to the object.
+\end{description}
+
+Note that the object's name is not one of its attributes.  The
+object's name is the concatenation of the name components starting from the
+active virtual system.  An object may have different names in
+different virtual systems, or even multiple names within a single
+virtual system\footnote{Despite this, well known names from agreed
+upon starting points might be entered as application-defined attributes for
+objects.}.
+
+\subsection{Objects stored on \unix}
+
+Objects stored on \unix\ servers have the following attributes defined
+for them.  These are all \lit{INTRINSIC}:
+
+\begin{description}
+
+\item[\atr{size}] A single-element \lit{SEQUENCE} specifying the
+number of bytes used to store the object.  Its format is
+``\meta{number} \lit{bytes}''.  Note the embedded space.
+
+\item[\atr{native-owner}]  A single-element \lit{SEQUENCE}.  The
+\unix\ username on the server of the user who owns this file.
+
+\item[\atr{native-owner}]  A single-element \lit{SEQUENCE}.  The
+\unix\ group name on the server of the group associated with this
+file.
+
+\item[\atr{last-modified}] A single-element \lit{SEQUENCE}.  The
+ASN-TIME representation of the last modified time of this object.
+
+\item[\atr{unix-modes}] A single element \lit{SEQUENCE} consisting of
+a ten character string.  The first character is ``\lit{l}'' for
+symbolic links, and ``\lit{-}'' otherwise.  The remaining 9 characters
+are the user, group, and other protection bits in the standard format
+returned by ``\lit{ls -l}''.
+
+\end{description}
+
+\subsection{Persistence}
+
+An object continues to exist until the last non-expired link
+referencing the object is removed.  If a user wishes to recover the
+storage space for an object, it is flagged for removal.  When links to
+the object are refreshed, notification is sent that the object is
+about to disappear, and anyone wanting to maintain their reference
+must copy the object elsewhere.  Subsequent users have the option of
+making their own copy, or updating their link to refer to one of the
+new copies.
+
+\subsection{Mobility}
+
+Objects may move from one site to another.  If they do, a forwarding
+pointer must remain at the old location until the time-to-live
+expires.  This enables anyone with a non-expired link to the object to
+refresh the link and record the object's new location.\footnote{To
+place a forwarding pointer, set the old object's
+\atr{FORWARDING-POINTER} atribute.  It must be manually moved to the
+new server at this time.}
+
+\section{Directories}
+
+A directory is an object and as such, everything that applies to
+objects also applies to directories.  The physical representation of
+a directory is interpreted by the Prospero server on the system
+storing the directory.  The Prospero protocol defines the interface
+through which a directory is accessed.
+
+\subsection{Directory Attributes}
+
+The following attributes are defined for directories:
+
+\begin{description}
+\item[\atr{directory-ordering} (not yet implemented)]  This attribute
+is a 3-tuple.  The 
+default value is 
+\begin{command}
+\lit{SORTED NAME-COMPONENT INCREASING}
+\end{command}
+which means that, by default, directory entries are sorted in increasing
+order according to the value of their \atr{name-component}
+attribute.
+
+The first element of the tuple is \lit{SORTED} or \lit{UNSORTED}.  If
+\lit{UNSORTED}, the next two elements must be null.  If \lit{SORTED},
+the second field specifies an attribute which is the sort key.  The
+third element is either \lit{INCREASING} or \lit{DECREASING}, meaning
+the order of sorting.%
+\footnote{In the current implmentation, the only sort keys
+that may be specified must have an \meta{attribute-type} of
+\lit{ASCII}.}
+
+If the \atr{include-native} attribute is set to any value other than
+\lit{NONATIVE}, then the \atr{directory-ordering} cannot be
+\lit{UNSORTED}.
+
+
+
+\item[\atr{include-native} (not yet implemented)] Whether to include
+information from the native filesystem in the directory.  If files are
+included, they will be included from the real directory on the server
+with the same \meta{hsoname} as the Prospero directory.  Its
+\meta{attribute-type} is a single-element \lit{SEQUENCE}.  
+Values are:
+\begin{description}
+\item[\lit{NONATIVE}] Do not include files from native directory.
+\item[\lit{INCLNATIVE}]  Include all files from native directory.
+\item[\lit{INCLREAL}]	Smae as above, but (for the \unix\  server) do not
+include ``\lit{.}'' and ``\lit{..}''.
+\item[\lit{NATIVEONLY}] All entries in directory are from native dir;
+	no links have been added.  For the \unix\  server, ``\lit{.}'' and
+``\lit{..}'' are NOT included. 
+\item[\lit{PSEUDO}] Directory is not real.  This is set for all
+directories returned from filters and by Archie and Gopher.
+\end{description}
+
+\end{description}
+
+\subsection{Link Attributes\label{target-attribute}}
+
+Prospero directories contain links to the objects that are included in
+the directory. The following information is maintained for each link.
+
+\begin{description}
+
+\item[\atr{name-component}] This is the single component of the
+object's path relative to the current directory.  Its
+\meta{attribute-type} is \lit{SEQUENCE}.
+
+\item[Short description of link] (Optional).
+
+\item[\atr{link-type}].  The type of a link can be either 
+normal [L] or union [U].  In the case of a normal link, an entry for
+the link is visible when the directory is listed.  In the case of a
+union link, which can only be made to another directory, the links
+from the target directory appear as part of the directory from which
+the union link originates when the originating directory is listed.
+If multiple objects have the same name, the order in which the union
+links appear determines which object is visible.
+
+Two types of links which may appear locally (either in the server, or
+on the client) are [-] deleted, and [N] native.  It is not legal for
+these codes to be sent across the network.  Type [N] links are
+converted to [L] and type [-] are skipped entirely.
+
+\item[\atr{target}]  Target of link:  For links in a directory that
+don't point to objects, could be \lit{SYMBOLIC} or \lit{EXTERNAL}. For a
+forwarding pointer it is \lit{FP}.  Links to objects will have a target
+field indicating the cached value of the object's \atr{BASE-TYPE}
+attribute.  When stored on a vlink structure, it may have exactly one
+of the following forms: \lit{OBJECT}, \lit{FILE}, \lit{DIRECTORY},
+\lit{DIRECTORY+FILE}.  There is no guarantee that the type of the target
+has not changed.  Thus, this field is the cached value of the object's
+base type.  For union links, this field is always \lit{DIRECTORY} or
+\lit{DIRECTORY+FILE}.  See section~\ref{target-token} for a further
+discussion of this.
+
+
+\item[Hidden/Not-Hidden/Externally-Hidden\footnote{Not yet implemented}]
+By default, a hidden 
+link is not displayed when a directory is listed.  It is, however,
+returned by the directory server, and is traversed if the actual name
+is specified in a pathname.  An Externally-Hidden link is a hidden
+link that will be displayed if the current virtual system is the same
+as the owning virtual system for the directory containing the link.
+The user may override the hidden option, causing hidden links to be
+listed. Note that it is also possible to hide a link by
+specifying its protection as non-listable.  Such links will {\bf only}
+be returned by the directory server when the actual name of the link
+has been specified.
+
+\item[\atr{filter}] Multiple filters
+allowed.  The filter attribute is a pointer to a program that can be
+used to filter the contents of directories to which links are made.
+{\it data} is the set of optional arguments passed to the filter
+program.  In addition to the linked directory and arguments, the
+filter has access to all other information available from the current
+directory.
+
+Filters come in several types.  By default, a filter is a directory
+filter, and is applied when searching directories.  A hierarchy filter
+is similar to a directory filter.  The difference is that a directory
+filter is applied to a single directory, while a hierarchy filter is
+applied to the entire hierarchy (including subdirectories) reached
+through a link.  Directory and hierarchy filters come in two types.
+The default is post-expansion.  The filter is applied after all union
+links have been expanded.  A pre-expansion filter is applied before
+union links are expanded.  An object filter is applied when accessing
+an object other than a directory, and might be used, for example, to
+cause some operation to be performed on the object before it is
+accessed.  Note, however, that all types of filters are associated
+with links.
+
+Filters are applied to a directory in the order of pre-or post
+expansion, decreasing depth of the links to which they are attached
+(for hierarchy filters), and finally in the order that the filters are
+specified on the traversed links.
+
+\item {\bf Attributes} (optional).  Application attributes to be
+associated with the link.  This allows a user or application to add
+(or override) attributes to the linked object (which might be owned by
+someone else, and thus not modifiable).
+
+\item[\atr{host}] The name of the host on which the
+object can be found. 
+
+\item[\atr{host-type}]  The type of
+the hostname.  In particular, whether the hostname is an Internet
+address, a domain style name, or a name in some other naming system.
+
+Note that a symbolic link is a link where the destination host is a
+virtual system, and the destination object name is a name relative to
+that virtual system.
+
+\item[\atr{hsoname}] Host-specific object name. The name of the object
+relative to the destination system.  
+
+\item[\atr{hsoname-type}] The
+type of \atr{hsoname}. Different types of names include numerical file IDs,
+names relative to the root of the local file system, etc.  Right now,
+only pathnames are implemented, and their type is \lit{ASCII}.
+
+\item[\atr{object-version}] By specifying a version number
+in a directory link, the link is made to a specific version of the
+object, and changes to the object will not be visible through the
+link.
+
+\item {\bf Access control info} (optional). Allows restrictions on who can
+read or modify individual directory entries.  These are really
+attributes, though they are in fact retrieved and modified with LIST-ACL and
+EDIT-ACL, and do not appear on the normal attribute listings.
+
+\item[\atr{dest-exp}] {\bf Destination expiration date and time}.  Its
+implied type is a single-element {\tt SEQUENCE}, in ASN-TIME format.\footnote{
+	Implementers should use the {\tt asntotime()} function in the
+{\tt pfs} library in order to convert an ASN-TIME string into a
+\unix\  timestamp, and the {\tt timetoasn()} function to perform the
+reverse conversion.  Applications writers are encouraged to use
+ASN-TIME format to represent all timestamps sent across the network.
+}
+This entry indicates how long 
+the information in the link should be considered valid.  When an
+object is accessed through a link, the destination expiration date
+should be set to the current time plus the destination time-to-live.
+
+Note that expired directory entries do not disappear.  Typically they
+remain valid.  The expiration means that there is no longer a
+guarantee that the object originally referenced can still be found.
+   
+\item {\bf ID}.  When a new object is created, a unique
+object identifier may be assigned.  This identifier can be included in
+links, and used to further verify that the named object is the one
+that is actually desired.  It allows one to reference objects after
+their expiration dates with the guarantee that if these identifiers
+match, it is the same object.  In the prototype, the object identifier
+is a random number of type REMOTE.  Other types of object identifiers
+will be defined after more work is done by an IETF working group.
+
+\item {\bf Valid-till} (optional).  If a link is a cached value, then
+this field indicates how long the entry should be considered valid.
+For example, a symbolic link may have a corresponding cached hard
+link.  Until its expiration a cache entry may be used instead of
+searching based on the symbolic link.  If this field is 0, then the
+link is not a cached entry.
+
+\item {\bf Last-update} (optional).  This is the time the link was
+last updated.  Its expected use is for resolving conflicting updates
+in replicated directories.
+
+\end{description}
+
+\subsection{Replication}
+
+When support for replication is added to Prospero, a directory might
+include multiple links with the same name for the same object. Not all
+replicas need be listed, however, because each replica will maintain
+its own list of siblings.  Multiple entries are important to increase
+reliability and availability.
+
+\chapter{Asynchronous Reliable Delivery Protocol\label{ardp}}
+
+This appendix describes the asynchronous reliable delivery protocol
+(ARDP) used by Prospero.  As used by Prospero, this protocol is
+layered on top of the Internet User Datagram Protocol. 
+% \cite{udp}.
+
+Prospero implements its own ARDP because at the time of initial
+development we were unable to find any that were suitable for general
+use.  Most systems that use any sort of reliably delivered message
+protocol implement their own around the specific needs of their
+application.  Like these other systems, early versions of the Prospero
+protocol defined the mechanisms needed for retries and packet
+sequencing.  As these mechanisms were refined, the functionality was
+moved to a separate protocol layer (and is implemented as a separate
+library) to improve modularity, and in hope that this general and
+simple ARDP can be used for other purposes.
+
+The ARDP protocol is designed for a request/response style of
+interaction, where a client sends a request message to a server in one
+fell swoop and receives a reply message from the server.  The server
+can send the packets composing the reply message slowly, as data
+becomes available, while it is still processing the rest of a reply.
+In the current implementation, each request message sent by a machine
+from a particular port has its own connection id.
+
+ARDP was designed so that in the common case, the additional overhead
+of guaranteeing reliability is as small as possible.  Unless special
+processing is required, the header is kept small, and unless a packet
+is lost, no additional packets are sent.  If a field is not specified,
+the default value is used in its place.  All fields up to and
+including the last field specified must be filled in, but the header
+may be truncated at any point, after which all remaining fields take
+on their default values.  The ARDP header contains the following
+fields:
+
+\begin{description}
+\item[Octet 0] Version and header length: High order two bits are ARDP
+version number mod 4 (this is version 0). Low order six bits are the
+header length including octet 0.\footnote{The length of the total
+packet, including data, is available via the UDP layer, as are the
+port and IP address of the sending host.}
+
+\item[Octets 1--2] Connection ID: Defaults to zero.  It must be
+specified in the response to any request that specified a non-zero
+connection ID.
+
+\item[Octets 3--4] Packet number: Defaults to 1 if not specified. A specified
+value of 0 indicates an unsequenced control packet which should not
+be passed to the application.   Note that unsequenced control packets
+cannot request acknowledgements, nor is there any way for the sender
+of such a packet to be sure that they have arrived.
+
+\item[Octets 5--6] Total number of packets in this message:   Defaults
+to 0 if not known, or retains current value if it was provided in any
+earlier messages.  If the packet number was also not specified, then
+it defaults to 1.  A specified value of 0 means use the default.
+
+\item[Octets 7--8] Received through:   Sequence number through which
+all packets have been received by the sender of this packet.  Defaults
+to current value if specified in previous message. Defaults to 0
+otherwise.  The recipient's count of packets received through is
+normally monotonically increasing; this keeps the count from being set
+backwards in case an out-of-order packet is received.  However, if the
+``reset received through'' option (option 2) is specified in octet 12, then it
+means reset to 0 (i.e. it forgot or lost the earlier messages).  More
+generally, specifying any explicit value for this field along with the
+``reset received through'' option resets the peer's count, possibly
+backwards.  The recipient should not set its internal value of this
+field backwards unless the ``reset received through'' option is set.
+
+\item[Octets 9--10] Wait (expected time till response): Defaults to
+current value. Specified value of 0 means revert to client-specified
+backoff algorithm.  Specifying a non-zero value lets the
+	client know that a request might not be processed for some time and
+that the client should not retry the request until the specified time.
+The client may retry sooner if it believes
+messages are available which have been missed (e.g., gaps in the list
+of received packets).  This is an unsigned
+quantity, measured in seconds, in network octet order (i.e., octet 9 is
+more significant than octet 10).  A specified value of 65,535
+(\(\mbox{FFFF}_{16}\); 
+all bits turned on) means greater than or equal to 65,535 seconds
+until the next packet.  (We do not expect that this value will ever be
+used, but it is defined for the sake of completeness.)   
+
+\item[Octet 11] Flags: Octet 11 is a bit vector specifying option flags.
+The flags may themselves require additional
+fields specific to the flag.  These fields appear at the end of the
+header in the order they are needed when reading flags from the low
+order bit to the high order bit, followed by any extra fields needed
+by the flag specified by the 12th octet.  
+
+%%
+%% It does not appear to be possible to start a \lit{MINIPAGE} inside
+%% a \lit{TABULAR} environment.  LaTeX is really awful about not permitting
+%% recursive application of its constructs.  I wish there were
+%% something better out there.  --swa
+%%
+%% & \begin{minipage}
+\end{description}
+
+%\begin{table}[h]
+\begin{center}
+\begin{tabular}{|l|p{3.5in}|p{2.0in}|}
+\multicolumn{3}{c}{Value of flags for octet 11} \\ \hline
+Bit No. & Meaning & Additional Fields \\ \hline
+0 (low order) & Additional Address Information Follows & 
+	Variable length (see below)\\ \hline 
+1       & Priority Follows & 2 octets (see below)\\ \hline
+2 & A Protocol ID for a higher-level protocol follows & 
+	2 octets (see below) \\ \hline
+3--5    & Unused & \\ \hline
+6       & This packet is a sequenced control packet only; it should
+not be returned to the application by the ARDP library. & None \\ \hline
+7 (high order) & Please Acknowledge this Packet & None \\ \hline
+\end{tabular}
+\end{center}
+%\end{table}
+
+
+\begin{description}
+\item[Octet 12] More Options:  Octet 12 specifies exactly one (1)
+of up to 256 other options.  The options may themselves require additional
+fields specific to the options.  (See discussion at Octet 11).  
+\end{description}
+
+%\begin{table}[h]
+\begin{center}
+\begin{tabular}{|l|p{3.0in}|p{3.0in}|}
+\multicolumn{3}{c}{Value of options for octet 12} \\ \hline
+Value   & Meaning       & Additional Fields \\ \hline
+0       & No Option Specified & None            \\ \hline
+1       & Client to server: Cancel Request.  Server to client:
+Connection refused. & None                 \\ \hline
+2       & Reset peer's received-through count. 
+	& Specified in octets 7--8 \\ \hline
+3       & Packets received beyond received-through
+	  & The rest of the	
+header after additional data for octet 11 flags is an arbitrary
+number of octets.  These are bit-vectors specifying which packets
+beyond the received-through specified in this packet have been
+received by the sender of this packet.  For example, if the
+received-through is set to 43, then we know that packet 44 has not
+been received.  The low order bit of the first octet of the additional
+field will be turned on if packet 45 has been received, and off if it
+has not.  The high-order bit will be turned on if packet 52 has been
+received, and off if it has not.  Similarly, the low-order bit of the
+second octet of additional information will be turned on if packet 53
+h as been received, and so on.  The recipient of this information may
+choose to ignore it and use a simpler resend strategy.  Similarly,
+this information is never required to be sent. \\ \hline
+4       & Redirect (used by servers): The client should send any
+unacknowledged packets 
+already sent and all subsequent packets in this message to a new
+addresss.  This is designed to be used as a load-shedding device.  In
+one common case, this will be the entire response a server gives to a request,
+and the client will resend the entire request to a new server; in
+the other common case, this will be used in conjunction with option 6
+or 7.
+	& 6 octets.  The first 4 octets are the IP address of the new server,
+in network byte order.  The next 2 octets are the UDP port to which
+the request should be sent, also in network byte order. \\ \hline
+5       & Redirect and notify (used by servers).  Like option 4, but
+the client's network layer should also notify its caller that all
+subsequent requests intended for the old server should be sent to the
+new server instead.  & Same as option 4. \\ \hline
+6       & Forwarded: This request was received from a
+client, and the sender is a server forwarding it to the recipient for
+processing.   The recipient should pretend that it received this
+message from the sender indicated by the additional fields, not from
+the real sender of this message.  (If implemented, this request should be accepted only
+from one of a group of trusted hosts.)   This option is intended to be
+used by a central server which distributes requests to several subsidiary
+servers which do the actual work of processing the request, but which
+use the central server as  a contact point.  Presumably, it is cheaper
+for the central server to forward the request to the subsidiary
+servers over a local area network rather than for the client (who may
+be quite far away) to retransmit it.    The central server has done
+the job of notifying the original client (through option 4 or 5) that
+further requests and retransmissions should go to the new server.
+	& 6 octets: The IP address and port of the original sender of
+this message, as in number 4. \\ \hline 
+\end{tabular}
+
+\begin{tabular}{|l|p{3.0in}|p{3.0in}|}
+\multicolumn{3}{c}{Value of options for octet 12} \\ \hline
+7       & Forwarded; Please notify: Like option 6, but the receiving
+server should notify the client of the switch (through option 4 or 5).%
+\footnotemark
+	& 6 octets: The IP address and port of the original sender of
+this message, as in number 4. \\ \hline 
+8-252  & Undefined                     & Undefined \\ \hline
+253     & Request Queue Status & 1 octet.  If bit 0 (low order) is
+set, the position in the queue is requested.  If bit 1 is set, the
+estimated time until this request will be completed is requested.  The
+recipient may ignore this option.  \\ \hline
+254     & Response to 253.  & 1 octet of flags, followed by 1 or 2 additional
+fields.  If bit 0 (low order) of the flags is set, the position in the
+queue is returned as a 2 octet network byte order representation of an
+unsigned quantity.  A value of  \hexnum{FFFF} (all bits turned on) means 
+a queue position of \hexnum{FFFF} or further.  (We do not expect this
+value to ever be used, but it is included for the sake of
+completeness.)  If bit 1 of the flags is set, the estimated 
+time until this request will be completed is returned as a  4-octet
+network byte order unsigned value, representing a time in seconds.  A
+value of \hexnum{FFFFFFFF} (all bits turned on) means a time of
+\hexnum{FFFFFFFF} seconds or more.  (We do not expect this to ever be 
+used). \\ \hline
+255     & Reserved for future expansion & Undefined \\ \hline
+\end{tabular}
+\end{center}
+\footnotetext{You might think that the recipient needs to worry
+about the IP address of the FORWARD message it sends to the original
+client being different from that of the original server (the sender of
+this message).  However, this is not the case.  The existence of
+multi-homed hosts means that the sender of a message cannot assume
+that the IP address of a reply (as recorded in the UDP packet
+encapsulating the response it receives) is the same as the address the
+packet was sent to.  The sender must use the connection ID to match up
+sent messages and received replies.}
+%\end{table}
+
+\begin{description}
+\item[Octets 13 and above] Fields specific to particular flags and options.
+
+First, additional data fields  specific to the flags in octet 11
+should be specified. 
+
+\item[Next Octets] Additional Address Information (if Additional
+Address Information flag specified):  The first octet specifies the
+type of additional address information.  The next octet specifies the
+length of the address information, from 0 to 255 octets.\footnote{The
+entire 255 octets are not available for address information, since they
+are part of the header, and the maximum header length header is
+limited to 64 octets.}
+  Its length
+does not include the two octets that specify type and length.   The following
+octets contain the address information itself, and its format is
+dependent upon the type of address information.  
+
+\item[Next 2 octets] Priority (if Priority flag specified):
+These octets are a signed integer representing the priority of the
+request.  Not all implementations understand this message, and many
+that do will not honor requests for expedited handling.  Negative
+numbers indicate expedited handling while higher numbers indicate
+greater delays.  A priority of 0 is normal.
+
+\item[Next 2 octets] Protocol ID (if Protocol ID flag specified):
+These octets identify the interpretation of the data carried in the
+packet.  The default, or an explicitly specified value of 0,  mean
+that it is not specified, but has been agreed upon externally (i.e.
+the applications will know). 
+
+\item[Next octets] Any data specific to the option set by octet 12
+should be specified.  This is the data specified in the ``additional
+fields'' column of the table ``Value of flags for octet 12.''
+
+\end{description}
+
+\chapter{Prospero Conventions\label{conventions}}
+
+\section{\protect\meta{hsoname}s}
+
+There are some special \meta{hsoname}s that the current Prospero
+server may recognize, if it has been configured appropriately.  If an
+\meta{hsoname} begins with the string \lit{AFTP/}, it is interpreted
+as a path relative to the anonymous FTP directory on that server.  If
+an \meta{hsoname} begins with the string
+\lit{GOPHER}\zoos\lit{(}\meta{gopher-port-number}\lit{)}\zooe, it is
+interpreted to refer to GOPHER data files on that host .  If an
+\meta{hsoname} begins with the string \lit{GOPHER-GW}, it refers
+to GOPHER data files on another host.  If an \meta{hsoname}
+begins with the string \lit{ARCHIE/}, it represents an Archie database
+query.
+
+
+\chapter{Prospero Protocol Changes from Version 1 to Version 5}
+
+Versions 2, 3, and 4 of the Prospero protocol were not used.  The
+protocol number jumped from version 1 to version 5 to keep the
+software number and version number consistent; the first version of
+the server to implement version 5 protocol had a software version
+number of 5.
+
+For now, all Prospero servers continue to accept Version 1 of the
+protocol.
+
+Not all of the protocol changes are listed here.
+
+In version 1, the \lit{EDIT-LINK-INFO} command was called \lit{MODIFY-LINK}.
+The syntax of the arguments has also been changed.
+
+The method of specifying attributes to \lit{LIST} has changed.  The
+lines returned from \lit{LIST} are also in a new format.
+
+The quoting mechanism has been formalized, and extended to apply to
+multiple-component directory names.  Therefore, the \lit{ONECOMP}
+option to \lit{LIST} is now officially dead (it was never implemented
+in any server anyway).  Note that no Version 1 server ever implemented
+quoting properly anyway.  Therefore, if a client speaks Version 1
+Protocol, it will not be able to access filenames with spaces in them.
+
+
+The \meta{magic-no} field has been replaced with zero or more
+occurrences of the sequence \lit{ID} \meta{id-type} \meta{id-value}.
+\lit{GET-OBJECT-INFO} used to have the reserved keyword \lit{ID}, but
+this has been flushed.
+
+The syntax of the arguments of
+\lit{EDIT-OBJECT-INFO} has been changed, in order to avoid a syntactic
+amgiguity.   
+
+Many changes have occurred to the arguments of commands.  
+
+Filter syntax has changed drastically.  
+
+Separate principals are now sent as separate protocol tokens in ACL
+and attribute definitions.
+
+The \atr{target} field used to have a possible value of
+\lit{SYM-LINK}.  This has been changed to \lit{SYMBOLIC}.  The
+\atr{base-type} field has been introduced.
+
+The syntax of a \meta{target} of \lit{EXTERNAL} has changed
+radically.  EXTERNAL links now look a lot more like conventional links.
+The meaning of the \atr{access-method} attribute has changed radically;
+it's now a lot more flexible.
+
+Support for Kerberos has been specified.
+
+\end{document}

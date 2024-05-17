@@ -1,0 +1,262 @@
+To use the library, include the file <ardp.h>.
+
+The current release has dependencies upon Prospero in a few places:
+      
+If you will not be using the Prospero pauth structure, undefine
+PROSPERO in ardp.h.  The RREQ structure includes a reference to PAUTH
+by default.
+
+The ARDP library server routines currently call the Prospero function
+plog().  A useful future direction is to make the logging function
+application-specific, and inactive by default.
+
+The ardp_reply_bst() function depends upon Propero bstrings.  It will
+not be included in the library if PROSPERO is not defined in ardp.h.
+
+---
+Error handling: ARDP library functions return error codes between 1
+and 20.  A return value of 0 is ARDP_SUCCESS.  In addition, the global
+variable
+
+        extern int perrno;
+
+is generally set to the number of the error.  (We haven't actually
+checked every function in the ARDP library to guarantee this).  This
+global variable is used in the ARDP library, and in the PFS library. 
+
+The function p_clear_errors() should be called from your application
+to clear this error indication.  If you've linked with the PFS library
+version, then p_clear_errors() will also clear Prospero error and
+warning indications.  This function is defined both in the PFS library
+and in the ARDP library; if you're a PFS library and an ARDP library
+user, place the PFS library version first in your link path.  Its
+declaration is:
+        extern void p_clear_errors(void);
+
+Printed strings associated with these errors can be found in
+lib/pfs/perrmesg.c.  These are not currently available through the
+ARDP library interface, although it does not depend upon them being
+present.   A future direction is to make these strings available
+through the RDP library interface.
+
+--
+The ARDP library is now completely safe for sending arbitrary
+length-coded binary data. (Until Prospero release Alpha.5.3, this was
+not the case -- the server library used to append nulls to packets.)
+
+-- 
+Notes on the PTEXT structure:
+
+The PTEXT structure has two members, ->text and ->start.  On the user
+side, they are currently always the same; however, this is not always
+guaranteed to be the case in future releases of the ARDP library.
+->text is used for the start of data to be parsed by the higher-level
+application (e.g., Prospero).  The ->length member of the PTEXT
+structure is relative to ->start, which in this case is the same as
+->text, but which is not guaranted to be so.  Thus, if you need the
+length of the text (relative to the start of ->text), it is ->length -
+(->text - ->start).
+
+--
+Notes on the functions:
+
+In the functions that follow, more details on the function can be
+found in the header preceding the function in the source code.  This
+documentation is solely for the purpose of helping you decide which
+functions to look at.  (Another way of saying that we are well aware
+that this manual is pretty sketchy.)  Functions in the library that
+are not described here should be considered internal and should not be
+called by the application. 
+
+The following functions are exported by the ardp library for use by
+the client side of a connection:
+
+  ardp_abort(req)       Aborts the specified request, sending an
+                        abort message to the server if currently
+                        active.  If req is null, will send aborts
+                        to servers for all active requests.
+
+  ardp_abort_on_int()   Sets interrupt handler to abort any 
+			pending requests.
+
+  ardp_pr_active()      Processes new responses to active requests.
+			If making an asynchronous request (i.e. ttwait
+			does not equal ARDP_WAIT_TILL_TO), then this
+			function must be called periodically, either
+			automatically within ardp_retrieve, explicitly, 
+                        or initiated by an interrupt when
+                        a response becomes available on the UDP port.
+
+  ardp_retrieve(req,ttwait)
+                        Poll for, or wait for a pending request to
+                        complete. 
+
+  ardp_send(req,dname,dest,ttwait)
+                        Sends request to host with domain name 
+                        or socket address dest, and waits ttwait
+			microseconds for response (-1 means till timeout).
+
+  ardp_set_retry(to,rt) Set retry time out (seconds) and count
+
+The following functions are exported by the ardp library for use by
+the server side of a connection:
+
+  ardp_accept()         Accepts new requests and places on appropriate
+                        queues for subsequent processing.  This must
+                        be called periodically, either explicitly, or 
+			initiated by an interrupt when a request
+                        becomes available on the UDP port.
+
+  ardp_bind_port(portname)
+                        Takes the name of (or #number) of a port to 
+			be opened, on which the server will listen
+			for requests.
+
+  RREQ ardp_get_nxt()   Returns the next request to be processed.
+                        If none available, it will block until
+                        one is received.
+
+
+  ardp_redirect(req,target)
+			Sends a redirect to the client indicating the
+			the request should be sent to a new target
+			server identified in the second argument.
+
+  ardp_respond(req,opt) Used by a server to send the current response
+                        packet once filled in.  It will add the packet 
+                        to the transmission queue, and send it.  To
+                        indicate completion of a response, the
+                        ARDP_RESP_COMPLETE option should be specified.
+			If the ARDP_RESP_NOSEND option is specified,
+                        the packet will be added to the transmission queue
+			but not sent.
+
+  ardp_refuse(req)      Causes the specified request to be refused and
+			notification sent to the client.
+
+  ardp_reply(req,flags,message)
+			Queues message (appending it to the req structure)
+                        and possibly sends it and other queued data to the
+                        client.  Will call ardp_respond() if any
+                        completed packets can be sent (i.e., sends a
+                        partial response  to speed up client/server
+                        interaction). Message is a null-terminated buffer.
+                        Can't use this interface to send binary data
+                        that might contain nulls;  see
+                        ardp_reply_bst() below.
+                        
+  ardp_rwait(req,timetowait,qpos,stime)
+                        This function is called by a server to specify
+                        a server requested time to wait for a response.  
+                        This value is returned to the client which
+                        will treat it as an acknowledgment and will
+                        defer subsequent timeouts and retries until
+                        waiting the specified period.  Non-zero values
+			for qpos and stime will cause the current
+			the specified queue position and expected
+			system time to be provided to the client in
+			the same message.
+
+  ardp_set_queuing_policy(pf,override)
+                        Sets a function used to determine queue
+			ordering on the server.
+
+  ardp_set_prvport(fd)  Sets a file descriptor that has already been
+			opened as the input port on which the server
+                        will listen for requests.
+
+The following functions are exported by the ardp library for use by
+both the client and server sides of a connection:
+
+  ardp_add2req(req,flags,buf,len)
+                        Adds text to a request which will subsequently
+                        be sent to the peer, and returns.
+
+  RREQ ardp_rqalloc()   Allocate a new request structure
+  ardp_rqfree(req)      Free a request structure
+  ardp_rqlfree(req)     Free a list of request structures
+
+  PTEXT ardp_ptalloc()  Allocate a new packet structure
+  ardp_ptfree(pkt)      Free a packet structure
+  ardp_ptlfree(pkt)     Free a list of packet structures
+
+/********************/
+
+Internal functions:
+        ardp_showbuf() is used to display buffers that might contain
+nulls.
+
+/******************/
+
+Eventually to be built on top of the above:
+
+rd_sbuf   Synchronously send a buffer to a destination
+rd_sbufa  Asynchronously send a buffer to a destination
+rd_sync   Wait until all pending requests are complete
+
+/********************/
+
+The ARDP library respects the global integer variable pfs_debug.
+Levels of 9 or above cause the text of packets sent across the network
+to be displayed to stderr.  
+
+As of Prospero Alpha.5.3 release, an ARDP library pfs_debug level of
+11 or greater will cause \n and \t and \r to be printed as \n and \t
+and \r in the display of the contents of ARDP packets.  Levels 9 and
+10 cause them to be displayed as themselves.  All other control
+characters in packets are now displayed as a \ followed by the
+character's octal code.  (In previous releases, they were displayed as
+literal text, and nulls in the packet caused the display of the packet
+text to be ignored.)
+
+/*************/
+
+The new ARDP_REPLY_BST() function accepts a Prospero BSTRING as its
+argument.  This violates modularity of the ARDP library, since it
+requires the ARDP library to know about the bstrings layer.  We need a
+new interface to ardp_reply() that will accept a length-coded buffer,
+and then a wrapper around it in the pfs library that will accept the
+bstring.   Future directions for this function are noted at ISI in
+/nfs/pfs/notes/ardp-directions. 
+
+ardp_reply_bst(RREQ req, 	   /* Request to which this is a response */
+	   int flags,      /* Whether this is the final message   */
+	   char *message)  /* The data to be sent.  Must be a bstring.   */
+
+/**** BUGS  & future directions *****/
+
+ardp_retrieve() and ardp_send() both call p_clear_errors() internally.
+This is inconsistent with the behavior of the rest of the ARDP library
+and of most of the PFs library, which do not clear error indications
+themselves.
+
+
+Look over ardp.h.
+-Make it independent of Prospero directory service:  Put authentication
+stuff into ardp.h as a formal library.  Alternatively,  make the
+directory service use the 'app' optional member.  (at least until the
+authentication stuff is better defined).
+
+Make sure the app optional member is defined and explained in the ARDP stuff.
+
+-Get rid of #define PROSPERO in ardp.h
+-ARDP_DEFAULT_PEER and ARDP_DEFAULT_PORT must become optional
+constants.
+
+Change the ardp library interface so that the logging function is
+specified at runtime initialization.
+
+ardp_reply should have the interface changed to accept a message
+length, just like ardp_add2req() does.  Ditto any other functions in the
+libardp interface that expect just null terminated buffers.   The ARDP
+library should be better documented for potential programmers.
+
+Fix bug: ardp_respond() expects trailing null on buffer
+ardp_add2req() hands.  (this is on the SWA todo list as a separate
+item).
+
+SWA has rewritten ardp_add2req on paper; need to type in these
+simplifying changes.
+
+
+

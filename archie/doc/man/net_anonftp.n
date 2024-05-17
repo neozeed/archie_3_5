@@ -1,0 +1,151 @@
+.\" Copyright (c) 1992, 1994, 1996 Bunyip Information Systems Inc.
+.\" All rights reserved.  
+.\"	
+.\" Archie 3.5
+.\" August 1996
+.\"	
+.\"	@(#)net_anonftp.n
+.\"
+.TH NET_ANONFTP N "August 1996"
+
+.SH NAME
+.B net_anonftp 
+\- send and receive preprocessed anonftp data for inter-Archie data exchange
+
+.SH SYNOPSIS
+.B net_anonftp  
+[ 
+.B \-I 
+] [ 
+.BI \-O \ <host> 
+] [ 
+.BI \-M \ <dir> 
+] [
+.BI \-w \ <dir>
+] [
+.BI \-p \ <port>
+] [
+.B \-v
+] [ 
+.B \-c
+] [
+.BI \-h \ <dir> 
+] [ 
+.B \-l 
+] [ 
+.BI \-L \ <logfile> 
+]
+
+.SH DESCRIPTION
+.PP
+This program is not normally invoked from the command line. Rather, it is
+run by the 
+.BR arserver (n) 
+and 
+.BR arexchange (n) 
+programs to transfer preprocessed Archie anonftp catalog files between 
+Archie servers. 
+.PP
+In output mode it reads in the requested anonftp catalog file and
+re-formats the data into the same format as the output prepared by the
+.BR parse_anonftp (n) 
+Archie programs. This re-formatted data is then converted
+into Sun XDR (see 
+.BR xdr (3n)
+) format for transmission (which does any conversions necessary 
+for machines with different hardware architectures).
+.PP
+In input mode, the conversion is simply between Sun XDR and the local
+parser standard binary format.
+.PP
+This and all other programs like it (
+.B ~archie/bin/net_*
+) read from and write to stdin and stdout respectively. All file 
+names are created in the calling process (usually 
+.BR arserver (n)\fR). 
+.SH OPTIONS
+.TP
+.BI \-O \ <host>	
+Output mode. Read the local anonftp catalog for the 
+.I <host>
+specified, and after appropriate conversions, write it to stdout.
+.TP
+.B \-I
+Input mode. Read stdin for the incoming data, transform it in the 
+appropriate manner and write it to stdout.
+.TP
+.BI \-M \ <dir>	
+The name of the master Archie database directory. If not 
+specified, the program looks in the directory
+.BR ~archie/db ,
+then
+.BR ./db .
+.TP
+.BI \-h \ <dir>	
+The name of the Archie host database directory. If not
+specified, the program will first default to
+.BR ~archie/db/host_db ,
+then
+.BR ./host_db .
+.TP
+.BI \-p \ <port>
+The port number for the site being transferred.
+.TP
+.BI \-w \ <dir> 	
+The name name of the directory in which the Archie anonftp 
+catalog resides. This parameter overrides the internally generated
+catalog name 
+.B ~archie/db/anonftp 
+and the 
+.B \-M 
+option, if specified.
+.TP
+.BI \-c
+In output mode the outgoing data will be compressed (with the
+.BR compress (1)
+program) in the final stage before being put on the network. This results
+in a significant improvement in transfer times. In input mode the format
+is automatically recognized from the incoming header an this option is
+ignored.
+.TP
+.BI \-v
+Tells you what it is doing.
+.TP
+.B \-l
+Write any user output to the default log file
+.B ~archie/logs/archie.log. 
+If desired, this can be overridden with the 
+.B \-L 
+option. Errors will by default be written to
+.I stderr.
+.TP
+.BI \-L \ <logfile>	
+The name of the file to be used for logging information.
+Note that debugging information is also written to the
+log file. This implies the 
+.B \-l 
+option as well.		
+.PP
+Since the output of the anonftp parsers is in binary format, files of
+this type may not be blindly copied from one hardware architecture to
+another since the manner of storing data types (ints, strings etc) may be
+different. Hence the use of Sun XDR format to transparently convert the
+transmittted data. 
+
+This program creates a temporary file during data transfer. This file
+will be removed if the program is interrupted or aborts during the transfer.
+.SH FILES
+~archie/db/host_db/*
+.br
+~archie/db/anonftp_db/*
+.SH SEE ALSO
+.BR arserver (n), 
+.BR parse_anonftp (n),
+.BR insert_anonftp (n)
+.SH AUTHOR
+Bunyip Information Systems
+.br
+Montr\o"\'e"al, Qu\o"\'e"bec, Canada
+.sp
+Archie is a registered trademark of Bunyip Information Systems Inc., Canada,
+1990.

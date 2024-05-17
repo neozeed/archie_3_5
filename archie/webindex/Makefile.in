@@ -1,0 +1,12 @@
+BIN_DIRS = \
+        parse    \
+        partial \
+	tools \
+        retrieve \
+        update
+
+DIRS = \
+        lib      \
+				$(BIN_DIRS)
+
+include $(ARCHIE_ROOT)/Makefile.multi

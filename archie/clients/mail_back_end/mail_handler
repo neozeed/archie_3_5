@@ -1,0 +1,7 @@
+#!/bin/sh
+
+fbase=zzz$$
+rm -f Info MailHeader
+sed -e '/@Begin/,/@MailHeader/w Info' -e '/@MailHeader/,/@End/w MailHeader' \
+    -e '/@Begin/,/@End/d' | \
+  (ms_size=`sed -n 's/^MaxSplitSize: //p' < Info` ; cat Info ; echo $ms_size ; split_file -s $ms_size -f $fbase)

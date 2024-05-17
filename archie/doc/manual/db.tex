@@ -1,0 +1,169 @@
+%
+% Copyright (c) 1996 Bunyip Information Systems Inc.
+% All rights reserved
+%
+% Archie 3.5
+% August 1996
+%
+% db.tex
+%
+
+
+
+
+\chapter{The database}
+\label{chap:db}
+\new
+
+\section{Overview}
+
+The database has been completely revised. The goals of this reconstruction
+were the building of a faster system and more reliable database.  The back-end
+of the database is composed of
+
+
+\begin{itemize}
+\item Index
+\item Site files
+\item Start database
+\end{itemize}
+
+
+The index is a tree structure, allowing fast searches of the strings file.
+Rebuilding the index is a relatively expensive process, so it is not updated
+after every new key is inserted into the database.  Thus, in order to handle a
+search request, a linear search is made of the (usually) small un-indexed
+portion of the strings file, in addition to checking the fast index.  To
+ensure quick response times, the index should, periodically, be brought up to
+date with the strings file.
+
+
+Within a catalog, files having the prefix \Path{``Stridx.''}, are part of
+the index.  For example, \Path{Stridx.Strings} is the strings file, and
+\Path{Stridx.Index} is the fast index. Depending on the database, the
+creation of the index is done differently. The anonftp database creates an
+index file for all substrings where instead the webindex database creates
+an index file that contains only the left substrings. 
+
+
+The site files are now independent of one another. In case of corruption, only
+the site that is corrupted need be considered. In certain cases, such as
+webindex, extra files may be present with each site file. The
+\Path{.excerpt} files contain excerpts of the different URLs.
+The \Path{.idx} files, present in both anonftp and webindex, hold extra information
+for large site files, in order to speed up searches.
+
+The directory \Path{start\_db}, present in each catalog, holds information
+that ties the index with the site files.
+
+\section{Building the index}
+
+
+In order to rebuild the index, the program \Path{db\_build} must be run.
+
+The build may take some time to run, depending on the size of
+\Path{Stridx.Strings} and the amount of memory allocated to the build.
+One would call \Path{db\_build} as follows:
+
+\comm{db\_build -d anonftp -v -k 50000 -t \archie/db/tmp }
+
+The above example builds the anonftp index using 50 megabytes of memory.
+Temporary storage is used in the \Path{\archie/db/tmp} directory. The man page lists
+all the other switches that can be used. One option of particular importance
+is ``\Comm{-f}'', which forces the index to be rebuilt, even if the un-indexed
+portion of the strings file is very small. By default, the program will not
+rebuild the index if the un-indexed text is less than 1 megabyte.
+
+\alertbox{The index file is not constructed the same for each database. In the
+case of the anonftp database, the index includes information concerning every
+substring present in the string file. In the case of the webindex database,
+the index is built for every word prefix present in the string file, i.e.
+all substring that start at the beginning of a word.}
+
+
+\alertbox{You may want to rebuild the index once a week initially and then
+only once a month. These estimates are speculative --- it depends
+on the rate at which new strings are added to the database.}
+
+\section{Ordering the results}
+
+With the volume of information in the database and the amount of replication
+on the network, it is often desirable to return the results in some order of
+closeness. It is now possible to configure the order in which results are
+returned, according to the name of the domain to which the result site
+belongs. To avoid slowing down searches, this ordering is done at the time at
+which the data site is inserted into the database, rather than when the
+results are being returned.
+
+The order is defined in the file \Path{\archie/etc/domain.order}. The
+following is an example of such a file.
+
+\begin{center}
+\begin{tabular}{l}
+\Param{\# Comment line} \\
+\Param{\# Domain order for an Archie server in North America} \\
+\Param{ca:edu} \\
+\Param{com:gov} \\
+\Param{*} \\
+\Param{au:nz} \\
+\end{tabular}
+\end{center}
+
+
+Domains on the same line have the same precedence. Hence, \Param{.edu} sites
+and \Param{.ca} sites will be returned first, in no particular relative order.
+The sites in the domains \Param{.com} and \Param{.gov} will be listed later.
+To discourage users from making unnecessary, long distance file transfers, the
+sites from New Zealand and Australia are returned last. (We assume that users
+accessing a North American archie server are usually in North America.) The
+``*'' represents all other sites.
+
+One can also specify the domains using pseudo-domains defined in
+\Path{\Archie/etc/ardomains.cf} as well as sub-domains such as \Param{bunyip.com}.
+
+\alertbox{For a given keyword in the database, the list of sites in which it
+belongs is ordered. The result of this is that the answer returned from a
+search may seem unordered.
+In fact, the list of results is composed of sub-lists, each one for a
+specific keyword matching the search criteria, and each one of 
+those sub-lists are ordered according to the specified order.
+Note also that some clients such as xarchie reorders the results and you may
+not get the results in the appropriate order.
+}
+
+\alertbox{In order for changes, in the order of domains, to take effect, you must
+rebuild the precomputed orders for the existing sites. This is done with the
+program \Comm{db\_reorder}, listed in section~\ref{sec:programs}. }
+
+\alertbox{Note that there are no leading dots ``.'' in the listed domains}
+
+
+
+
+\section{The other programs}
+\label{sec:programs}
+
+All programs prefixed by \Path{db\_} in \Path{\archie/bin} aid in managing the
+database. They are:
+
+\begin{center}
+\begin{tabular}{|l|l|} \hline
+Program & Description \\ \hline\hline
+
+db\_build & Build the database index \\ \hline
+db\_check & Verify the consistency of the database \\ \hline
+db\_dump  & Dump the list of sites that are in \Path{start\_db} \\ \hline
+db\_reorder & Reorder the sites according to \Path{domain.order} \\ \hline
+db\_siteidx & Build the \Path{.idx} files for specific sites \\ \hline
+db\_stats & Compute statistics \\ \hline
+fix\_start\_db & Fix problems in the start\_db database. \\ \hline
+\end{tabular}
+\end{center}
+
+Information about the command line options of these programs may be found in
+their respective man pages.
+
+
+
+
+

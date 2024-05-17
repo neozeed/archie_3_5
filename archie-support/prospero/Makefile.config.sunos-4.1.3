@@ -1,0 +1,440 @@
+#
+#/*
+# * Copyright (c) 1991-1994 by the University of Southern California
+# *
+# * For copying and distribution information, please see the file
+# * <usc-license.h>.
+# */
+#
+
+# This is the master configuration Makefile for the 
+# Prospero Directory Service.  It replaces the former practice of always 
+# having to modify a number of independent makefiles.
+
+
+#######################################################################
+# I) Machine and Operating-System dependent options.  Check these.    #
+# The defaults are correct for SunOS.                                 #
+#######################################################################
+
+# Also need to configure the LIBS entry in section II according to your
+# operating system.
+
+#### INSTALL
+
+# This definition of install is useful if you do not plan to throw away 
+# debugging information.  It will work on systems with a build-in install.
+INSTALL = install
+
+# If space is at a premium and you want the binaries stripped of their 
+# symbol tables and other debugging informaiton when they're installed, 
+# use the following definition of INSTALL instead.  If you are going to throw 
+# away the debugging information anyway, he definition of CFLAGS below should
+# not include the -g option, which means 'include debugging information'.
+
+# INSTALL = install -s
+
+# If you're using HP-UX (or other systems without a BSD-like 'install'
+# command, use the version we provide in the misc subdirectory of this
+# distribution.
+# INSTALL = sh /usr/pfs/source/misc/install.sh
+
+####  OWNER
+# The owner of the binaries that will be installed.
+# OWNER   = pfs
+OWNER   = swa
+
+#### GROUP
+# The group that the binaries to be installed should be set to.  
+# GROUP   = pfs
+GROUP   = prospsrc
+
+
+#### RANLIB
+
+# Some systems (notably SCO Unix, Solaris, SGI, and other Sys-V Unices) do not 
+# need "ranlib" to be run on an archived library after "ar".  If your system
+# is one of them, define this as "echo" or "true".  Otherwise define it
+# as "ranlib".
+
+RANLIB = ranlib
+
+#### AR
+## your archiving program.  You should not need to change this.
+AR = ar
+
+# Define this if you feel like making AR verbose when it builds the libraries.
+# This will give you extra info as it's chugging along.
+# AR_VERBOSE_FLAG=v
+
+ARFLAGS = r$(AR_VERBOSE_FLAG) 
+
+#### MACHDEF
+
+#
+# This is used to set certain #defines that might be needed by any file
+# you're compiling with.
+# Generally this is used when certain C compilers require magic things to be
+# #defined, or when some general Prospero include file needs a special fix for 
+# a particular architecture.
+
+# AIX: 
+# If you're using AIX, set MACHDEF to be this:
+# MACHDEF = -DAIX
+#
+# ULTRIX:
+# The system include files on Ultrix systems depend on the compiler predefining
+# __LANGUAGE_C, __mips or __vax, and, if on a MIPS system,
+# __MIPSEL for the little-endian version and __MIPSEB for the big-endian 
+# version.   The version of GCC I was using did not predefine these constants,
+# although the system's C compiler did.  If you are on an ULTRIX system and
+# encounter errors involving 'struct sigcontext' or '.w_Retcode' being
+# undefined, set MACHDEF to include these definitions.  One of the following
+# three choices will work, depending upon your configuration.
+# MACHDEF = -D__mips -D__MIPSEL -D__LANGUAGE_C
+# MACHDEF = -D__mips -D__MIPSEB -D__LANGUAGE_C
+# MACHDEF = -D__vax -D__LANGUAGE_C
+#
+# ULTRIX:
+# In addition, under Ultrix4.2 using GCC version 1.37.1 OSF 1.9.2.13, I 
+# encountered a bug explained in <include/pprot.h>.  Add this to the 
+# definition of MACHDEF if you get error messages complaining that NULL 
+# has been redefined.
+#	-DCONFLICT_BETWEEN_DEFINITION_OF_NULL_IN_SYS_PARAM_H_AND_STDDEF_H
+
+MACHDEF =		# empty for most systems
+
+
+#### COMPILER_PREPENDS_C_SYMBOLS_WITH_UNDERSCORE
+
+# Many BSD-derived C compilers prepend C symbols with an _, and require that 
+# the _ be present as an argument to the linker's -u flag.  Many 
+# SysV-derived compilers don't do that.  Some Prospero Makefiles (notably, the
+# compatibility library) use the linker's -u flag.
+
+# BSD:
+# On Suns running SunOS and on the VAX use this definition:
+COMPILER_PREPENDS_C_SYMBOLS_WITH_UNDERSCORE=_
+
+# SYSV:
+# On Suns running SOLARIS and on the MIPS, use this empty definition:
+# COMPILER_PREPENDS_C_SYMBOLS_WITH_UNDERSCORE=
+
+
+#### MAKE
+
+# You should not need to explicity set this, unless your version of MAKE is
+# broken.  This is even true if you're using an unusual version of MAKE
+# that your system doesn't call 'make'.
+# MAKE	= make
+
+
+
+#######################################################################
+# II) Configuration-dependent options (these all MUST be set)         #
+#######################################################################
+
+# lib/psrv/wais_gw should be added if you're using WAIS or even if you 
+# just want your clients to be able to retrieve WAIS files directly.
+# It is enabled by default so that the WAIS retrieval will work properly
+# Added to BIN subdirs rather than to LIB subdirs because there are executables
+# in it.  (XXX not sure what they do. --swa)
+# "app"  should be added if you're using the compatability library and want
+# to build the versions of CAT and LS that are specially linked with Prospero.
+# "pcompat" and "app" won't work with SCO UNIX or AIX or SOLARIS, because they 
+# need syscall.h.
+#
+# If you add "app", then add "lib/pcompat" to OPTIONAL_LIB_SUBDIRS
+#
+# XXX pcompat and app not fully supported in this prerelease.  Fix later. 
+# --swa XXX 
+
+#OPTIONAL_BIN_SUBDIRS = lib/psrv/wais_gw # app
+
+# Add lib/psrv/gopher_gw if you're running a server with GOPHER-GW enabled.
+# Add lib/psrv/archie2 if you're running an archie version 2 server.
+# Add lib/psrv/archie3 if you're running an archie version 3 server.
+# Add lib/pcompat for the compatibility library.  (see note above)
+
+#OPTIONAL_LIB_SUBDIRS = lib/psrv/wais_gw lib/pcompat lib/psrv/gopher_gw
+
+
+# These options are used only by 'make install' and 'make installbinaries'
+
+#### TOPDIR
+# The top of the Prospero data files.  You will only use this if you're
+# running the Prospero server.
+
+TOPDIR  = /pfs
+
+#### P_BINARIES:
+# Location where Prospero binaries should be put by the 'install' target.
+
+P_BINARIES	= $(TOPDIR)/bin
+
+#### SOURCEBASE
+# The directory in which the top-level Prospero makefile exists.  This is the
+# root of the Prospero build directory/source directory you're using.
+# The Prospero Makefiles use this to compute library and include-file 
+# pathnames for the linker and compiler.
+
+# This actually does not need to be defined; each include file defines its own.
+# SOURCEBASE = /nfs/gost/build/10Mar94+19Apr94.patched
+
+#### KERBEROS (K_INC, KRB_LIBS, KRB_LIBS_DEPENDENCIES)
+
+# Use the following definitions if you want Kerberos Version 5
+# authentication. 
+# The location of the Kerberos version 5 libraries and include files will vary
+# from machine to machine.
+# We don't enable the Kerberos libraries and include files by default because 
+# searching the huge Kerberos libraries substantially slows down the linker.
+# K_INC   = -I/nfs/kerberos/v5/include
+# KRB_LIBS = -L/nfs/kerberos/v5/lib -lkrb5 -lcrypto /nfs/kerberos/v5/extlib/libisode.a
+# Only need to set the dependencies if your Kerberos libraries might change
+# out from under you (this is the case at ISI, where Kerberos development is
+# ongoing).
+# KRB_LIBS_DEPENDENCIES=/nfs/kerberos/v5/lib/libkrb5.a /nfs/kerberos/v5/lib/libcrypto.a /nfs/kerberos/v5/extlib/libisode.a
+# Use the following definitions if you don't want Kerberos.
+
+K_INC    =
+KRB_LIBS =
+KRB_LIBS_DEPENDENCIES =
+
+##
+## LIBS
+##
+## Special libraries needed by some operating systems.
+##
+##
+
+# SCOUNIX: Need -lsocket, -lcrypt_i
+# LIBS = -lsocket -lcrypt_i -lm
+# SOLARIS: Need -lsocket -lnsl
+# LIBS = -lsocket -lnsl
+# Under SunOS no libraries are necessary.
+LIBS=
+
+# There are usually not dependencies, unless you think the libraries 
+# you're using might change under you.
+
+LIBS_DEPENDENCIES=
+
+#### Add the threads library we use to the LIBS list.
+## not all versions of MAKE support +=
+
+## If you're running multi-threaded using the FSU pthreads package, make 
+## sure that lib/fsu_pthreads/lib/libpthreads.a and lib/malloc/gmalloc.o
+## are included.  
+# LIBS += /nfs/pfs/prospero.build/sun4/lib/fsu_pthreads/lib/libpthreads.a /nfs/pfs/prospero.build/sun4/lib/malloc/gmalloc.o -lm
+# LIBS_DEPENDENCIES += $(SOURCEBASE)/lib/fsu_pthreads/lib/libpthreads.a $(SOURCEBASE)/lib/malloc/gmalloc.o
+
+## if running multi-threaded under SOLARIS, add -lthread to LIBS:
+# LIBS += -lthread 
+
+##If you're working with another threads package, make sure
+## that that particular package's libraries are included.
+
+
+#### MORE_USER_PROGS 
+
+# A set of additional user programs that are compiled by default.
+# By default, this is unset.
+# If you have gotten your own site distribution, then you will want to add
+# "newvs" and "newpsite" to this list.
+
+MORE_USER_PROGS = newvs
+# MORE_USER_PROGS = 
+
+#### MORE_SERVER_PROGS 
+
+# A set of additional programs in the SERVER directory
+# that should be compiled by default.
+# By default, this is unset.
+# If you are running a Prospero server using the Prospero Password 
+# authentication mechanism, then add pw_edit to this list.
+# MORE_SERVER_PROGS = pw_edit
+
+MORE_SERVER_PROGS =
+
+#### SERVER_DB_LIBS
+
+# These databases are linked with the server.  You must also make the
+# appropriate changes to <pserver.h>
+
+# For ARCHIE servers, version 2.  To use this, you will need to get the ARCHIE
+# distribution from Bunyip Information Systems.
+#SERVER_DB_LIBS= $(ARCHIE2_LIB) 
+#SERVER_DB_LIBS_DEPENDENCIES= $(ARCHIE2_LIB) 
+# For ARCHIE servers, version 3.  To use this, you will need to get the ARCHIE
+# distribution from Bunyip Information Systems.
+#SERVER_DB_LIBS= $(ARCHIE3_LIB1) $(ARCHIE3_LIB2) 
+#SERVER_DB_LIBS_DEPENDENCIES= $(ARCHIE3_LIB1) $(ARCHIE3_LIB2) 
+# Unimplemented format to read GOPHER data files; this does not work yet
+# and probably never will since it has been supserseded by the GOPHER-GW.
+#SERVER_DB_LIBS=  $(SOURCEBASE)/lib/psrv/gopher/libpgopher.a
+# For just GOPHER-GW
+SERVER_DB_LIBS=  $(GOPHER_GW_LIB) 
+SERVER_DB_LIBS_DEPENDENCIES = $(GOPHER_GW_LIB) 
+# For just WAIS
+# note that wais uses -lm
+#SERVER_DB_LIBS= $(WAIS_GW_LIB) -lm
+#SERVER_DB_LIBS_DEPENDENCIES = $(WAIS_GW_LIB) 
+
+# For GOPHER-GW and WAIS
+#SERVER_DB_LIBS= $(GOPHER_GW_LIB)  $(WAIS_GW_LIB) -lm
+#SERVER_DB_LIBS_DEPENDENCIES= $(GOPHER_GW_LIB)  $(WAIS_GW_LIB)
+# On SOLARIS 2.3: Note - that this is not thread safe, unless it uses libm.so 
+#                 not libm.a. See "man ciel"  - this hasn't been checked yet
+
+# For no server libraries.
+#SERVER_LIBS = 
+#SERVER_LIBS_DEPENDENCIES = 
+
+
+
+
+###########################################################################
+# III) DEVELOPMENT OPTIONS                                                #
+# You will generally not want to modify these options unless you are      #
+# a Prospero developer
+###########################################################################
+
+##
+## GENERATION and GENERATIONSUFFIX
+## This is a special program that installs new binaries without corrupting 
+## existing ones that might be running.  It also renames the existing  files
+## to .o or .oo
+
+
+# GENERATION=true IGNORE THIS
+GENERATION =/nfs/pfs/dev/tools/generation
+# leave suffix empty normally.
+# leave it to + for the mitra-style GENERATION command.
+
+# GENERATIONSUFFIX=
+GENERATIONSUFFIX=+
+
+##
+## an 'install' dependency clearly goes here.  yank out from all makefiles.
+##
+
+
+##
+## COMPILER SETUP and FLAGS
+##
+
+## Compiler choice.  Prospero must be compiled with an ANSI C compiler.
+## We usually use GCC.
+## Use 'xlc' on an RS6000.
+
+CC	= gcc
+
+# Debugging is turned off in the default distribution in order to keep things
+# reasonably small.
+# If you encounter segmentation faults or other problems, we may ask you to
+# reset this to '-g', 'make clean', and recompile the binaries so that we can
+# get a stack trace and other useful debugging information.
+
+## WARNINGS
+# Warnings on here have been checked for most, if not all of the code
+# This does not work on SunOS 4.1.3., because the include files don't prototype
+# all the functions.  Has been tested under Solaris.
+# GCCWARN = -Wimplicit
+GCCWARN=
+# Compiling with these will generate lots of warnings 
+GCCTRY = -Wformat -Wshadow -Wreturn-type 
+# -O -Wuninitialized # -Wuninitialized is not supported without -O
+GCCNO = -Wredundant-decls -Wstrict-prototypes
+# -ggdb3 to compile with full GDB debugging information.
+# -g for adequate debugging information.
+# -pg for performance monitoring
+# -O for optimization
+
+# CFLAGS = 
+
+CCFLAGS  = -ggdb3 $(GCCWARN) $(GCCTRY) -O3 -DSUNOS # -DCOREDUMP
+
+## Additional stuff added to CFLAGS in Makefile.boilerplate.
+
+##
+## The WAIS gateway code has notions of how to be configured that differ
+## from the rest of Prospero.
+## If using that code, please set WCFLAGS.  It is set by default to an 
+## appropriate value.
+## WCFLAGS will be appended to the regular CFLAGS for just the 
+## lib/psrv/wais_gw/Makefile. 
+
+#-Dmacros for using macros rather than functions in certain inner loops
+# RS6000's require adding -D_POSIX_SOURCE -D_XOPEN_SOURCE -D_ALL_SOURCE
+# Data Generals require adding -DDG
+# WCFLAGS = -UM_XENIX -DSCOUNIX -Dmacros -DIN_RMG
+# IN_RMG is used to specify only to compile parts needed for RMG (that is,
+# only the parts needed for the Prospero WAIS client gateway.)
+# Some of the non-RMG parts are not thread safe yet
+
+WCFLAGS  = -DIN_RMG -Dmacros
+
+##
+## CACHING definitions.
+##
+
+### CLIENT SIDE CACHING
+# If you are using the special client side CACHING option (see section 3 
+# of <psite.h>) then you will need to put the non-empty versions of 
+# these three macros in place.
+# If you are a Prospero novice, leave the defaults present.  The caching code
+# is still experimental.
+
+## You will not normally alter this, but it can be done if you want to change
+## the name.  If you do, then also alter P_CACHE_P, P_CACHE_VC, and P_CACHE_TMP
+## in section 3 of <psite.h>.
+
+P_CACHE_P = $(TOPDIR)/vcache/p
+P_CACHE_VC = $(TOPDIR)/vcache/vc
+P_CACHE_TMP = $(TOPDIR)/vcache/tmp
+
+### VCACHE PROGRAM or LIBRARY?
+
+# If you're using the PVACHE LIBRARY, then you need to use the first definition
+# Use the second if you are not.
+# This is normally not set and you normally will not need to
+# make use of it.  See section (3) of <psite.h>
+# These libraries will be linked with any Prospero client that retrieves data
+# using an ACCESS-METHOD.
+# In the distribution, they are linked with "menu", "vget", "vcache", 
+# and programs that use the compatibility library.
+# Programs that don't retrieve data (e.g., PSTATUS) can be linked with either
+# USE_VCACHE_LIBS or with PFS_LIBS.
+
+# USE_VCACHE_LIBS = $(PFS_VCACHE_LIBS) 
+USE_VCACHE_LIBS = $(PFS_LIBS) 
+
+# Change this in parallel with USE_VCACHE_LIBS.
+# USE_VCACHE_LIBS_DEPENDENCIES = $(PFS_VCACHE_LIBS_DEPENDENCIES) 
+USE_VCACHE_LIBS_DEPENDENCIES = $(PFS_LIBS_DEPENDENCIES) 
+
+####
+#### If you change the definitions of PSRV_SHADOW, PSRV_STORAGE, or 
+#### PSRV_SECURITY in <pserver.h>, you must change these to match.
+#### These are normally not changed.
+#### This is used by the 'installdirs' dependency.
+
+PSRV_SHADOW=$(TOPDIR)/shadow 
+PSRV_STORAGE=$(TOPDIR)/pfsdat
+PSRV_SECURITY=$(TOPDIR)/security 
+
+
+
+#### INSTALL_EXE_MODE
+#### Mode for executables to be set to when installed.  It would be quite odd
+#### for you to want to change this, but you can if you want to.
+INSTALL_EXE_MODE = 755
+
+#### INSTALL_DATA_MODE
+#### Mode for non-executables to be set to when installed.  It would be quite odd
+#### for you to want to change this, but you can if you want to.
+INSTALL_DATA_MODE = 644
+
+###
+include $(SOURCEBASE)/Makefile.boilerplate

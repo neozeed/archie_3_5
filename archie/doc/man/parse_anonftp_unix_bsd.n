@@ -1,0 +1,96 @@
+.\" Copyright (c) 1992, 1994, 1996 Bunyip Information Systems Inc.
+.\" All rights reserved.  
+.\"	
+.\" Archie 3.5
+.\" August 1996
+.\"	
+.\"	@(#)parse_anonftp_<sys>
+.\"
+.TH PARSE_ANONFTP_SYS N "August 1996"
+
+.SH NAME
+parse_anonftp_<sys type> \- generate input to the insertion routine from
+recursive listings for the anonftp catalog
+
+.SH SYNOPSIS
+parse_anonftp_\fIsys_type\fP
+[
+.B \-h
+] [
+.BI \-i \ <input\ file>
+] [
+.BI \-o \ <output\ file>
+] [
+.BI \-p \ <prep\ dir>
+] [
+.BI \-r \ <root\ dir>
+]
+.SH DESCRIPTION
+.LP
+\fBparse_anonftp\fP_\fIsys_type\fP describes a family of parsers,
+currenly with members
+.B parse_anonftp_unix_bsd 
+for BDS UNIX systems
+.B parse_anonftp_novell
+for Novell systems and
+.BR parse_anonftp_vms_std
+for VMS systems.
+.PP
+\fBparse_anonftp\fP_\fIsys_type\fP reads a pre-filtered recursive
+directory listing obtained under the \fIsys_type\fR operating system.
+Its output is intended to be the input to the
+.BR insert_anonftp (n)
+program.
+
+.SH OPTIONS
+.LP
+.TP 5n
+.B  \-h
+No headers.
+The listing is not expected to have a special header (normally used by all
+programs in the database insertion pipeline), nor will it generate one on
+output.  This option can be used for debugging or to test raw (unprocessed) listings.
+.TP 5n
+.BI  \-i <input\ file>
+The next argument is the name of the file containing the recursive listing. If
+unspecified,
+.I stdin
+is assumed.
+.TP 5n
+.BI  \-o \ <output\ file>
+The next argument is the name of the file to which the output will be written.
+If unspecified,
+.I stdout
+is assumed.
+.TP 5n
+.B  \-p \ <prep\ dir>
+Currently, this is used only by the UNIX parser.  The next argument is
+prepended to the start of all \fIdirectory definitions\fR.  For
+example, an argument of `.' can be used to turn the directory
+definition `bin:' into `./bin:', which is more easily digested by the parser.
+.TP 5n
+.B  \-r
+Root directory.
+This is currently only used by the UNIX parser.  The next argument is the name
+the root directory from which the listing is assumed to be taken.  This option
+is often, but not always, used in conjunction with the
+.B \-p
+option, and is typically the same string, but with the trailing `/' replaced
+with a `:'.  For example, together these arguments might be `-r .: -p .'.
+.TP 5n
+.B  \-v
+Verbose. Tell you what it is doing.
+
+The output of the program is in Archie Listings Parser Output format
+which is described in 
+.BR anonftp_parser_output (5).
+.SH SEE ALSO
+.BR parse_anonftp (n),
+.BR anonftp_parser_output (5),
+.SH AUTHOR
+Bunyip Information Systems
+.br
+Montr\o"\'e"al, Qu\o"\'e"bec, Canada
+.sp
+Archie is a registered trademark of Bunyip Information Systems Inc., Canada, 
+1990.

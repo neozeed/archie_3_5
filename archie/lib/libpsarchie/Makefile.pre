@@ -1,0 +1,24 @@
+#
+# libpsarchie module.
+#
+
+#MOD_CFLAGS = -pipe
+MOD_DEBUG  = -g3
+MOD_DEFS   = -DGOPHERINDEX_SUPPORT -DDOMAINS_SUPPORT
+MOD_INCS   = -I$(INCLUDE_MODULE) -I$(PROSPERO_ROOT)/include
+#MOD_WARN   = -Wall -Wtraditional -Wshadow -Wpointer-arith -Wcast-align
+MOD_WARN   =
+
+
+include $(ARCHIE_ROOT)/Makefile.pre
+
+
+SRCS = \
+        arch_dsdb.c       \
+        arch_prioritize.c \
+        arch_time.c
+                
+OBJS = \
+        arch_dsdb.o       \
+        arch_prioritize.o \
+        arch_time.o

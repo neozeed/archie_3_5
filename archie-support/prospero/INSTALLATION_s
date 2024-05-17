@@ -1,0 +1,156 @@
+Instructions for installing the Prospero server:
+
+This distribution includes the source code for the Prospero server and
+client.
+
+You must compile this release using ANSI C, since it makes use of the ANSI C
+variable-length argument list facilities and of the ANSI prototypes.
+A future release may be compilable under both ANSI and traditional C,
+using a conversion program.  If you feel like modifying the ansi2knr
+conversion program to perform such a conversion, we would be delighted
+to hear from you.
+
+
+In order to install the server you will need a user-id to run it
+under.  I would suggest creating a new account with the name "pfs" or
+"prospero" (but this is not required).  The account does not need to
+be loginable.  The directory associated with this user-id will be used
+to store shadow information.
+Put this in the group you want to run the binaries - we suggest "pfs" or
+"prospero".
+
+You may also want to add the following entry to /etc/services.  It is
+not absolutely necessary to do so since the server will default to the
+correct port if this entry is missing.
+
+dirsrv		1525/udp	# The Prospero directory service
+
+IMPORTANT: THE FILE plog.h DEFINES THE CONFIGURATION FOR THE
+INFORMATION TO BE LOGGED FOR EACH TYPE OF PROSPERO QUERY.  AS
+DISTRIBUTED, PROSPERO IS CONFIGURED TO LOG LOTS OF INFORMATION,
+INCLUDING THE NAMES OF CLIENTS AND THE SPECIFIC COMMANDS ISSUED.  THIS
+INFORMATION SHOULD BE CONSIDERED SENSITIVE AND YOU MUST PROTECT THE
+LOGFILE.  ADDITIONALLY, YOU SHOULD CONFIGURE THE SERVER TO LOG ONLY
+THE INFORMATION YOU ACTUALLY NEED.  THIS CAN BE ACCOMPLISHED BY
+EDITING THE DEFINITION OF INITIAL_LOG_VECTOR IN plog.h.
+
+To tailor the server to your systems's configuration, edit the file
+include/psite.h and include/pserver.h (this has changed since Prospero
+release 4).  The definitions that are of particular importance for
+this distribution in psite.h are P_BINARIES and P_PATH.  Note that
+this distribution is intended to be configured as (a remote) part of
+the ISI.EDU guest site.  Thus, there are few changes to be made to
+this file.  If you wish to run your own Prospero site (not just your
+own Prospero server), you should contact info-prospero@isi.edu to
+obtain the proper distribution.  If you will be using Kerberos version
+5 authentication in your clients, #define P_KERBEROS.  	If you will be
+using Kerberos authentication on the server, define PSRV_KERBEROS.
+Note that, at this time, most sites are still using the older Kerberos
+version 4 protocol, which this release does not support.
+
+In pserver.h the definitions of imporance are P_DIRSRV_BINARY,
+PSRV_HOSTNAME, PSRV_USER_ID, PSRV_LOGFILE, PSRV_ROOT, PSRV_FSHADOW,
+PSRV_FSTORAGE, and AFTPDIRECTORY.
+
+If you want to run a Gopher/Prospero gateway on your machine, then
+define PSRV_GOPHER_GW in include/pserver.h, uncomment the appropriate
+definition of SUBDIR in lib/psrv/Makefile, and uncomment the
+appropriate definition of DB_LIBS in server/Makefile.
+
+Next, edit include/pmachine.h.  This file defines some of the machine
+and OS specific parameters needed by Prospero.
+
+Then edit the top level Makefile.  First set any machine-specific
+parameters.  If you're installing the binaries under HP-UX or another
+system which lacks a BSD-like INSTALL, redefine the INSTALL macro as
+discussed in the Makefile.  If you're on an AIX system redefine the
+MACHDEF macro as discussed in the Makefile.  If you're on a MIPS or
+VAX ULTRIX system, you may also need to define the MACHDEF macro as
+discussed in the Makefile.
+
+Now set the installation parameters in the top level Makefile.  Set
+P_BINARIES to the directory in which the binaries are to be installed.
+OWNER and GROUP should be set to the intended owner and group for the
+Prospero binaries.  TOPDIR is the name of the directory that will
+contain the shadow subdirectory.  (i.e. if P_FSHADOW is
+/usr/pfs/shadow, then TOPDIR should be /usr/pfs).  If you will be
+using Kerberos version 5, KRB_LIBS and K_INC must be defined
+appropriately for your site.  This release must be compiled with an
+ANSI compiler; therefore, the default is 'gcc'.  If you're using
+another compiler, you may want to change the definitions of CC and
+CFLAGS.
+
+If you are running the server in multi-threaded mode, you must 
+edit include/pthreads/pthread.h to include the full pathname of files.
+
+If you will be building the PFS compatibility library (which redefines
+open and several other library functions), you will have to:
+a) remove the definition of P_NO_PCOMPAT from include/psite.h.  
+b) replace lib/pcompat/Makefile with lib/pcompat/Makefile.pcompat
+c) replace app/Makefile with app/Makefile.pcompat
+d) In addition, some systems will require a change to the SC_REDEF variable
+   definition in app/Makefile.pcompat.
+
+Next, move back to the top level directory for the distribution and
+type 'make'.  Once the distribution has been successfully built, type
+'make install'.  If you are running a previous release of Prospero,
+rename P_BINARIES to P_BINARIES.old before you 'make install', and
+keep P_BINARIES.old around for a while in case you need to revert to
+the previous version of Prospero.
+
+The program pstart figures out the appropriate arguments for the
+server, sets its UID to that under which the server is to run, and
+starts dirsrv.  By making pstart setuid and setgid to the ID under
+which the server will run, any user will be able to start/restart the
+server.  You should start the server whenever your system is booted.
+pstart may be called from the system startup.  It will immediately set
+its user and group IDs to that for the server.
+
+If you are running a pre-version-5 prospero server in other than read
+only mode, you will need to convert your old directory shadow
+hierarchy to the new file format.  Instructions for doing this are in
+server/shadowcvt.doc.  If your old server was read only, you do
+not need to do this conversion.
+
+The directory app contains the code for versions of cat and ls which
+may be linked with the compatability library.  Other programs may also
+be linked with the compatability library, but filenames hardcoded into
+those programs (or the libraries they call) might be resolved using
+Prospero, causing unexpected behavior if those names do not identify
+the same files in the active virtual system.  
+
+The directory "doc" contains the source to (a) a manual on using the
+Prospero file system, (b) a manual describing version 5 of the
+Prospero protocol, and (c) a terse description of the functions in the
+Prospero library.  The file "getting-started.txt" in that directory
+contains enough information to get started.  The file ".virt-sys" in
+that directory contains a reference to a guest virtual system at the
+USC Information Sciences Institute.  This may be copied to your home
+directory.  If you would like your own virtual system contact
+pfs-administrator@isi.edu.
+
+Bug reports should be sent to:
+
+  bug-prospero@isi.edu
+
+Requests or queries about the release should be sent to:
+
+  info-prospero@isi.edu
+
+Requests for creation of virtual systems stored at the USC Information
+Sciences Institute guest site, or requests to establish one's own
+Prospero site should be sent to:
+
+  pfs-administrator@isi.edu
+
+A public mailing list has been set up for discussion of Prospero.
+Among other things, this list can be used to announce directories of
+information that users have created and wish to share.  The name of
+the list is:
+
+  prospero@isi.edu
+
+Requests for addition or deletions should be sent to:
+
+  prospero-request@isi.edu
+

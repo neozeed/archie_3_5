@@ -1,0 +1,37 @@
+#ifndef _HEADER_DEF_H_
+#define _HEADER_DEF_H_
+
+#include "header.h"
+
+/*
+ * This structure holds the information on what header fields look like.
+ * It also holds the information to check if that field has been set or not
+ */
+
+static ascii_header_fields_t header_fields[] = {
+	{ HEADER_BEGIN_I, HEADER_BEGIN, 0},
+	{ GENERATED_BY_I, GENERATED_BY, 0},
+	{ SOURCE_ARCHIE_HOSTNAME_I, SOURCE_ARCHIE_HOSTNAME, 0},
+	{ PRIMARY_HOSTNAME_I, PRIMARY_HOSTNAME, 0},
+	{ PREFERRED_HOSTNAME_I, PREFERRED_HOSTNAME, 0},
+	{ PRIMARY_IPADDR_I, PRIMARY_IPADDR, 0},
+	{ ACCESS_METHODS_I, ACCESS_METHODS, 0},
+	{ ACCESS_COMMAND_I, ACCESS_COMMAND, 0},
+	{ OS_TYPE_I, OS_TYPE, 0},
+	{ TIMEZONE_I, TIMEZONE, 0},
+	{ RETRIEVE_TIME_I, RETRIEVE_TIME, 0},
+	{ PARSE_TIME_I, PARSE_TIME, 0},
+	{ UPDATE_TIME_I, UPDATE_TIME, 0},
+	{ NO_RECS_I, NO_RECS, 0},
+	{ CURRENT_STATUS_I, CURRENT_STATUS, 0},
+	{ UPDATE_STATUS_I, UPDATE_STATUS, 0},
+	{ ACTION_STATUS_I, ACTION_STATUS, 0},
+	{ FORMAT_I, FORMAT, 0},
+	{ PROSPERO_HOST_I, PROSPERO_HOST, 0},
+	{ HCOMMENT_I, HCOMMENT, 0},
+	{ DATA_NAME_I, DATA_NAME, 0},   
+	{ HEADER_END_I, HEADER_END, 0}
+
+};
+
+#endif

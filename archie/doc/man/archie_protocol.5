@@ -1,0 +1,197 @@
+.\" Copyright (c) 1992,1994,1996 Bunyip Information Systems Inc.
+.\" All rights reserved.  
+.\"	
+.\" Archie 3.5
+.\" August 1996
+.\"	
+.\"	@(#)archie_protocol.5
+.\"
+.TH ARCHIE_PROTOCOL 5 "August 1996"
+.SH SYNOPSIS
+.B Archie_protocol
+\- description of the internal client/server Archie protocol
+.SH DESCRIPTION
+.PP
+This protocol describes the \fBinternal\fP Archie protocol, not that used
+between the Prospero servers and clients for querying the database.
+This protocol is used for distributing data between Archie systems
+worldwide.
+
+Protocol commands themselves are in ASCII printable characters and <cr>,
+<lf> (ASCII 13 and 10 respectively) although data such as that from the
+Archie files database are transmitted as a binary stream in Sun XDR
+format. All commands must start at the beginning of the line and are
+terminated by <cr><lf>. Intervening whitespace may be spaces or tabs or
+both. The data stream may be compressed depending on the configuration of
+the servers at either end of the connection.
+
+The basic security mechanism enforced by the server is such that it only
+allows those clients attempting connection from "approved" hosts to
+establish a session. This is described in
+.BR arserver (n).
+It is assumed in the following description that such a session (the
+\fIcontrol connection\fP) has been
+established.
+
+The following commands are used by the client and server to communicate:
+
+.PP
+.B LISTSITES
+
+Sent by the client to the server to request all sites matching the
+criteria set out by the parameters to the command. These parameters in
+order are:
+
+.RS
+<db> '<'|'>' <from date> <domainlist>
+.RE
+
+All sites which have been updated in the databases named <db> more/less
+recently than <from date> are to be listed. <db> is composed of a colon
+separated list of database names. The character '<' means less recently,
+'>' means more recently. <from date> is a date string in the format
+YYYYMMDDHHMMSS in UTC.  All zeros in this field is taken to mean that all
+sites in <db> are to be listed.  Sites listed must also match the
+<domainlist> field. This can either be '*' for any domain or a colon
+separated list of real domains or pseudo domains.  Pseudo-domains are
+user created and reside after installation in the file
+\fB~Archie/host_db/domain-db\fP. See
+.BR ardomains (n)
+for further explanation. 
+
+The first line of response from the server is:
+
+.RS
+TUPLELIST <number>
+.RE
+
+If <number> is non-zero the rest of the response is composed of a set
+tuples, <site tuple>, one for each site/database pair in the files
+matching the given criteria, one per line terminated by <cr><lf>. If
+<number> is zero, then no further lines are transmitted. Each tuple
+uniquely identifies that entry across the entire Archie system. The
+tuples consist of the following fields in the given order:
+
+<source>:<date>:<primary name>:<pref name>:<ip addr>:<db>
+
+Where:
+.RS
+.TP
+.B <source>
+is the Archie host responsible for monitoring that site
+.TP
+.B <date>
+is the date of listing retrieve of anonymous ftp host
+.TP
+.B <primary name>
+is the primary host name of site in the database
+.TP
+.B <pref name>
+is the preferred host name (CNAME) of host. Field may be empty if no such
+name is stored
+.TP
+.B <ip addr>
+is the primary IP address of the host
+.TP
+.B <db>
+is the database name
+.RE
+
+Host names are specified in standard RFC 1037 format 
+
+IP addresses are specified in standard 'dotted decimal' notation
+
+The date is specified YYYYMMDDHHMMSS in UTC. However this value is not
+examined other than for inequality tests with internal records.
+
+
+.PP
+.B SENDSITE
+
+With this command, the client informs the server that it would like the
+information about a particular site/database combination. It determines
+this by comparing the tuples returned by the LISTSITES command above with
+its local database. The parameters to the command in order are:
+
+.RS
+<primary hostname>:<database>[:<port>] ["compress"]
+.RE
+
+If the "compress" string is included with the protocol command, then the
+remote server is requested to compress the data stream. The remote server
+may agree but also has the option of ignoring this request.
+In the case of the `webindex' database, the port is specified, as multiple
+servers can reside on the `<primary hostname>' machine.
+
+The server responds with:
+
+.RS
+ SITELIST <port number>
+.RE
+
+With this response the server informs the client that it ready to
+transmit the information and that it is available on <port number>. The
+client then opens a connection (data channel) on the server host with
+that <port number>.
+
+The format in which the information for this site/database combination is
+transmitted is determined by the actual database information. See
+.BR arserver (n).
+The header for that site/database is usually the first piece of
+information to be transmitted on the data channel, however this is not
+defined by the protocol.
+There is no acknowledgement from the client.
+
+.PP
+.B SENDHEADER 
+
+With this command the client specifies to the server that the header
+record should be transmitted on the control connection. This command is
+used by the client when invoked in "retrieval mode" (see 
+.BR arserver (n).
+The parameters with this command are (in order):
+
+.RS
+<primary hostname>:<database>
+.RE
+
+There is no acknowledgement from the client.
+
+
+.PP
+.B SENDEXCERPT
+
+With this command the client specifies to the server that the excerpt record
+should be transmitted on the data connection. This command is used by the
+client after receiving the site for the `webindex' database.
+This command creates the sam reply from the server as if it was a
+SENDSITE command.
+The parameters with this command are (in order):
+
+.RS
+<primary hostname>:<database>:<port>
+.RE
+
+
+.PP
+.B DUMPCONFIG
+
+This command causes the server to list its arupdate.cf configuration
+file. The format is the same as that used in the configuration file
+except that semicolons (':') are used as field separators. The server
+signals the termination of the output by the line ENDDUMP.
+
+.PP
+.B QUIT
+
+The client requests that the control connection be closed. There is no
+acknowledgement from the server.
+.SH "SEE ALSO"
+.BR arserver (n)
+.SH AUTHOR
+Bunyip Information Systems
+.br
+Montr\o"\'e"al, Qu\o"\'e"bec, Canada
+.sp
+Archie is a registered trademark of Bunyip Information Systems Inc., Canada,
+1990.

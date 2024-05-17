@@ -1,0 +1,39 @@
+-*-text-*-
+This document describes the compatability features of the Version 5 server.
+
+The version 5 server is also capable of responding to requests from
+clients speaking version 1 of the Prospero Protocol.  However, the
+user should note the following:
+
+1) The version 1 clients and server never fully implemented the
+quoting mechanisms that were specified in the Prospero protocol
+version 1 spec.  So, if you use version 5 clients to create links to
+files with spaces or newlines in their names, or have hostnames with
+strange characters in their names, or have attributes with strange
+characters in their names or values, the version 1 clients may not
+interpret protocol messages about them correctly.  There is no fix.
+If you want to, you can add code to server/dirsrv_v1.c that keeps
+messages about such objects from being sent; I have not taken the time
+to do so.
+
+2) Version 1 Attributes only had type ASCII.  Version 5 attributes
+have type SEQUENCE, and may contain multiple tokens.  When speaking to
+a version 1 protocol server, SEQUENCE attributes are returned with the
+multiple tokens space-separated.  Other types of attributes will be
+ignored.
+
+3) It would be best to just forget about using filters with version 1 protocol
+clients speaking to a version 5 server.  Filters have changed
+radically in version 5, and I have not struggled to make them
+backwards compatible with version 1 filters.
+
+4) Access methods have changed radically from version 1 to version 5,
+as has the syntax of external links.  The ACCESS-METHOD attribute is
+being appropriately munged for the occasion.  So you're safe :).
+
+5) The Prospero version 4 clients and server never fully implemented
+the V1 protocol's EDIT-LINK-INFO and EDIT-OBJECT-INFO.  This remains
+true; you must use version 5 protocol to edit link and object attributes.
+
+6) Version 1 protocol clients have no way of sending KERBEROS
+authentication messages.

@@ -1,0 +1,99 @@
+#
+# anonftp/parse module.
+#
+
+LIBS = \
+       -L$(LIBARCHIE_MODULE)/$(SYSTYPE) -larchie \
+       -L$(HOSTDB_MODULE)/$(SYSTYPE)    -lhostdb \
+       -L$(REGEX_MODULE)/$(SYSTYPE)     -lregex
+
+#MOD_CFLAGS = -ansi -pedantic -pipe
+#MOD_CFLAGS = -traditional -pipe
+MOD_DEBUG  = -g3
+MOD_WARN   = -Wall -Wshadow -Wpointer-arith -Wcast-align \
+             -Wnested-externs
+MOD_INCS   = -I$(INCLUDE_MODULE) -I$(REGEX_MODULE) -I.
+MOD_LIBS   = $(LIBS)
+
+
+include $(ARCHIE_ROOT)/Makefile.pre
+
+
+INCS = \
+       db2v.h                                   \
+       info_cell.h                              \
+       input.h                                  \
+       lang_parsers.h                           \
+       line_type.h                              \
+       mem_debug.h                              \
+       output.h                                 \
+       pars_ent_holder.h                        \
+       parse.h                                  \
+       queue.h                                  \
+       queue_def.h                              \
+       stack.h                                  \
+       storage.h                                \
+       str.h                                    \
+       unix2.h                                  \
+       utils.h                                  \
+       vms2.h
+
+COMMON_SRC = \
+             info_cell.c                        \
+             input.c                            \
+             lang_parsers.c                     \
+             output.c                           \
+             parse.c                            \
+             queue.c                            \
+             stack.c                            \
+             storage.c                          \
+             utils.c
+
+COMMON_OBJ = \
+             info_cell.o                        \
+             input.o                            \
+             lang_parsers.o                     \
+             output.o                           \
+             parse.o                            \
+             queue.o                            \
+             stack.o                            \
+             storage.o                          \
+             utils.o
+
+SRCS = \
+       ${COMMON_SRC}                            \
+       db2v.c                                   \
+       lang_anonftp.c                           \
+       mem_debug.c                              \
+       novell.c                                 \
+       novell2.c                                \
+       parse_anonftp.c                          \
+       str.c                                    \
+       test-queue.c                             \
+       test-vms_parser.c                        \
+       unix.c                                   \
+       unix2.c                                  \
+       vms.c                                    \
+       vms2.c
+
+OBJS = \
+       ${COMMON_OBJ}                            \
+       db2v.o                                   \
+       lang_anonftp.o                           \
+       mem_debug.o                              \
+       novell.o                                 \
+       novell2.o                                \
+       parse_anonftp.o                          \
+       str.o                                    \
+       test-queue.o                             \
+       test-vms_parser.o                        \
+       unix.o                                   \
+       unix2.o                                  \
+       vms.o                                    \
+       vms2.o
+
+EXES = \
+	parse_anonftp_unix_bsd \
+	parse_anonftp_vms_std  \
+	parse_anonftp_novell   \
+	parse_anonftp

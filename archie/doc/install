@@ -1,0 +1,121 @@
+
+                Archie 3.5 Beta Installation Procedure
+                --------------------------------------
+
+
+
+
+
+1- Get the distribution files from the archie-3.5-beta directory
+   on the ftp.bunyip.com in your account.
+
+
+2- Untar the archie-3.5-beta-install.tar
+
+
+3- Run ./unwrap as super user  and follow the instructions
+
+
+At this point you will have all the distribution installed on your system.
+The configuration of the system is done as per the Archie 3.3 manual !
+
+
+The following are a list of modifications that are introduced in
+Archie 3.5
+
+Please do not hesitate to contact us if you have questions
+(archie-group@bunyip.com)
+
+
+
+New database structure
+----------------------
+
+        - Site files have filename in the format ip_addr:port
+
+        - The files Stridx.* in the different database  directories
+          correspond to the new index structure.
+
+        - The index is build according to the content of the strings file.
+
+        - New strings can be added to the strings file without rebuilding
+          the index... The unindexed portion will be searched by the search
+          with a different manner.  As long as the unindexed portion of the
+          strings file is small, the overall efficiency will not be affected.
+
+
+Construction of the indexes
+---------------------------
+
+        - The index must be explicitly constructed. It is not
+          constructed everytime ``arcontrol -u'' is run.
+
+        - The program ~archie/bin/db_build will build the index.
+          The parameter of db_build are
+
+               -f : force reconstruction
+               -v : verbose
+               -d database : construct only the specified database
+
+          Note that if the -f flag is not used and the portion of added
+          new strings not yet indexed is less than 1 Megabyte the index
+          will not be reconstructed.
+
+        - With time, one would expect that the strings file does not
+          grow very fast hence rebuilding the index should be done less often.
+
+
+
+Web Index
+---------
+
+
+        - Indexing the web follows the same scheme as for anonymous ftp
+          sites. Retrievals are done on a site by site basis.
+
+        - New sites can be added to the system with the use of
+          ``host_manage''.
+          The name of the database entry is ``webindex''.
+          You can specify a specific port and prefix path also.
+          For a same primary host, you can create multiple `webindex'
+          database entries with different ``port'' numbers. (Use TAB-3) 
+
+        - The crawling can be done in a very controlled fashion. While
+          processing a site, external urls are stored in a separate
+          databse. In order to incorporate those new sites in the hostdb
+          database, you need to run the program extern_urls.
+
+        - The options to the program extern_urls are
+
+                -n number : specify the max number of sites to add
+                -i : interactive .. asks for y/n before adding site
+                -d domain_list : list of domains (: separated)
+                -v : verbose
+                -l : log
+
+
+
+        - The webindex extracts portions of text from the different URLs
+          that are used when returning results to the users. They are
+          stored in excerpt files that have filename format
+
+                   site_file_format.excerpt
+
+
+CGI- Interface
+--------------
+
+        - The file ~archie/cgi/archie.html contains the search form.
+          It must be edited to reflect your Web server configuration.
+          The changes that need to be made are in the first 4 lines,
+          the value of the action and the value of VALUE.
+
+          The cgi program is actually ~archie/cgi/bin/interact ..
+
+          You should make the appropriate links on your system so
+          that the server actually uses the program interact.
+
+
+
+          
+          

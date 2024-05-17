@@ -1,0 +1,96 @@
+Instructions for installing the Prospero applications
+
+This distribution includes the source code for the Prospero applications.
+
+Select a directory in which the Prospero binaries will be installed.
+The path of this directory will be compiled into some of the programs.
+
+To tailor the applications to your systems's configuration, edit the
+file include/psite.h (this has changed significantly since the last
+release).  The only definitions that should be applicable to you in
+section 1 are P_BINARIES and P_PATH.  If you will be using the default
+site for the storage of virtual systems (which is likely to be the
+case if you retrieved the client only distribution), there should be
+no changes in section 2 either.
+
+Next, edit include/pmachine.h.  This file defines some of the machine
+and OS specific parameters needed by Prospero.
+
+Make sure that you have replaced the top level Makefile by Makefile_u.  
+
+Then edit the top level Makefile.  First set any machine-specific
+parameters.  If you're installing the binaries under HP-UX or another
+system which lacks a BSD-like INSTALL, redefine the INSTALL macro as
+discussed in the Makefile.  If you're on an AIX system redefine the
+MACHDEF macro as discussed in the Makefile.  If you're on a MIPS or
+VAX ULTRIX system, you may also need to define the MACHDEF macro as
+discussed in the Makefile.
+
+Now set the installation parameters in the top level Makefile.  Set
+P_BINARIES to the directory in which the binaries are to be installed.
+OWNER and GROUP should be set to the intended owner and group for the
+Pospero binaries.  This release must be compiled with an ANSI
+compiler; therefore, the default is 'gcc'.  If you're using another
+compiler, you may want to change the definitions of CC and CFLAGS.  We
+set CFLAGS to enable debugging by default in order to facilitate bug
+reporting.  If you are low on diskspace, you may want to redefine
+CFLAGS to turn off the inclusion of debugging information in the
+executables, and you may want to strip the resulting executables.
+
+If you will be building the PFS compatibility library (which redefines
+open and several other library functions), you will have to:
+a) remove the definition of P_NO_PCOMPAT from include/psite.h.  
+b) replace lib/pcompat/Makefile with lib/pcompat/Makefile.pcompat
+c) replace app/Makefile with app/Makefile.pcompat
+d) In addition, some systems will require a change to the SC_REDEF variable
+   definition in app/Makefile.pcompat.
+
+Next, move back to the top level directory for the distribution and
+type 'make'.  Once the distribution has been successfully built, type
+'make install'.  If you are running a previous release of prospero,
+rename P_BINARIES to P_BINARIES.old before you 'make install', and
+keep P_BINARIES.old around for a while in case you need to revert to
+the previous version of Prospero.
+
+The directory app contains the code for versions of cat and ls which
+may be linked with the compatability library.  Other programs may also
+be linked with the compatability library, but filenames hardcoded into
+those programs (or the libraries they call) might be resolved using
+Prospero, causing unexpected behavior if those names do not identify
+the same files in the active virtual system.
+
+The directory "doc" contains the source to (a) a manual on using the
+Prospero file system, (b) a manual describing version 5 of the
+Prospero protocol, and (c) a terse description of the functions in the
+Prospero library.  The file "getting-started.txt" in that directory
+contains enough information to get started.  The file ".virt-sys" in
+that directory contains a reference to a guest virtual system at the
+USC Information Sciences Institute.  This may be copied to your home
+directory.  If you would like your own virtual system contact
+pfs-administrator@isi.edu.
+
+Bug reports should be sent to:
+
+  bug-prospero@isi.edu
+
+Requests or queries about the release should be sent to:
+
+  info-prospero@isi.edu
+
+Requests for creation of virtual systems stored at the USC Information
+Sciences Institute guest site, or requests to establish one's own
+Prospero site should be sent to:
+
+  pfs-administrator@isi.edu
+
+A public mailing list has been set up for discussion of Prospero.
+Among other things, this list can be used to announce directories of
+information that users have created and wish to share.  The name of
+the list is:
+
+  prospero@isi.edu
+
+Requests for addition or deletions should be sent to:
+
+  prospero-request@isi.edu
+

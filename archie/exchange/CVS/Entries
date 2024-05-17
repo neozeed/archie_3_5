@@ -1,0 +1,19 @@
+/Makefile.post/2.2/Mon Sep 23 21:06:35 1996//
+/Makefile.pre/2.1/Mon Sep 23 02:26:27 1996//
+/PROTOCOL/2.0/Tue Aug 20 22:46:02 1996//
+/README/2.0/Tue Aug 20 22:46:03 1996//
+/client.c/2.6/Mon Apr 13 15:21:08 1998//
+/command.c/2.0/Tue Aug 20 22:46:05 1996//
+/configfile.c/2.1/Thu Nov 14 17:03:20 1996//
+/db_functs.c/2.1/Mon Apr 13 15:21:32 1998//
+/lang_exchange.c/2.0/Tue Aug 20 22:46:07 1996//
+/lang_exchange.h/2.0/Tue Aug 20 22:46:08 1996//
+/listd.h/2.0/Tue Aug 20 22:46:08 1996//
+/main.c/2.1/Thu Nov 14 17:03:22 1996//
+/net.c/2.1/Mon Apr 13 15:28:54 1998//
+/server.c/2.0/Tue Aug 20 22:46:11 1996//
+/socktools.c/2.0/Tue Aug 20 22:46:12 1996//
+/tuple.h/2.0/Tue Aug 20 22:46:12 1996//
+D/AIX-2////
+D/SunOS-4.1.4////
+D/SunOS-5.4////

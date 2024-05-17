@@ -1,0 +1,133 @@
+.\" Copyright (c) 1992, 1994, 1996 Bunyip Information Systems Inc.
+.\" All rights reserved.  
+.\"	
+.\" Archie 3.5
+.\" August 1996
+.\"	
+.\"	@(#)update_anonftp.n	
+.\"
+.TH UPDATE_ANONFTP N "August 1996"
+
+.SH NAME
+.B update_anonftp
+\- update the entry for an Archie anonftp database site
+
+.SH SYNOPSIS
+.B update_anonftp 
+.BI \-i \ <file> 
+[ 
+.BI \-M \ <dir> 
+] [
+.BI \-w \ <dir>
+] [ 
+.BI \-h \ <dir> 
+] [ 
+.BI \-t \ <dir> 
+] [
+.BI \-I \ <size> 
+] [
+.BI \-v
+]  [ 
+.B \-l 
+] [
+.BI \-L \ <logfile>
+]
+
+.SH DESCRIPTION
+.B update_anonftp 
+performs a delete-insert sequence in the Archie anonftp
+catalog for the site specifed in the given input file and is normally
+invoked, by the 
+.BR arcontrol (n) 
+program. The site is first deleted from the anonftp catalog and its 
+entry in the host database made inactive by the 
+.BR delete_anonftp (n) 
+program. An insert into the catalog is then attempted by 
+.BR insert_anonftp (n) 
+which if successful, incorporates the new data and reactivates the site. 
+.SH OPTIONS
+.TP
+.BI \-i
+Input file name containing the header information and (possibly) additional
+information.
+.TP
+.BI \-M \ <dir>
+The name of the master Archie database directory. If not
+specified, the program looks in the directory
+.BR ~archie/db ,
+then
+.BR ./db .
+.TP
+.BI \-w \ <dir> 	
+The name of the directory in which the Archie anonftp
+catalog resides. This parameter overrides the internally
+generated catalog name 
+.B ~archie/db/anonftp_db
+and the 
+.B \-M
+option, if specified.
+.TP
+.BI \-h \ <dir>	
+The name of the Archie host database directory. If not
+specified, the program will first default to
+.BR ~archie/db/host_db ,
+then
+.BR ./host_db .
+.TP
+.BI \-t \ <dir>	
+Set the name of directory used for temporary files. By
+default the program will use 
+.B ~archie/db/tmp.
+.TP 
+.BI \-I \ <size> 
+Set the minimum size for a site file to be indexed.
+The size is in bytes.
+If the size of the site file is greater or equal to this size
+a .idx file will accompany this site file to speed up
+searches in it. By default this size is
+ 500000 bytes.
+.TP
+.BI \-v
+Verbose. Tell you what it is doing.
+.TP
+.BI \-l
+Write any user output to the default log file
+.B ~archie/logs/archie.log. 
+If desired, this can be overridden with the 
+.B \-L 
+option. Errors will by default be written to stderr.
+.TP
+.BI \-L \ <logfile>	
+The name of the file to be used for logging information.
+Note that debugging information is also written to the
+log file. This implies the 
+.B \-l 
+option as well.		
+.PP
+.B update_anonftp 
+is also responsible for the file locking required to prevent two or 
+more programs from concurrently updating the catalog. The file is
+.B anonftp
+and placed in 
+.B ~archie/db/locks 
+during the update process. It contains the host name and time of its creation.
+.SH FILES
+~archie/db/anonftp/*
+.br
+~archie/db/locks/anonftp
+.br
+~archie/db/host_db/*
+
+.SH SEE ALSO
+.BR arcontrol (n),
+.BR parse_anonftp (n), 
+.BR delete_anonftp (n), 
+.BR insert_anonftp (n)
+
+.SH AUTHOR
+Bunyip Information Systems.
+.br
+Montr\o"\'e"al, Qu\o"\'e"bec, Canada
+.br
+Archie is a registered trademark of Bunyip Information Systems Inc., Canada,
+1990.

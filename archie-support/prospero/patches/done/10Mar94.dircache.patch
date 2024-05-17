@@ -1,0 +1,130 @@
+This patch was created on pand05 at Tue Apr 26 20:36:09 EDT 1994
+The command used to create it was: gnudiff -b -r -c 10Mar94.all 10Mar94+
+
+It is made available on an as-is basis, and carries no guarrantee that
+it even works, much less that it is fit for its purpose.
+
+If you find any problems with it, please report to mitra@pand05
+You may use it as you wish, but if you make it pulicly available anywhere
+please notify me.
+
+To apply the patch cd to the directory with the source in it, and run
+
+patch -l -p1 <patchfile 
+
+diff -b -r -c -N 10Mar94.all/include/pserver.h 10Mar94+/include/pserver.h
+*** 10Mar94.all/include/pserver.h	Tue Apr 26 20:36:04 1994
+--- 10Mar94+/include/pserver.h	Tue Apr 26 20:09:36 1994
+***************
+*** 523,528 ****
+--- 523,535 ----
+   */
+  
+  #define DNSCACHE_MAX 300
++ 
++ /*
++  * If DIRECTORYCACHING is defined, then dirsrv will cache directories
++  * on disk under /usr/pfs/shadow/{GOPHER-GW,WAIS-GW}
++  */
++ #define DIRECTORYCACHING
++ 
+  
+  /*
+   * If ACKOWLEDGE_ALL_PACKETS is defined, then ardp_accept will acknowledge
+diff -b -r -c -N 10Mar94.all/lib/psrv/dsrobject.c 10Mar94+/lib/psrv/dsrobject.c
+*** 10Mar94.all/lib/psrv/dsrobject.c	Tue Apr 26 15:37:10 1994
+--- 10Mar94+/lib/psrv/dsrobject.c	Tue Apr 26 19:50:22 1994
+***************
+*** 19,35 ****
+  #include <perrno.h>
+  #include <psrv.h>
+  #include <plog.h>
+  
+- #define DIRECTORYCACHING
+  static PATTRIB newamat(void);
+  
+  #ifdef DIRECTORYCACHING
+  
+  /* Just under one day - so cron tasks will renew them */
+  #define SECONDSPERDAY	(60*60*24)
+  #define MAXDIRCACHEAGE	(1*SECONDSPERDAY - 60*30)
+  int cache_attempt = 0; int cache_can = 0; int cache_yes = 0; 
+- int dsrobject_fail = 0;
+  
+  int 
+  vdir_outofdate(VDIR dir, char *hsoname) 
+--- 19,36 ----
+  #include <perrno.h>
+  #include <psrv.h>
+  #include <plog.h>
++ #include <pserver.h>		/* For DIRECTORYCACHING */
+  
+  static PATTRIB newamat(void);
+  
++ int dsrobject_fail = 0;
++ 
+  #ifdef DIRECTORYCACHING
+  
+  /* Just under one day - so cron tasks will renew them */
+  #define SECONDSPERDAY	(60*60*24)
+  #define MAXDIRCACHEAGE	(1*SECONDSPERDAY - 60*30)
+  int cache_attempt = 0; int cache_can = 0; int cache_yes = 0; 
+  
+  int 
+  vdir_outofdate(VDIR dir, char *hsoname) 
+***************
+*** 134,140 ****
+  	}
+  	   
+  #endif
+! 	if (dirretval != PSUCCESS || vdir_outofdate(dir,hsoname) 
+  	    || !(dir->links) ) {
+  	for (i = 0; i < db_num_ents; i++) {
+  	    if (strnequal(hsoname, db_prefixes[i].prefix,
+--- 135,144 ----
+  	}
+  	   
+  #endif
+! 	if (dirretval != PSUCCESS 
+! #ifdef DIRECTORYCACHING
+! 	    || vdir_outofdate(dir,hsoname) 
+! #endif
+  	    || !(dir->links) ) {
+  	for (i = 0; i < db_num_ents; i++) {
+  	    if (strnequal(hsoname, db_prefixes[i].prefix,
+diff -b -r -c -N 10Mar94.all/server/dirsrv.c 10Mar94+/server/dirsrv.c
+*** 10Mar94.all/server/dirsrv.c	Tue Apr 26 16:49:13 1994
+--- 10Mar94+/server/dirsrv.c	Tue Apr 26 19:28:25 1994
+***************
+*** 70,77 ****
+  extern int vlink_count, pattrib_count, acl_count,    pfile_count;
+  extern int rreq_count,  ptext_count,   string_count, token_count; 
+  extern int pauth_count, opt_count,     filter_count, p_object_count;
+! 
+  extern int cache_attempt, cache_can, cache_yes, dsrobject_fail;
+  extern int vlink_max,   pattrib_max,   acl_max,      pfile_max;
+  extern int rreq_max,    ptext_max,     string_max,   token_max;
+  extern int pauth_max,   opt_max,       filter_max,   p_object_max;
+--- 70,78 ----
+  extern int vlink_count, pattrib_count, acl_count,    pfile_count;
+  extern int rreq_count,  ptext_count,   string_count, token_count; 
+  extern int pauth_count, opt_count,     filter_count, p_object_count;
+! #ifdef DIRECTORYCACHING
+  extern int cache_attempt, cache_can, cache_yes, dsrobject_fail;
++ #endif
+  extern int vlink_max,   pattrib_max,   acl_max,      pfile_max;
+  extern int rreq_max,    ptext_max,     string_max,   token_max;
+  extern int pauth_max,   opt_max,       filter_max,   p_object_max;
+***************
+*** 1086,1093 ****
+--- 1085,1094 ----
+                      string_count,string_max, token_count, token_max, 
+                      pauth_count, pauth_max, /* opt_count, opt_max, */
+                      filter_count, filter_max, p_object_count, p_object_max);
++ #ifdef DIRECTORYCACHING
+  	    replyf(req, "Caching: %d attempts, %d can, %d yes, %d fail\n",
+  		   cache_attempt, cache_can, cache_yes, dsrobject_fail);
++ #endif
+  #ifdef PSRV_GOPHER_GW
+              replyf(req, " Memory: %d(%d)glink\n", glink_count, glink_max);
+  #endif

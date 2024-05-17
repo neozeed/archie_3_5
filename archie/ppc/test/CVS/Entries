@@ -1,0 +1,18 @@
+/Makefile.in/2.0/Tue Aug 20 22:52:50 1996//
+/ppctest.c/2.0/Tue Aug 20 22:52:51 1996//
+/test-Accept.txt/2.0/Tue Aug 20 22:52:51 1996//
+/test-access.c/2.0/Tue Aug 20 22:52:52 1996//
+/test-io.c/2.0/Tue Aug 20 22:52:53 1996//
+/test-link_to.c/2.0/Tue Aug 20 22:52:54 1996//
+/test-poly.c/2.0/Tue Aug 20 22:52:55 1996//
+/test-qwstrnsplit.c/2.0/Tue Aug 20 22:52:55 1996//
+/test-results.c/2.0/Tue Aug 20 22:52:56 1996//
+/test-splitwhite.c/2.0/Tue Aug 20 22:52:57 1996//
+/test-str.c/2.0/Tue Aug 20 22:52:58 1996//
+/test-strrspn.c/2.0/Tue Aug 20 22:52:59 1996//
+/test-token.c/2.0/Tue Aug 20 22:52:59 1996//
+/test-varsub.c/2.0/Tue Aug 20 22:53:00 1996//
+/varsub.dat/2.0/Tue Aug 20 22:53:01 1996//
+D/AIX-2////
+D/SunOS-4.1.4////
+D/SunOS-5.4////

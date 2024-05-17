@@ -1,0 +1,10 @@
+SYS_DEFS   = -DAIX
+# Need Berkeley compatibility libraries for multiple precision math.
+SYS_LIBS   =  -L${BERKDB_ROOT}/${SYSTYPE} -ldb -lbsd
+SENT_FLAGS = -ffixed-%g2 -ffixed-%g3 -ffixed-%g4
+
+include ../Makefile.pre
+
+include ../Makefile.post
+
+# DO NOT DELETE THIS LINE -- make depend depends on it

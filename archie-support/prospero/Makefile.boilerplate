@@ -1,0 +1,453 @@
+#/*
+# * Copyright (c) 1991-1994 by the University of Southern California
+# *
+# * For copying and distribution information, please see the file
+# * <usc-license.h>.
+# */
+#
+
+# This is the boilerplate Makefile for the Prospero Directory Service.
+# It contains generic targets so that they do not have to be repeated
+# for each inferior makefile.
+#
+## ENVIRONMENT ASSUMPTIONS
+
+# Every Makefile in Prospero has (possibly unset) variables in it
+# named PROGS, SPECIAL_PROGS, DATA_FILE_TARGETS, OTHERPROGS, 
+#               CFILES, OBJECTS, SUBDIRS, SOURCEBASE
+# PROGS:
+#   These are the programs which follow the default rule for making and 
+#   which are installed by default.  They will be deleted during cleanup.
+# SPECIAL_PROGS:
+#    These are also installed by default, but it have their own special rules 
+#    for making.  They will be deleted during cleanup.
+# DATA_FILE_TARGETS:
+#    Targets made that are installed in the bin (with mode 644 or 664) but 
+#    are not executables.  They will be deleted
+#    during cleanup.  
+#    General-purpose libraries are DATA_FILE_TARGETS
+# OTHERTARGETS:
+# These programs and other targets also follow the default making rules, 
+# but are not installed by default.  They will be deleted during cleanup.
+# SPECIAL_OTHERTARGETS:
+#    These programs and other targets are not installed by default.
+#    They have their own special rule sets for making.  They will be deleted
+#    during cleanup.
+#    Special-purpose libraries are DATA_FILE_TARGETS
+# SUBDIRS:
+#    Subdirectories that this Makefile will recursively execute in.
+# SOURCEBASE:
+# A relative path up to the top-level Makefile.
+
+
+# Every Prospero Makefile:
+#
+# Every Prospero Makefile must have a line labelled '# Dependencies', 
+# after which the 'setdependencies' development utility is free to write.
+# It must have a first target named 'all' and another target named 'install'
+
+# The 'install' target does not currently install libraries.  Perhaps later.
+# Unclear what the users want here.
+
+## ADDITIONAL CONVENTIONS
+
+# The targets ending in _LIB are real file names of single libraries that
+# Prospero is compiled with.
+
+# Targets ending in _LIBS are linker command lines.
+# They refer to libraries in the Prospero distribution (_LIB libraries)
+# and to system libraries ("-lm", especially).  
+# They also may contain "-u" linker flags.
+
+# Each target ending in _LIBS has a matching _LIBS_DEPENDENCIES
+# That refers to files in this distribution (i.e., everything that may
+# change during the development process.)  They contain no -l or -u.
+
+##############################################################################
+##############################################################################
+##############################################################################
+
+#
+# This top-level dependency is important so that we will always run
+# 'all' as our top dependency, and so that Makefile.boilerplate can 
+# be included into a regular Makefile, irrespective of order.
+
+boilerplate_all: all
+
+###
+### VARIABLES used by all Makefiles.
+###
+
+# Do not change this line.
+# CFLAGS set up above.  This adds stuff to it.
+
+CFLAGS = $(CCFLAGS) $(INCS) $(MACHDEF)
+
+#### SED-SCRIPT
+
+# We pipe compilation jobs passed on to subdirectories
+# through this sed script in order to precede CC and GCC error
+# messages with the full pathname name of the file at fault.  
+# This lets EMACS's (next-error) function visit compilation errors that 
+# occur in subdirectories.
+SED_SCRIPT = sed -e '/^[a-z0123456789_\/\.]*\.[ch]:/s,^,'$$i'\/,' 
+
+##### Prospero Include Files
+
+P_INC = -I$(SOURCEBASE)/include
+
+# Used by all subsidiary makefiles on an as-needed basis.
+INCS    = $(P_INC) $(K_INC)
+
+
+### All of these are passed through to the children/descendants.
+### These are all the items which might be set differently in 
+### Makefile.config, and therefore have to be passed on to 
+### descendants when they change.
+
+## PASTHRU is officially dead now, because it is incompatible with never
+## having to specify the old SOURCEBASE.  --swa, 5/8/94
+## 
+
+#PASTHRU =  \
+#	AR="$(AR)" \
+#        AR_FLAGS="$(AR_FLAGS)" \
+#        CC="$(CC)" \
+#	CFLAGS="$(CFLAGS)" \
+#        COMPILER_PREPENDS_C_SYMBOLS_WITH_UNDERSCORE="$(COMPILER_PREPENDS_C_SYMBOLS_WITH_UNDERSCORE)" \
+#	GENERATION="$(GENERATION)" \
+#        GENERATIONSUFFIX="$(GENERATIONSUFFIX)" \
+#	GROUP=$(GROUP) \
+#        INSTALL="$(INSTALL)" \
+#	KRB_LIBS="$(KRB_LIBS)" \
+#	LIBS="$(LIBS)" \
+#	MACHDEF="$(MACHDEF)" MAKE=$(MAKE) \
+#	MORE_USER_PROGS="$(MORE_USER_PROGS)"  \
+#  	MORE_SERVER_PROGS="$(MORE_SERVER_PROGS)" \
+#	OWNER=$(OWNER) \
+#	P_BINARIES="$(P_BINARIES)" \
+#	RANLIB="$(RANLIB)" \
+#	RM="$(RM)"
+#	VCACHE_LIBS="$(VCACHE_LIBS)" \
+#	VCACHE_LIBS_DEPENDENCIES="$(VCACHE_LIBS_DEPENDENCIES)" \
+#	WCFLAGS="$(WCFLAGS)"
+
+
+# The targets ending in _LIB are real file names of single libraries that
+# Prospero is compiled with.
+
+PFS_LIB	        = $(SOURCEBASE)/lib/pfs/libpfs.a
+FIL_LIB         = $(SOURCEBASE)/lib/filters/libfilter.a  
+CMP_LIB         = $(SOURCEBASE)/lib/pcompat/libpcompat.a
+RDP_LIB         = $(SOURCEBASE)/lib/ardp/libardp.a 
+SRV_LIB         = $(SOURCEBASE)/lib/psrv/libpsrv.a
+VCACHE_LIB      = $(SOURCEBASE)/user/vcache/libpvcache.a 
+GOPHER_GW_LIB   = $(SOURCEBASE)/lib/psrv/gopher_gw/libpgoph_gw.a
+WAIS_GW_LIB     = $(SOURCEBASE)/lib/psrv/wais_gw/libpwais_gw.a
+
+# For ARCHIE servers, version 3.  To use this, you will need to get the ARCHIE
+# distribution from Bunyip Information Systems.
+#ARCHIE2_LIB     = $(SOURCEBASE)/lib/psrv/archie2/libpsarchie.a
+
+
+# For ARCHIE servers, version 3.  To use this, you will need to get the ARCHIE
+# distribution from Bunyip Information Systems.
+#ARCHIE3_PSARCHIE_LIB     = $(SOURCEBASE)/lib/psrv/archie3/libpsarchie.a 
+ARCHIE3_PARCHIE_LIB     = $(SOURCEBASE)/lib/psrv/archie3/libparchie.a 
+
+#### LIBRARIES USED FOR ACTUALLY LINKING AND DEPENDENCIES
+
+## PFS_VCACHE_LIBS
+# Libraries to use if you link with LIBPFS and you use the VCACHE library.
+# This is usually referred to indirectly, through USE_PFS_VCACHE_LIBS,
+# which is defined in Makefile.config
+# PFS_VCACHE_LIBS is a list of all the libraries one needs in order to access 
+# the PFS library if it is linked with the VCACHE library.
+# The libpvcache library (Special purpose hack) has the vcache2a() function 
+# as its only entry point.
+
+# Documentation on the content of this entry:
+# "-u $(COMPILER_PREPENDS_C_SYMBOLS_WITH_UNDERSCORE)vcache2a" is 
+#       because of cross-dependencies between $(VCACHE_LIB) and $(PFS_LIB)
+# "-u $(COMPILER_PREPENDS_C_SYMBOLS_WITH_UNDERSCORE)waisRetrieveFileByHsoname"
+#       is not strictly necessary.  It serves as a reminder of why we're
+#       including $(WAIS_GW_LIB).
+#       We need to integrate the WAIS library (at least
+#        waisRetrieveFileByHsoname) in with libpvcache.
+# -lm is needed for $(WAIS_GW_LIB)
+# It is unclear to me why we need to GOPHER_GW_LIB
+
+PFS_VCACHE_LIBS = \
+	-u $(COMPILER_PREPENDS_C_SYMBOLS_WITH_UNDERSCORE)vcache2a \
+	$(VCACHE_LIB) \
+	$(GOPHER_GW_LIB) \
+	-u $(COMPILER_PREPENDS_C_SYMBOLS_WITH_UNDERSCORE)waisRetrieveFileByHsoname \
+        $(WAIS_GW_LIB) 	-lm \
+	$(PFS_LIBS) 
+
+# VCACHE_LIBS_DEPENDENCIES
+# Bits of Prospero that, if they change, mean that vcache-lib-using
+# programs should be recompiled too.  This is used by the Makefile
+# dependencies.
+
+PFS_VCACHE_LIBS_DEPENDENCIES = \
+	$(VCACHE_LIB) \
+	$(GOPHER_GW_LIB) \
+	$(WAIS_GW_LIB) \
+	$(PFS_LIBS_DEPENDENCIES)
+
+### PFS_LIBS 
+### This library is used by any programs that want to link with the normal
+### Prospero PFS library.
+### This refers to USE_VCACHE_LIBS and USE_VCACHE_LIBS_DEPENDENCIES, in
+### "Makefile.config"
+### This does NOT include anything having to do with the VCACHE library.
+### Makefile.config sets USE_VCACHE_LIBS to either PFS_LIBS or to 
+### PFS_VCACHE_LIBS
+
+# Documentation on the content of this entry:
+# "-u $(COMPILER_PREPENDS_C_SYMBOLS_WITH_UNDERSCORE)stequal" is here
+#       because the ARDP DNS caching uses "stequal" to make its
+#       comparisons.
+# "-u $(COMPILER_PREPENDS_C_SYMBOLS_WITH_UNDERSCORE)plog" is because
+#       of cross-dependencies between SRV_LIB and PFS_LIB.  There is a
+#       call to plog() from ardp_accept().  Will be fixed in next full
+#       release.
+# "-u $(COMPILER_PREPENDS_C_SYMBOLS_WITH_UNDERSCORE)pafree" is because
+#       the $(RDP_LIB) depends upon the 'pafree' function in PFS_LIB.
+# $(LIBS) is here because of SCOUNIX, which needs "-lsocket"
+
+PFS_LIBS = \
+	-u $(COMPILER_PREPENDS_C_SYMBOLS_WITH_UNDERSCORE)plog \
+	$(SRV_LIB) \
+	-u ${COMPILER_PREPENDS_C_SYMBOLS_WITH_UNDERSCORE}stequal \
+	-u ${COMPILER_PREPENDS_C_SYMBOLS_WITH_UNDERSCORE}pafree \
+	-u ${COMPILER_PREPENDS_C_SYMBOLS_WITH_UNDERSCORE}sindex \
+	$(PFS_LIB) \
+	$(FIL_LIB) \
+	$(RDP_LIB) \
+	$(KRB_LIBS) \
+	$(LIBS)
+
+PFS_LIBS_DEPENDENCIES = \
+	$(SRV_LIB) \
+        $(PFS_LIB) \
+	$(FIL_LIB) \
+	$(RDP_LIB) \
+	$(KRB_LIBS_DEPENDENCIES) \
+	$(LIBS_DEPENDENCIES) 
+
+
+### SRV_LIBS
+### This library is used by any server program that needs PFS and PSRV 
+### libraries.  (i.e., by DIRSRV).  DIRSRV does not do file retrieval, so 
+### we won't need VCACHE_LIBS here.
+### This is used only by programs in the 'server' directory of the Prospero 
+### distribution.
+###
+
+# After RDP_LIB's use of plog() is fixed, change to this one:
+#SRV_LIBS = \
+#       $(SERVER_DB_LIBS) \
+#	$(PFS_LIBS) \
+#	$(SRV_LIB) 
+
+#For now:
+# Note that SERVER_DB_LIBS precedes PFS_LIBS so that server DB library 
+# functions can easily refer to PFS library functions.
+#SRV_LIBS = $(SERVER_DB_LIBS) $(PFS_LIBS) 
+SRV_LIBS = $(SERVER_DB_LIBS)\
+	    $(ARCHIE_ROOT)/lib/libpsarchie/$(SYSTYPE)/libpsarchie.a\
+	    $(ARCHIE_ROOT)/lib/libparchie/$(SYSTYPE)/libparchie.a\
+	    $(ARCHIE_ROOT)/lib/startdb/$(SYSTYPE)/libstartdb.a\
+	    $(ARCHIE_ROOT)/lib/archsearch/$(SYSTYPE)/libarchsearch.a\
+	    $(ARCHIE_ROOT)/lib/libarchie/$(SYSTYPE)/libarchie.a\
+	    $(ARCHIE_ROOT)/lib/archstridx/$(SYSTYPE)/libarchstridx.a\
+	    $(ARCHIE_ROOT)/lib/patrie/$(SYSTYPE)/libpatrie.a\
+	    $(ARCHIE_ROOT)/webindex/lib/$(SYSTYPE)/libwebindex.a\
+		$(BERKDB_ROOT)/$(SYSTYPE)/libdb.a \
+	    $(PFS_LIBS)  -lm
+  
+#				-u ${COMPILER_PREPENDS_C_SYMBOLS_WITH_UNDERSCORE}verify_acl_list
+#				-u ${COMPILER_PREPENDS_C_SYMBOLS_WITH_UNDERSCORE}acl_message
+  
+#	    $(LIBPARCHIE_MODULE)/$(SYSTYPE)/libparchie.a\
+#	    ../../wais/libpwais.a \
+#	    ../../freeWAIS/bin/client.a \
+#	    ../../freeWAIS/bin/inv.a \
+#	    ../../freeWAIS/bin/wais.a \
+#	    ../../freeWAIS/bin/libftw.a \
+
+
+
+# After RDP_LIB's use of plog() is fixed, change to this one:
+#SRV_LIBS_DEPENDENCIES = \
+#       $(SERVER_DB_LIBS_DEPENDENCIES) \
+#	$(PFS_LIBS_DEPENDENCIES) \
+#	$(SRV_LIB) 
+
+#For now:
+SRV_LIBS_DEPENDENCIES = \
+        $(SERVER_DB_LIBS_DEPENDENCIES) \
+        $(PFS_LIBS_DEPENDENCIES)
+
+### CMP_LIBS
+### These libraries are used by programs that link with the compatibility
+### library.  Such programs do not need anything else magic.
+### The distribution only invokes this in app/Makefile.
+
+# The -u refers to system calls that are redefined by the compatibility 
+# library.
+
+CMP_LIBS = \
+	-u $(COMPILER_PREPENDS_C_SYMBOLS_WITH_UNDERSCORE)open \
+	-u $(COMPILER_PREPENDS_C_SYMBOLS_WITH_UNDERSCORE)stat \
+	-u $(COMPILER_PREPENDS_C_SYMBOLS_WITH_UNDERSCORE)lstat \
+	-u $(COMPILER_PREPENDS_C_SYMBOLS_WITH_UNDERSCORE)creat \
+	-u $(COMPILER_PREPENDS_C_SYMBOLS_WITH_UNDERSCORE)execve \
+	$(CMP_LIB) \
+	$(USE_PFS_VCACHE_LIBS) 
+
+CMP_LIBS_DEPENDENCIES = $(CMP_LIB) $(USE_PFS_VCACHE_LIBS_DEPENDENCIES) 
+
+
+#### Directories used by "installdirs" dependency.
+#### note that installdirs assumes 'mkdir -p' exists.
+####
+
+
+DIR755	= $(PSRV_SHADOW) $(PSRV_STORAGE) $(PSRV_SECURITY) $(P_BINARIES)
+
+VCACHE_DIR1755 = $(P_CACHE)/p $(P_CACHE)/vc $(P_CACHE)/tmp
+DIR1777 = $(VCACHE_DIR1777)
+
+
+###
+### RULES used by all Makefiles
+###
+
+##
+## This rule is always used to make OBJECTS from the matching "c" files.
+##
+## Not needed any more, because with our new conventional use of CFLAGS,
+## this is now an implicit rule.
+# ${OBJECTS}: 
+#	${CC} ${CFLAGS} $*.c
+
+
+## if Makefile.config changes, recompile everything.
+## For this rule to have any effect, Makefile.boilerplate must be included
+## after $(OBJECTS) is set.
+##$(OBJECTS): $(SOURCEBASE)/Makefile.config
+
+
+
+# This is a generic go-through-all-subdirs function.  It replaces a number
+# of special cases.
+SUBDIRS_MAKE_START = for i in $(SUBDIRS) $$unset_dummy_sh_variable; do (cd $$i; echo making in `pwd` ; $(MAKE) 
+SUBDIRS_MAKE_END = ); done
+
+## These are now generic Makefile boilerplate.  
+## These are all the files that might be generated during the compilation
+## process.
+## GENERATED_FILES is not referred to outside of this Makefile; it is a 
+## macro because it is used by the 'clean:' and 'hide:' targets that follow.
+
+## XXX These might also need to be added: *.o makedep
+GENERATED_FILES=tags TAGS *~ a.out core $(OBJECTS) $(PROGS) $(SPECIAL_PROGS) $(DATA_FILE_TARGETS) $(OTHERTARGETS) $(SPECIAL_OTHERTARGETS) *.old *.new *.backup *.syms
+
+clean:
+	rm -f $(GENERATED_FILES) 
+	$(SUBDIRS_MAKE_START) clean $(SUBDIRS_MAKE_END) 
+#	for i in $(SUBDIRS) $$unset_dummy_sh_variable; do (cd $$i; $(MAKE) clean); done
+
+# Piping this through SED hides the many error messages from files not found.
+# mv -f isn't the same as RM -f; no way to make MV not complain about unfound
+# files, so we'd have to write our own.	
+hide:
+	-mkdir .hide
+	-(mv -f $(GENERATED_FILES) .hide ; \
+	$(SUBDIRS_MAKE_START) hide $(SUBDIRS_MAKE_END)) 2>&1 | \
+	       sed -e '/^mv:.*: Cannot access: No such file or directory$$/d' \
+			-e '/^\*\*\* Error code 1 (ignored)$$/d' \
+			-e '/^mkdir: .hide: File exists$$/d'
+
+#	for i in $(SUBDIRS) $$unset_dummy_sh_variable; \
+#	do (cd $$i; $(MAKE) hide); done 2>&1 | \
+#	       sed -e '/^mv:.*: Cannot access: No such file or directory$$/d' \
+#			-e '/^\*\*\* Error code 1 (ignored)$$/d' \
+#			-e '/^mkdir: .hide: File exists$$/d'
+
+unhide:
+	-mv .hide/* .hide/.??* .
+	-rmdir .hide
+	$(SUBDIRS_MAKE_START) unhide 2>&1 | $(SED_SCRIPT) $(SUBDIRS_MAKE_END)
+
+		
+## Making all subdirs.
+
+all_subdirs:
+	$(SUBDIRS_MAKE_START) ${PASTHRU} all 2>&1 | $(SED_SCRIPT) $(SUBDIRS_MAKE_END)  
+
+##
+## I do not use these for development; I use emacs TAGS exclusively.
+## EMACS tags are not part of the general boilerplate.
+## that's because they're all stuck in the top-level directory.
+## Send fixes to these if you want them to be generally useful for VI-oriented
+## developers.
+
+newtags:	
+	-rm -f tags
+	touch tags
+	find `pwd` -name "*\.[ch]" -exec ctags -a {} \;
+
+# Target has problems: depends on itself (recursively)
+tags:	*.c *.h
+	[ -f tags ] && \
+	find `pwd` -name "*\.[ch]" -newer tags -exec ctags -u {} \; || \
+	$(MAKE) newtags
+
+## A nice generic EMACS TAGS rule that I might follow later.
+##TAGS:
+##	etags `find . -name "*\.[ch]" -print`
+	
+# A different tags file in each subdirectory.
+
+etags:  TAGS
+	$(SUBDIRS_MAKE_START) etags $(SUBDIRS_MAKE_END) 
+
+TAGS:  $(CFILES) 
+	etags $(CFILES) $(SOURCEBASE)/misc/empty.c
+
+###
+### Rules and macros for checking out code with RCS
+### This is in practice never used by me, but I throw it in here in case 
+### one day someone misses it. Presumably BCN had a good reason for having
+### it here.  --swa (hey, bcn, take a look and see if you will ever use
+### this again, ok? --swa) XXX
+
+
+CODE	= $(CFILES) Makefile
+
+src:	$(CODE)
+
+$(CODE):
+	co -q $@
+
+###
+### Things still to be done XXXX
+### none of these urgent.
+### Fix archie2 and archie3/makefile after rest are consistent.
+### handle INSTALL Dependency appropriately, with or without libraries.
+### currently, 'install' is in sad shape.
+### rm to $(RM)
+### ar to $(AR) 
+### fix WAIS copyright
+###  Have BCN look at CODE and src: dependency
+
+## intriguing comment in WAIS makefile.  Would like to take a look at this
+## (re: configuration)
+# at WAIS Inc, this is done automatically by the shared .cshrc script
+# see /usr/local/shared/shared.cshrc
+
+# figure out why mitra stuck in the gopher_gw_lib. Fix that dependency

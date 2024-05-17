@@ -1,0 +1,85 @@
+.\" Copyright (c) 1992,1994,1996 Bunyip Information Systems Inc.
+.\" All rights reserved.  
+.\"	
+.\" Archie 3.5
+.\" August 1996
+.\"	
+.\"	@(#)anonftp_parser_output.5
+.\"
+.TH ANONFTP_PARSER_OUTPUT 5 "August 1996"
+
+.SH SYNOPSIS
+.B anonftp_parser_output
+\- description of the output of the Archie anonymous FTP listing parsers
+for the anonftp catalog
+.SH DESCRIPTION
+.PP
+Currently all anonymous FTP listings in the Archie system are parsed from
+the Operating System specific format in to a common Archie-defined parser
+output format. This allows the system to have standard database
+structures, and updating routines without having to worry abou the
+individual characteristics of each operating system. This format is
+described below. One of the underlying assumptions is that the file
+system of the listing being parsed has a tree-like structure with the
+concepts of internal nodes (directories) and leaves (files).
+
+The parser output corresponding to a particular listing consists of a
+sequence of variable length records, one record per file in the listing.
+This is composed of a fixed "core" component followed by a variable
+length string.
+
+The core is composed of records with fields:
+
+<file_size><date_time><parent><child><perms><flags>
+
+where
+
+.TP
+.B <file_size>
+Is and unsigned 32 bit quantity containing the size of the file.
+.TP
+.B <date_time>
+An unsigned 32 bit quantity. It's value is interpreted as seconds UTC
+(GMT) since Jan 1, 1970. The actual quantity that it represents varies
+between operating systems, but it is typically the creation or last
+modification time for the file in question.
+.TP
+.B
+<parent>
+Unsigned 32 bit quantity. It is the record number of the parent directory
+in the current file. A value of zero signifies that the parent directory
+is the root.
+.TP
+.B
+<child>
+Unsigned 32 bit. The record number of the first child of this directory.
+It is zero if the current record describes a directory which has no
+children. It is undefined for regular files.
+.TP
+.B <perms>
+Unsigned 16 bit. Contains a bit vector for the permission field values
+in an operating-system dependent fashion.
+.TP
+.B <flags>
+Unsigned 16 bit. A bit vector of particular attributes of the entry.
+Currently if the entry is a directory, bit 1 is set. If it is a link, bit
+2 is set.
+.LP
+
+The rest of the record consists of an unsigned 16 bit quantity containing
+the length of the string (in bytes) in the record. This value is always
+rounded up to the next multiple of 4. The final element is a variable
+length byte sequence containing the string itself. This is always padded
+up to the next 4-byte boundary.
+.SH "SEE ALSO"
+.BR parse_anonftp_* (n),
+.BR net_anonftp (n), 
+Archie System Manual
+.SH AUTHOR
+Bunyip Information Systems.
+.br
+Montr\o"\'e"al, Qu\o"\'e"bec, Canada
+
+.sp
+Archie is a registered trademark of Bunyip Information Systems Inc., Canada,
+1990.

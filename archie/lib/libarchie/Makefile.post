@@ -1,0 +1,20 @@
+#
+# libarchie module.
+#
+
+#all: libarchie.a version.o
+all: libarchie.a 
+
+
+include $(ARCHIE_ROOT)/Makefile.post
+
+
+libarchie.a: $(OBJS)
+	$(AR) r $@ $?
+	$(RANLIB) $@
+
+version.o: 
+	$(CC) $(CFLAGS) -c -DCOMPILED_DATE="\"`date`\"" ../version.c
+
+clean:
+	rm -f *.o libarchie.a core

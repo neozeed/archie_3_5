@@ -1,0 +1,48 @@
+#
+# This makefile is included by the makefiles in the directories
+# listed in MULTI_LEVEL_MODULES.
+#
+
+#
+# Recursively do all the directories.  The variable DIRS must
+# contain the list of subdirectories in which we must do further
+# work.
+#
+
+all:
+	for dir in $(DIRS) ; do \
+		(cd $$dir/$(SYSTYPE) && $(MAKE)) ; \
+	done
+
+#
+# Recursively clean each directory module.
+#
+
+all_clean clean:
+	for dir in $(DIRS) ; do \
+		(cd $$dir/$(SYSTYPE) && $(MAKE) -f Makefile.in clean) ; \
+	done
+
+#
+# Recursively `depend' each directory module.
+#
+
+all_depend depend:
+	for dir in $(DIRS) ; do \
+		(cd $$dir/$(SYSTYPE) && $(MAKE) -f Makefile.in depend) ; \
+	done
+
+
+all_dist:
+	for dir in $(BIN_DIRS) ; do \
+		(cd $$dir/$(SYSTYPE) && $(MAKE) dist) ; \
+	done
+
+
+indirect_newsys:
+	for dir in $(DIRS) ; do \
+		(cd $$dir; 	mkdir $(SYSTYPE); \
+			cp $(ARCHIE_ROOT)/tmpl/Makefile.$(SYSTYPE) $(SYSTYPE)/Makefile.in) ; \
+	done
+
+# DO NOT DELETE THIS LINE -- make depend depends on it

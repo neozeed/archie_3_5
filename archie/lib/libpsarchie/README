@@ -1,0 +1,55 @@
+This directory contains code needed to integrate the archie 3 release
+with a Prospero server.  
+
+You should start from the most recent prospero release.  You can
+obtain information about the release from info-prospero@isi.edu.  The
+release should be available on prospero.isi.edu in the file
+/pub/prospero/prospero.tar.Z.
+
+Here are specific instructions on how to tie Prospero in to Archie:
+Retrieve the release, and untar it.  Installation instructions are
+included, but they are not tailored to Archie.  The changes to the
+installations instruction for using it with Archie follow:
+
+  1) There is probably no need to set up separate user and group IDs
+     for Prospero, just use those for Archie.
+
+  2) In pserver.h, define PSRV_ARCHIE.
+
+  3) In server/Makefile uncomment the appropriate DB_LIBS line
+     for your configuration (archie2 or archie3)
+
+  4) In the directory lib/psrv/archie2 or lib/psrv/archie3, create
+     a symbolic link archie_src in the directory the archie sources.  Note,
+     you must obtain archie sources from the archie group. For archie3,
+     these sources must have been obtained after 2/22/93.  For archie2,
+     there has been a change to oper.c in the archie sources that should
+     have been obtained since 2/22/93.  Note also that for archie2, the
+     archie sources must be set up to use the full path of the database
+     directory, or you will also have to create a db symbolic link from the
+     directory within which the Prospero server will run.
+
+  5) Run make in lib/psrv/archie2 or lib/psrv/archie3 depending
+     on your configuration.  If using archie3, make a link from 
+     libparchie.a to the file libparchie.a in the archie3 
+     distribution.  If you want, you can add lib/psrv/archie2
+     or lib/psrv/archie3 to the list of subdirectories in the
+     top level Prospero makefile (SUBDIR).
+
+  6) Make the other necessary customizations (as per the installation
+     instructions for prospero) by editing include/pserver.h,
+     include/pmachine.h, and the top level make file.
+
+  7) As per the installation instructions, do a make, make install,
+     then run pstart (you will probably want to add pstart to your
+     system startup files).
+
+You may have a version of the archie3 server that expects the Prospero
+VLINK structure to have members named 'filename', 'nametype', and
+'type'.  If the compilation process fails complaining that such
+members were not found, edit the file include/pfs.h and change the line
+        #if 0
+to read:
+        #if 1
+and restart the compilation.
+

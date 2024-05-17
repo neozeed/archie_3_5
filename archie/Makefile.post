@@ -1,0 +1,61 @@
+#
+# Top level Makefile.post.
+#
+
+FORCE:
+
+#
+# Supply a list of rules for libraries, so we don't have to
+# put them in each Makefile.post.
+#
+$(ANONFTP_MODULE)/lib/$(SYSTYPE)/libanonftp.a: FORCE
+	cd $(ANONFTP_MODULE)/lib/$(SYSTYPE) && $(MAKE) libanonftp.a
+$(ARCHSEARCH_MODULE)/$(SYSTYPE)/libarchsearch.a: FORCE
+	cd $(ARCHSEARCH_MODULE)/$(SYSTYPE) && $(MAKE) libarchsearch.a
+$(EXCHANGE_MODULE)/$(SYSTYPE)/libexchange.a: FORCE
+	cd $(EXCHANGE_MODULE)/$(SYSTYPE) && $(MAKE) libexchange.a
+$(HOSTDB_MODULE)/$(SYSTYPE)/libhostdb.a: FORCE
+	cd $(HOSTDB_MODULE)/$(SYSTYPE) && $(MAKE) libhostdb.a
+$(LIBARCHIE_MODULE)/$(SYSTYPE)/libarchie.a: FORCE
+	cd $(LIBARCHIE_MODULE)/$(SYSTYPE) && $(MAKE) libarchie.a
+$(LIBPARCHIE_MODULE)/$(SYSTYPE)/libparchie.a: FORCE
+	cd $(LIBPARCHIE_MODULE)/$(SYSTYPE) && $(MAKE) libparchie.a
+$(LIBPSARCHIE_MODULE)/$(SYSTYPE)/libpsarchie.a: FORCE
+	cd $(LIBPSARCHIE_MODULE)/$(SYSTYPE) && $(MAKE) libpsarchie.a
+$(PATRIE_MODULE)/$(SYSTYPE)/libpatrie.a: FORCE
+	cd $(PATRIE_MODULE)/$(SYSTYPE) && $(MAKE) libpatrie.a
+$(REGEX_MODULE)/$(SYSTYPE)/libregex.a: FORCE
+	cd $(REGEX_MODULE)/$(SYSTYPE) && $(MAKE) libregex.a
+$(REPOSIX_MODULE)/$(SYSTYPE)/libregex.a: FORCE
+	cd $(REPOSIX_MODULE)/$(SYSTYPE) && $(MAKE) libregex.a
+$(STARTDB_MODULE)/$(SYSTYPE)/libstartdb.a: FORCE
+	cd $(STARTDB_MODULE)/$(SYSTYPE) && $(MAKE) libstartdb.a
+$(STRIDX_MODULE)/$(SYSTYPE)/libarchstridx.a: FORCE
+	cd $(STRIDX_MODULE)/$(SYSTYPE) && $(MAKE) libarchstridx.a
+$(WEBINDEX_MODULE)/lib/$(SYSTYPE)/libwebindex.a: FORCE
+	cd $(WEBINDEX_MODULE)/lib/$(SYSTYPE) && $(MAKE) libwebindex.a
+
+depend:
+	@echo Depending in `pwd`
+	@( echo '/^# DO NOT DELETE THIS LINE/,$$c' ; \
+     echo '# DO NOT DELETE THIS LINE -- make depend depends on it' ; \
+     echo "" ; \
+     (cd .. ; $(CC) $(SYS_DEPFLAG) $(DEP_FLAGS) $(SRCS)) ; \
+     echo . ; \
+     echo w ; \
+     echo q ) | ed -s Makefile
+
+newsys:
+	mkdir $(SYSTYPE) ;\
+	cp $(ARCHIE_ROOT)/tmpl/Makefile.$(SYSTYPE) $(SYSTYPE)/Makefile.in
+
+
+dist:
+	for file in $(EXES) ; do \
+	   if [ -f $(DISTRIBUTION_MODULE)/$(SYSTYPE)/$$file ] ; then \
+             find $$file -newer $(DISTRIBUTION_MODULE)/$(SYSTYPE)/$$file -exec cp $$file $(DISTRIBUTION_MODULE)/$(SYSTYPE)/$$file \; ; \
+	   else \
+		cp $$file $(DISTRIBUTION_MODULE)/$(SYSTYPE) ; \
+           fi \
+	done
+

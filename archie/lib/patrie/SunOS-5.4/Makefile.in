@@ -1,0 +1,15 @@
+#
+# lib/patrie/SunOS-5.4
+#
+
+SYS_DEFS   = -DSOLARIS -DHAVE_UNSIGNED_STRCMP -DHAVE_UNSIGNED_STRCASECMP
+SENT_FLAGS = -ffixed-%g2 -ffixed-%g3 -ffixed-%g4
+SYS_LIBS = -lresolv 
+
+include ../Makefile.pre
+
+RANLIB = :
+
+include ../Makefile.post
+
+# DO NOT DELETE THIS LINE -- make depend depends on it

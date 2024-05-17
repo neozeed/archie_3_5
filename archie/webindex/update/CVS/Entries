@@ -1,0 +1,19 @@
+/Makefile.post/2.1/Mon Sep 23 02:26:40 1996//
+/Makefile.pre/2.2/Fri Dec  6 21:13:45 1996//
+/check_webindex.c/2.2/Thu Nov 14 04:06:32 1996//
+/check_webindex.h/2.0/Tue Aug 20 22:54:54 1996//
+/delete_webindex.c/2.2/Thu Nov 14 19:56:47 1996//
+/delete_webindex.h/2.0/Tue Aug 20 22:54:55 1996//
+/insert_webindex.c/2.9/Thu Dec  5 15:28:21 1996//
+/insert_webindex.h/2.0/Tue Aug 20 22:54:57 1996//
+/interact_webindex.c/2.0/Tue Aug 20 22:54:58 1996//
+/interact_webindex.h/2.0/Tue Aug 20 22:54:59 1996//
+/lang_webindex.c/2.0/Tue Aug 20 22:55:00 1996//
+/lang_webindex.h/2.0/Tue Aug 20 22:55:01 1996//
+/net_webindex.c/2.2/Wed Jan 22 15:36:26 1997//
+/net_webindex.h/2.0/Tue Aug 20 22:55:03 1996//
+/setup_delete.c/2.0/Tue Aug 20 22:55:03 1996//
+/setup_insert.c/2.2/Thu Nov 28 17:13:07 1996//
+D/AIX-2////
+D/SunOS-4.1.4////
+D/SunOS-5.4////

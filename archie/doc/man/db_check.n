@@ -1,0 +1,117 @@
+.\" Copyright (c) 1992, 1994, 1996 Bunyip Information Systems Inc.
+.\" All rights reserved.  
+.\"	
+.\" Archie 3.5
+.\" August 1996
+.\"	
+.\"	@(#)db_check.n	
+.\"
+.TH DB_CHECK N "August 1996"
+
+.SH NAME
+.B db_check
+\- Check the consistency of the Archie databases.
+
+.SH SYNOPSIS
+.B db_check 
+[
+.BI \-H " <hostname>"
+] [
+.BI \-p " <port>"
+] [ 
+.BI \-k " <keyword>"
+] [ 
+.BI \-d " <database>"
+] [ 
+.BI \-M " <dir>"
+] [
+.BI \-h " <dir>"
+] [ 
+.BI \-v
+] [ 
+.B \-l 
+] [
+.BI \-L " <logfile>"
+]
+
+.SH DESCRIPTION
+.B db_check 
+performs a quick scan over the database files and prints out statistical
+information.  Numbers indicating the size of each site file and the
+different types of records contained are printed.
+
+.SH OPTIONS
+.TP
+.BI \-H " <hostname>"
+The host name of the site about which you want statistics.
+.TP
+.BI \-p " <port>"
+The port number of the site, if it is different from the
+default value.
+.TP
+.BI \-k " <keyword>"
+One can check for the existance of a certain word in any
+site.
+.B db_check
+will produce a list of host indicies containing this word.
+.TP
+.BI \-M " <dir>"
+The name of the master Archie database directory. If not
+specified, the program looks in the directory
+.BR ~archie/db ,
+then
+.BR ./db .
+.TP
+.BI \-d " <database>"
+The catalog about which to print statistics.
+By default, the program will examine all available catalogs listed in
+.BR ~archie/etc/catalogs.cf .
+.TP
+.BI \-h " <dir>"
+The name of the Archie host database directory. If not
+specified, the program will first try
+.BR ~archie/db/host_db ,
+then
+.BR ./host_db .
+.TP
+.BI \-v
+Verbose mode.  Print messages indicating what the program is
+doing.
+.TP
+.BI \-l
+Log messages to the file
+.BR ~archie/logs/archie.log .
+The location of the file may be overridden with the
+.B \-L 
+option.  By default, messages are written to
+.IR stderr .
+.TP
+.BI \-L " <logfile>"
+Specify the log file.  For this to have any effect, the
+.B \-l 
+option must be specified, as well.  Note that debugging information is also
+written to the log file.
+
+.SH DIAGNOSTICS
+.B db_check
+gives a variety of warning and error messages if the catalog is found to be
+inconsistent.  Messages containing the string `ERROR' are considered serious
+and are usually the sign of a corrupt catalog.
+
+.SH FILES
+~archie/db/<db-name>/*
+.br
+~archie/db/<db-name>/start_db/*
+.br
+~archie/db/host_db/*
+
+.SH SEE ALSO
+.BR db_stats (n)
+
+.SH AUTHOR
+Bunyip Information Systems.
+.br
+Montr\o"\'e"al, Qu\o"\'e"bec, Canada
+.sp
+Archie is a registered trademark of Bunyip Information Systems Inc., Canada,
+1990.

@@ -1,0 +1,47 @@
+#
+# ppc/weaseld
+#
+
+PDIR  = $(PROSPERO_ROOT)
+MDIR  = $(PDIR)/user/menu
+
+MOD_CFLAGS = -pipe
+#
+# All recognized defines...
+# -DDEBUG -DSOME_MISSING_PROTOS -DCOOK
+# -DUNAUTH_MESG="\"Sorry, only NEARnet customers have access to this service.\n\""
+#
+MOD_DEFS   = -DDEBUG -DNO_TCL
+MOD_DEBUG  = -g3
+MOD_INCS   = -I$(PPC_MODULE)/lib -I$(PDIR)/include -I$(MDIR) -I$(ARCHIE_ROOT)/include
+MOD_WARN   = -Wall -Wtraditional -Wshadow -Wpointer-arith -Wcast-align \
+             -Wnested-externs
+
+
+include $(ARCHIE_ROOT)/Makefile.pre
+
+
+INCS = \
+        aprint.h   \
+        contents.h \
+        url.h
+
+SRCS = \
+        _prog.c        \
+        contents.c     \
+        print_anon.c   \
+        print_gopher.c \
+        print_sites.c  \
+        print_wais.c   \
+        url.c
+
+OBJS = \
+        _prog.o        \
+        contents.o     \
+        print_anon.o   \
+        print_gopher.o \
+        print_sites.o  \
+        print_wais.o   \
+	url.o
+
+EXES = weaseld

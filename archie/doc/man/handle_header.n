@@ -1,0 +1,179 @@
+.\" Copyright (c) 1993, 1994, 1996 Bunyip Information Systems Inc.
+.\" All rights reserved.  
+.\"	
+.\" Archie 3.5
+.\" August 1996
+.\"	
+.\"	@(#)handle_header.n
+.\"
+.TH HANDLE_HEADER N "August 1996"
+
+.SH NAME
+.B handle_header
+\- perform Archie header modifications and update host databases
+
+.SH SYNOPSIS
+.B handle_header
+[
+.BI \-M " <dir>"
+] [
+.BI \-h " <dir>"
+] [
+.BI -H " <header string>"
+] [
+.B \-U
+] [
+.BI \-a " <filename>"
+] [
+.BI \-d " <filename>"
+] [
+.BI \-m " <message>"
+] [
+.BI \-r " <header fieldname>"
+] [
+.BI \-p " <header fieldname>"
+] [
+.B \-s
+]
+
+.SH DESCRIPTION
+This program is a temporary measure to provide administrators with a method of
+manipulating data files with Archie headers.  The program always reads from
+stdin and writes to stdout (which can be suppressed). If invoked without
+arguments, it behaves like
+.BR cat (1),
+except that it assumes the incoming data has an Archie header, otherwise it
+will complain.
+
+.SH OPTIONS
+.TP
+.BI \-M " <dir>"
+The name of the master Archie database directory. If not given, the program
+tries to look in the directory
+.B ~archie/db 
+and, failing that, defaults to 
+.BR ./db .
+.TP
+.BI \-h " <dir>"
+The name of the Archie host database directory. If not supplied the program
+will default first to
+.BR ~archie/db/host_db ,
+and failing that, to 
+.BR ./host_db .
+.TP
+.BI \-d " <filename>"
+Take the incoming data, strip off the Archie header, writing it to
+.IR <filename> .
+The rest of the data is written to
+.IR stdout .
+.TP
+.BI \-a " <filename>"
+Copy
+. stdin
+to
+.IR stdout ,
+prepending the Archie header stored in
+.IR <filename> .
+This option, with
+.BR \-d ,
+allows one to temporarily store the headers while the main body of the data is
+being processed, then later restore the headers.
+.TP
+.BI \-H " <header string>"
+Modifies the Archie header that is written to the output. Refer to
+.BR archie_headers (5)
+for the header field names. The syntax for
+.I <header string>
+is:
+.RS
+.RS
+.sp
+.IR "<fieldname> <value>" " [; " "<fieldname> <value>" " ] ..."
+.sp
+.RE
+.RE
+.RS
+Note:
+.I <header string>
+is a single parameter and must be quoted in shell scripts to avoid being
+interpreted as multiple arguments.  All the fields listed in
+.BR archie_headers (5)
+are supported except `primary_hostname' and `primary_ipaddr', to which changes
+are not allowed.  Any number of these fields may be modified. In the case of
+duplicates an error will be flagged. For the time-based fields (`parse_time',
+`retrieve_time', `update_time') the special word `now' may be used instead of
+the time. The program will take the current time and insert it into the
+field. Otherwise, the time must be specified in YYYYMMDDHHMMSS format, GMT
+(\fBdate\fP(1) can provide this format).
+.RE
+.TP
+.B \-s
+Suppress the normal action of copying the rest of the (non-header)
+.I stdin
+data to
+.IR stdout .
+.TP
+.BI \-p " <header fieldname>"
+Implies
+.BR \-s .
+Print the value of the
+.I <header fieldname>
+to
+.IR stdout .
+One can extract particular values in the header with, for example:
+.sp
+.RS
+.RS
+\fCcat file | (set x=`handle_header -p retrieve_time`)\fP
+.RE
+.RE
+.sp
+.RS
+This sets the
+.BR csh (1)
+variable `x' to the value of `retrieve_time' in YYYYMMDDHHMMSS string format.
+Note that this value would not be exported to the calling shell.
+.RE
+.TP
+.BI \-r " <header fieldname>"
+Removes the given
+.IR "<header fieldname>" ,
+and its associated value, from the header being manipulated.
+.TP
+.BI \-m " <message>"
+Tells the program to write
+.I <message>
+to the Archie mail notification system (see
+.SM "Monitoring The System"
+in the Archie manual).
+.I <message>
+must be supplied. The required information will be extracted from the current
+header.  For example, if the `update_status' field is `fail' then a failure
+message will be written.
+.TP
+.B \-U
+Update the record in the host databases. The standard DNS host name checks
+will be done. Note that it is the responsibility of the update program to do
+any file locking required to prevent concurrent updates.  The
+.B arcontrol
+program will run
+.B retrieve_*
+processs in parallel, but
+.B parse_*
+and
+.B update_*
+processes are run in sequence. The program will mark all inserted records as
+`ACTIVE'.
+
+.SH "SEE ALSO"
+.BR retrieve_* (n),
+.BR parse_* (n),
+.BR update_* (n),
+
+.SH AUTHOR
+Bunyip Information Systems.
+.br
+Montr\o"\'e"al, Qu\o"\'e"bec, Canada
+.sp
+Archie is a registered trademark of Bunyip Information Systems Inc., Canada,
+1990.

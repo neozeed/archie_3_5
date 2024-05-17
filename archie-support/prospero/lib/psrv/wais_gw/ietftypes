@@ -1,0 +1,127 @@
+# This file defines the relationships between different types
+# new records can be added anywhere, 
+# Order is insignificant, except that this file is searched in order, 
+# so converting x=a to y will return the value for y, from the first record
+# where x=a
+#
+ietf		text/plain
+wais		TEXT
+prospero	DOCUMENT/TEXT/ASCII
+gopher0		0
+#
+ietf		application/gopher-menu
+prospero	DOCUMENT
+gopher0		1
+#
+gopher0		4
+prospero	EMBEDDED/BINHEX/DATA
+#
+# The Generic Binaries should be Gopher type 9
+gopher0		9
+prospero	DATA
+#
+gopher0		5
+prospero	DATA
+#
+gopher0		6
+prospero	EMBEDDED/UUENCODE/DATA
+#
+gopher0		7
+prospero	SEARCH
+#
+gopher0		8
+prospero	PORTAL
+#
+gopher0		I
+prospero	IMAGE
+#
+gopher0		:
+prospero	IMAGE
+#
+gopher0		M
+ietf		multipart/composite?
+wais		MIME
+prospero	DOCUMENT/MIME
+#
+gopher0	T
+prospero	PORTAL
+#
+gopher0		g
+prospero	IMAGE/GIF
+wais		GIF
+#
+gopher0		s
+prospero	SOUND
+#
+gopher0		<
+prospero	SOUND
+#
+# Uncommon type in Iowa gopher - Panda
+gopher0		i
+prospero	VOID
+#
+gopher0		!
+prospero	VOID
+#
+gopher0		;
+prospero	VIDEO
+#
+# CSO
+gopher0		2
+#
+# Error
+gopher0		3
+#
+# Whois
+gopher0		w
+#
+# Possibly an error message type
+gopher0		-
+#########################################################################
+#	WAIS types for which incomplete information is available	#
+#########################################################################
+#
+#
+wais	EXCEL
+#
+wais	DVI
+#
+wais	MS-EXCEL
+#
+wais	MS-POWERPOINT
+#
+wais	MS-WORD
+# Aldus Persuasion
+wais	PERSUASION
+#
+wais	PICT
+#
+wais	PS
+#
+wais	QUICKTIME
+#
+wais	TEXT-FTP
+#
+wais	TIFF
+# Wais question format
+wais	WQST
+# Wais Source format
+# this may end up being special cased to generate appropriate pointers
+wais	WSRC
+ietf		text/plain
+prospero	DOCUMENT/TEXT/ASCII
+gopher0		0
+#
+#########################################################################
+#	GOPHER0								#
+#									#
+# The next bunch are gopher0 types that correspond to other		#
+# types that are already listed above. 					#
+#########################################################################
+gopher0	e
+ietf	text/plain
+wais	TEXT
+#
+gopher0	c
+ietf	text/plain
+wais	TEXT

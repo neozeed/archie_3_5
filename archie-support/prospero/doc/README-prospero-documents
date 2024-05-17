@@ -1,0 +1,280 @@
+This file (README-prospero-documents, version of 30 November 1993,
+swa@isi.edu) describes the publicly available documents about the
+Prospero Directory Service.  For comments on this file or questions
+about prospero, please send electronic mail to info-prospero@ISI.EDU
+
+These files are all available through Prospero.  If you're not running
+Prospero yet, they're also available via anonymous FTP from
+PROSPERO.ISI.EDU.
+
+Some of the documents mentioned below this point in this file are
+marked with the label DISTRIBUTION and are additionally available in
+the doc subdirectory of the latest Beta and Alpha Prospero releases
+(releases Beta.5.1 and Alpha.5.2a).  A good way to obtain the Prospero
+distribution, if you're not running Prospero yet, is to anonymously
+FTP to PROSPERO.ISI.EDU and get /pub/prospero/prospero.tar.Z.  If you
+are already running Prospero, the lastest distribution is kept in
+/releases/prospero/prospero.tar.Z.
+
+Prospero: /papers/subjects/computers/operating-systems/prospero/prospero-oir.ps.Z
+Anonymous FTP: /pub/papers/prospero/prospero-oir.ps.Z
+(POSTSCRIPT)
+@ARTICLE{oir,
+AUTHOR      = "Neuman, B. Clifford",
+TITLE       = "Prospero: A Tool for Organizing {I}nternet Resources",
+JOURNAL     = "Electronic Networking: Research, Applications and Policy",
+MONTH       = "Spring",
+YEAR        = 1992,
+VOLUME      = 2,
+NUMBER      = 1}
+
+This is a useful first paper to read.  It gives a good overview of
+Prospero and what it does.  It also describes a bit about the Virtual
+System model, of which Prospero is a prototype implementation.  It
+describes what Prospero does, not how it does it.
+
+Prospero: /papers/subjects/computers/operating-systems/prospero/papers/prospero-ITR-Neuman-interview.au
+Anonymous FTP: /pub/papers/prospero/prospero-ITR-Neuman-interview.au
+
+This is an audio transcript of an November 17, 1993 interview on the
+Internet Talk Radio "Geek of the Week" program.  The description:
+
+       Carl Malamud interviews Clifford Neuman, instrumental in the
+  development of Internet protocols such as Kerberos and Prospero.
+  Neuman discusses what Prospero is and how this miracle system can
+  be anything you want it to be.  Neuman also discusses his work
+  in security and how that relates to his recent interests in resource
+  discovery.
+
+
+It is 30 minutes long and is a good thing to listen to for the
+philosophy behind the Prospero virtual system model.
+
+overview of how Prospero does what it does.
+
+Prospero: /papers/subjects/computers/operating-systems/prospero/prospero-bii.ps.Z
+Anonymous FTP: /pub/papers/prospero/prospero-bii.ps.Z
+(POSTSCRIPT)
+   @INPROCEEDINGS{prosperobii,
+   AUTHOR      = "Neuman, B. Clifford and Augart, Steven Seger",
+   TITLE       = "Prospero: A Base for Building Information Infrastructure",
+   BOOKTITLE   = "Proceedings of INET'93",
+   YEAR        = 1993,
+   MONTH       = "August"}
+
+This paper describes how Prospero can be used to integrate internet
+information services, including Gopher, WAIS, Archie, and World Wide
+Web.  It is another good first paper to read about Prospero.  The paper will 
+be presented at INET'93 in August. 
+
+Prospero: /papers/subjects/computers/operating-systems/prospero/prospero-gfsvsm.ps.Z
+Anonymous FTP: /pub/papers/prospero/prospero-gfsvsm.ps.Z
+(POSTSCRIPT)
+   @ARTICLE{gfsvsm,
+   AUTHOR      = "Neuman, B. Clifford",
+   TITLE       = "The {P}rospero {F}ile {S}ystem: A Global File System
+                  based on the {V}irtual {S}ystem {M}odel", 
+   JOURNAL     = "Computing Systems",
+   VOLUME      = 5,
+   NUMBER      = 4,
+   YEAR        = 1992,
+   MONTH       = "Fall"}
+
+This is a good second paper to read about Prospero.  This one is
+targeted more toward system implementors.  It provides more
+implementation details than the paper on organizing Internet
+resources, but less of the vision of how Prospero can be used together
+with other systems.  Note: the online copy is the paper presented at
+the Workshop on File System.  A slightly revised version of the paper
+which subsequently appeared in Computing Systems and Computing Systems is
+the preferred citation.
+
+Prospero: /papers/subjects/computers/operating-systems/prospero/prospero-smlic.ps.Z
+Anonymous FTP: /pub/papers/prospero/prospero-smlic.ps.Z
+(POSTSCRIPT)
+   @INPROCEEDINGS{prosperosmlic,
+   AUTHOR      = "Neuman, B. Clifford and Augart, Steven Seger and
+                  Upasani, Shantaprasad",
+   TITLE       = "Using Prospero to Support Integrated
+                  Location-Independent Computing", 
+   BOOKTITLE   = "Proceedings of the Usenix Symposium on Mobile and
+                  Location-Independent Computing",
+   YEAR        = 1993,
+   MONTH       = "August",
+   PAGES       = "29--34"}
+
+This paper describes how the Prospero Directory Service can be used to
+solve the server selection problem and the user location problem.  The
+paper was presented in August, 1993, at the Usenix Symposium on Mobile
+and Location-Independent Computing.
+
+Prospero: /papers/subjects/computers/operating-systems/prospero/UW-CS-89-01-07.PS.Z
+Anonymous FTP: /pub/papers/prospero/UW-CS-89-01-07.PS.Z
+(POSTSCRIPT)
+   @TECHREPORT{vsmldos,
+   AUTHOR      = "Neuman, B. Clifford",
+   TITLE       = "The {V}irtual {S}ystem {M}odel for Large Distributed
+                  Operating Systems",
+   INSTITUTION = "Department of Computer Science, University of Washington",
+   YEAR        = 1989,
+   MONTH       = "April",
+   NUMBER      = "89-01-07"}
+
+This describes the initial vision for the Virtual System Model, the
+model on which Prospero is based.  Much of the material in this paper
+appears in greater detail in other papers.
+
+Prospero: /papers/subjects/computers/operating-systems/prospero/UW-CSE-90-05-01.PS.Z
+Anonymous FTP: /pub/papers/prospero/UW-CSE-90-05-01.PS.Z
+(POSTSCRIPT)
+   @TECHREPORT{vsmtp,
+   AUTHOR      = "Neuman, B. Clifford",
+   TITLE       = "The {V}irtual {S}ystem {M}odel: A Scalable Approach to
+                  Organizing Large Systems (A Thesis Proposal)",
+   INSTITUTION = "Department of Computer Science and Engineering, 
+                  University of Washington",
+   YEAR        = 1990,
+   MONTH       = "May",
+   NUMBER      = "90-05-01"}
+
+For a long time this was the best description of Prospero, but all the
+information in this document appears in more recent papers and the
+dissertation itself.
+        
+Prospero: /papers/subjects/computers/operating-systems/prospero/prospero-closure.ps.Z
+Anonymous FTP: /pub/papers/prospero/prospero-closure.ps.Z
+(POSTSCRIPT)
+   @ARTICLE{nfclosure,
+   AUTHOR      = "Neuman, B. Clifford",
+   TITLE       = "The Need for Closure in Large Distributed Systems",
+   JOURNAL     = "Operating Systems Review",
+   MONTH       = "October",
+   YEAR        = 1989,
+   VOLUME      = 23,
+   NUMBER      = 4,
+   PAGES       = "28--30"}
+
+This paper describes the reasons that operating systems need to
+support closure, that is they need to make it clear which name space
+is to be used when resolving names.  While closure is one of the
+important features of Prospero, the concept should be applied in other
+operating systems too.
+
+Prospero: /papers/subjects/computers/operating-systems/prospero/prospero-wsvsm.ps.Z
+Anonymous FTP: /pub/papers/prospero/prospero-wsvsm.ps.Z
+(POSTSCRIPT)
+@INPROCEEDINGS{wsvsm,
+AUTHOR      = "Neuman, B. Clifford",
+TITLE       = "Workstations and the {V}irtual {S}ystem {M}odel",
+BOOKTITLE   = "Proceedings of the 2nd IEEE Workshop on 
+               Workstation Operating Systems",
+YEAR        = 1989,
+MONTH       = "September",
+PAGES       = "91--95",
+NOTE        = "Also appears in the {\it Newsletter of the IEEE Technical 
+               Committee on Operating Systems}, Volume 3, Number 3,
+               Fall 1989.  Available as University of Washington Department
+               of Computer Science and Engineering Technical Report
+               89-10-10"} 
+
+Describes the role of the workstation in a system based on the Virtual
+System Model.  Also provides an early description of Prospero.
+     
+Prospero:
+    /papers/subjects/computers/operating-systems/prospero/prospero-neuman-thesis.ps.Z
+Anonymous FTP: /pub/papers/prospero/prospero-neuman-thesis.ps.Z
+(POSTSCRIPT)
+   @PHDTHESIS{phdneuman,
+   AUTHOR      = "Neuman, B. Clifford",
+   TITLE       = "The {V}irtual {S}ystem {M}odel: A Scalable Approach to
+                  Organizing Large Systems",
+   SCHOOL      = "University of Washington",
+   MONTH       = "June",
+   YEAR        = 1992,
+   NOTE        = "Department of Computer Science and Engineering
+                  Technical Report 92-06-04"} 
+
+This is Clifford Neuman's Ph.D. Dissertation.  It is currently the
+definitive work on Prospero and the Virtual System Model.  The
+prospero manuals that form its appendices have been superseded by
+those described below.
+
+Prospero:
+   /papers/subjects/computers/operating-systems/prospero/doc/prospero-protocol-v5.PS.Z
+Anonymous FTP: /pub/prospero/doc/prospero-protocol-v5.PS.Z
+DISTRIBUTION: protocol.PS, protocol.tex
+(POSTSCRIPT or LaTeX)
+        This is a description of version 5 of the Prospero protocol
+and of the Reliable Delivery Protocol that we use.  It includes lots
+of information that was elided in the version 1 protocol
+specification.  It also has a lot of information in it about how the
+system works.  The LaTeX source is available as
+prospero-protocol-v5.tex.Z.
+
+Prospero: /papers/subjects/computers/operating-systems/prospero/doc/prospero-protocol-v1.PS.Z
+Anonymous FTP: /pub/prospero/doc/prospero-protocol-v1.PS.Z
+(POSTSCRIPT)
+        This is a description of version 1 of the Prospero protocol.
+(It's identical to appendices D and E of B. Clifford Neuman's Ph.D.
+Dissertation.)  It is now obsoleted by version 5 protocol.  However,
+we are still making it available since a number of older servers are running
+version 1 protocol, and since most of the current ARCHIE clients use the
+older Version 1 protocol.
+
+Prospero: 
+   /papers/subjects/computers/operating-systems/prospero/doc/prospero-user-manual.PS.Z
+Anonymous FTP: /pub/prospero/doc/prospero-user-manual.PS.Z
+DISTRIBUTION: manual.PS, manual.tex
+(POSTSCRIPT or LaTeX)
+	This is the Prospero User's manual.  It is slightly out of
+date, and we'll be revising it shortly.  Latex source in the
+corresponding .tex file. 
+
+Prospero: 
+   /papers/subjects/computers/operating-systems/prospero/doc/prospero-library.PS.Z
+Anonymous FTP: /pub/prospero/doc/prospero-library.PS.Z
+DISTRIBUTION: library.PS, library.tex
+(POSTSCRIPT, LaTeX)
+        Prospero library manual.  Somewhat sketchy and not
+comprehensive, but far better than nothing.  This is mainly useful for
+applications writers.  This is slowly being updated.  Latex source in
+the corresponding .tex file.
+
+
+Prospero: /papers/subjects/computers/security/issues.ps.Z
+Anonymous FTP: /pub/papers/psfos.ps.Z
+(POSTSCRIPT)
+   @INPROCEEDINGS{psfos,
+   AUTHOR      = "Neuman, B. Clifford",
+   TITLE       = "Protection and Security Issues for Future Systems",
+   BOOKTITLE   = "Proceedings of the Workshop on Operating Systems of the
+                  90s and Beyond",
+   PUBLISHER   = "Springer-Verlag",
+   YEAR        = 1991,
+   MONTH       = "July",
+   PAGES       = "184--201",
+   NOTE        = "Lecture Notes in Computer Science #563",}
+Not Prospero-specific.  Describes some of the security issues which
+underlay the development of Prospero's (optional) access control system.
+
+Prospero: /papers/subjects/computers/distributed-systems/scale.ps.Z
+Anonymous FTP: /pub/papers/scale.ps.Z
+(POSTSCRIPT)
+   @INCOLLECTION{sds,
+   AUTHOR      = "Neuman, B. Clifford",
+   TITLE       = "Scale in Distributed Systems",
+   BOOKTITLE   = "Readings in Distributed Computing Systems",
+   PUBLISHER   = "IEEE Computer Society Press",
+   YEAR        = 1992}
+This is not really Prospero-specific, but it addresses general issues
+of scale in distributed systems.  It discusses Prospero among other
+systems, and mentions a number of the issues that are driving the
+development of Prospero. 
+
+Prospero: /papers/subjects/computers/operating-systems/prospero/README-prospero-documents
+Anonymous FTP: /pub/papers/prospero/README-prospero-documents
+(ASCII)
+        This file.
+
+
+Virtual-System-Name: #/INET/EDU/ISI/swa

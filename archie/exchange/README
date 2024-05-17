@@ -1,0 +1,29 @@
+listd
+
+This directory contains the source code for the listd program. This
+program is responsible for transferring archie site listings amongst
+archie servers. It also provides information to the archie retrieval
+subsystem. This is a prototype implementation to test the feasibility of
+various systems.
+
+The alogrithm for transfer is quite simple. This program is run in two
+modes client or server.
+
+It is invoked (in server mode) without any command line arguments by
+inetd on connection with a listd server at another archie host site (the
+client). If connections with this particular host is permitted this
+client listd then requests the set of sites that is currently being
+stored on the server. See the PROTOCOL document for the specification how
+this information is actually transmitted. The client listd server may
+then request some or all of the sites stored on the server site which it
+does not have. The server constructs the site files as they are requested
+and transmits them. When the client has signalled the end of requested
+files, the server may choose to reverse the process and perform a similar
+operation.
+
+In client mode, the listd process is initiated at certain times to itself
+contact other archie hosts.
+
+The server may be extended to transmit information for other databases
+maintained by archie.
+

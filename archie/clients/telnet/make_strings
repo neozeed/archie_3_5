@@ -1,0 +1,28 @@
+#!/bin/sh -u
+prog=`basename $0`
+if [ $# -lt 2 ] ; then
+	echo "Usage: $prog <language> <C-source> ..."
+	exit 0
+fi
+lang=$1; shift
+
+strout=${lang}-language-strings.c
+
+> .htab ; > $strout
+(echo '#include "ansi_compat.h"'; echo "const char *${lang}[] ="; echo "{"; echo "") >> $strout
+
+n=0
+for f in $* ; do
+	(echo "/* ==================== $f ==================== */" ; echo "") \
+		>> ${strout}
+	cstrex -index $n -replace "curr_lang[%d]" \
+		-define '\t/* %5d */\t"%s",\n' -deffile ${strout} \
+		-inhash .htab -outhash .htab < $f > lang-indep-$f
+	echo "" >> ${strout}
+	n=`tail -7 ${strout} | \
+		sed -n 's;^.*/\*[ 	]*\([0-9][0-9]*\).*$;\1;p' | \
+		tail -1`
+	n=`expr $n + 1`
+done
+echo "};" >> ${strout}
+exit 0

@@ -1,0 +1,232 @@
+This is a set of sketchy notes on the multi-threading of the Prospero server.
+It describes the important multi-threading changes that were made to
+the existing libraries before work.
+
+Rationale:
+
+ARDP library:
+
+ardp_runQ:  fully mutexed (done)
+        appears to be no rQlen variable.
+
+        Items added to it in ardp_get_nxt().
+        Its value is tested in ardp_accept().
+        Items extracted from it in ardp_respond().
+
+ardp_respond and ardp_accept() both assume that the runQ is always
+one or zero elements long.  This clearly must change.  (done)
+
+ardp_doneQ: fully mutexed
+        dQlen in ardp library.: used ardp_doneQ's mutexes (inside)
+        dQmaxlen: never set; doesn't need mutexes.
+
+ardp_pendingQ, pQlen: Used only in ardp_accept() and ardp_get_nxt().  Those
+        do get called from inside the archie code, so we'll have to
+        mutex it when we multithread that code on the server.  
+        These were on 29 Dec 1993.  On Dec 27, 1993, Mitra reported a
+loop in ardp_pendingQ.  No idea why, since there should never be an overlap.
+
+
+ardp_partialQ, ptQlen: used only in ardp_accept(). Will have to mutex
+        when multithreading ardp_accept(). 
+
+Actually, even EASIER!  Just multithreaded ardp_accept() -- if called
+a 2nd time, will just return.  So only one call needed.
+ardp_get_nxt() still not.
+
+Now: 
+
+Globals in ardp.h for ardp_runQ, ardp_doneQ, ardp_pendingQ
+locked allocating and freeing, modulo changes to malloc().
+
+Final Instructions:
+Still will need to call ardp_init_mutexes() before running server.
+        (called by p_initialize(), which the server does call)
+ardp_get_nxt() is not multithreaded.
+ardp_send(),ardp_xmit() and other client-only routines are not multithreaded.
+
+-
+ardp_accept() is mutexed so that only one thread can be in it at a
+time.  This is through the mutex p_th_mutexARDP_ACCEPT.
+
+
+
+---
+lib/pfs: everything the server might use is multithreaded.
+---
+        
+Changes to threads package and how to configure it to work with a regular
+Prospero distribution:
+
+ln -s ../lib/fsu_pth
+
+. Changes to threads package
+
+Made it possible to include supplementary signal.h definitions without
+having it be the first signal.h included in a file (edited signal.h).
+(needed in 1.16; still needed in 1.21)
+
+Edited pthread_asm.h by surrounding redef of NULL with #ifndef NULL.
+(needed in 1.16 and 1.21)
+
+
+. Installing threads package (this is also in the directions):
+
+cd to lib directory
+untar threads tar file
+mv threads fsu_pthreads
+untar malloc tar file
+mv fsu_threads/src/gmallolfc_patch.* malloc
+cd malloc
+csh gmalloc_patch.csh
+make CC=gcc CFLAGS=--ggdb3
+cd ../fsu_threads/src
+Edit Makefile; set these configuration options:
+CFLAGS = -DSRP -DC_INTERFACE -DSTACK_CHECK -DSIGNAL_STACK -DIO \
+	-DMALLOC
+make
+        
+
+. Making threads package available to Prospero (changes to Prospero files)
+
+Add (with the full path-name, since this will be used in several
+directories) prospero-full-source-path/lib/fsu_pthreads/lib/libpthread.a  to
+the LIBS line in the top-level Makefile
+
+cd prospero-full-source-path/include
+ln -s ../lib/fsu_pthreads/include/pthread .
+ln -s ../lib/fsu_pthreads/include/pthread.h .
+
+(this procedure only works with Pthreads releases 1.21 and later)
+(There is some stuff about PTH_INC in several makefiles.  This is now
+vestigial, given the above procedure.)
+
+--
+
+psrv library:
+
+Flushed all statics from it.
+
+We will eventually need to fix it so that there are read and write
+locks on files, such that reading from a file locks it from writing
+until done, reading from a file with the possibility of writing a
+change back locks it from anyone else doing the same.  Need to lock
+individual objects.  Probably best done in a way that lets several
+prospero servers share a directory hierarchy ... perhaps a special
+lock directory or DBM database?  Along with a provision that any locks
+more than 5 minutes old will be deleted?
+
+--
+
+unix functions:
+Need to mutex: free(), malloc(), calloc(), _filbuf(), _flsbuf(),
+fopen(), fclose(), fgets, gets(), fputs, puts(), sprintf(), fprintf(), printf(),
+fgetc(), fputc(). fread(), fwrite()
+(these are no longer problems, any of them...
+ the new library has a safe malloc!)
+
+sprintf() would be a problem if we were using it, but we don't use it
+anywhere in the critical sections of the code (checked 16 December
+1993).  Ditto fprintf().  All of these have been replaced with fputs()
+and other safe operations.  (except for asntotime())
+
+do need to convert over fp_to_str() when needed.
+
+
+checked call to gethostbyname() in myhost.c; make sure no conflict.
+                (solved because only called on initializing time).
+mutexed lib/pfs/timetoasn.c because it's the only place we use
+gmtime() and sprintf().
+
+Ran over all calls to gethostbyname(); we're safe.  everything
+multi-threaded now goes through ardp_hostname2addr().
+
+Use of localtime() in plog is OK; timestamps might be overwritten, but
+a few seconds off won't matter to the logfile.
+
+--
+Gopher gw:
+
+had to specially treat gethostbyname().
+There is a serious problem: gethostbyname() blocks, in a way that is
+not multithreaded.  solution probably to keep the cache hot.
+
+Gopher_gw calls p_open_tcp_stream() to open its outbound stream.  It
+then calls write() to send info out (no longer uses writev()).  Then
+it calls read() to get the information back.
+
+If the stream hasn't completed the connection yet, we get a 'socket is
+not connected' error when we try to write.  We could probably wrestle
+it into shape with appropriate reads and writes, but that doesn't
+necessarily make sense.  
+
+
+--
+Use of threads library:
+
+Examples in Draft 6 (mueller spec) have pthread_join before
+pthread_detach()
+        D7 explicitly states it's legal to call pthread_detach() once.
+        Might lead to problems; if so, add infrastructure to do pthread_join().
+
+
+-- 
+
+MAIN CURRENT WORK PROJECTS:
+        1) Make sure we can run multi-threaded without crashes
+        2) Make sure we can run single-threaded without crashes.
+        3) check the non-blocking TCP open, tcp read, tcp writes.
+These *are* the entire reason we started this project.  And they still
+aren't performing non-blocking under SUN-OS.  Might work under Solaris.
+        Threads package will have to handle lib/pfs/opentcp.c and
+lib/pfs/hostname2addr.c.  These are intended to be non-blocking.
+
+--        
+
+--
+General release status:
+
+Checked single-thread compatability.  We run perfectly in the
+single-threaded case. 
+
+Multi-threaded seems to work ok without the accursed TCP opens.
+
+
+TODO later: fix dirsrv_explain_last_restart().
+
+TODO later: write general safe localtime().  Not needed for now, because
+only used once in server (and only used for printing logs, so
+overwrites ok)
+
+TODO later: convert lib/psrv/ppasswd.c
+
+TODO later: make PSRV_ACCOUNT work under threads (does not right now).
+Do this when I review the ACCOUNT code in the server and add
+directions on how to use it.
+
+TODO later: make sure the kerberos libraries are thread-safe.
+PRobably not for a while.  When they are, change PSRV_KERBEROS.
+No kerberos functionality for now.
+
+TODO later: convert over reply_v1() in dirsrv_v1.c, when fixing v1
+support.
+TODO later: fix SERVER_DONT_FLAG_V1 code in version.c (add mutexes)
+
+TODO later: one day it would be nice to be able to set externs
+read-only (doubt this will ever happen in C though.  Perhaps with
+another language.)
+
+TODO later: in_nextline() is difficult to follow and assumes no word
+in the text will ever be longer than 1250 bytes.
+
+TODO later: change the P_ACCOUNT stuff in p__req.c.  Convert over rest
+of client side pfs library too.
+
+TODO later: make all of the functios using mutexes auto-initializing,
+so that we don't have to call the initialization functions.  Or at
+least make sure that new ones work that way.
+        Right now, each library is expected to have a threads mutex
+initializer.  this is clumsy.
+
+
+

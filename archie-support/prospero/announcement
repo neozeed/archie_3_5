@@ -1,0 +1,72 @@
+This prerelease (5/17/94) was put together hastily in order to solve
+Bunyip's urgent performance problems.  I used an alternative quick
+procedure for making it, where I was not able to go through the
+rigorous checks I normally automatedly run to see if any files have
+been left out, etc.  If you have problems installing it, please
+contact me right away, at home (310) 391-4404 or at work (310)
+822-1511x749.  Since time is of the essence here, if I don't answer at
+either the home or work numbers, then please call me right away at
+(310) 991-6592 (cellular phone).
+
+The major changes were:
+  a) bug fixes included since last release
+  b) DIRECTORYCACHING can now be disabled (and is by default)
+  c) the VCACHE library is now the exception; vcache is normally built
+as a separate program again.
+  d) many efficiency speedups.  The server now does far fewer stat()s,
+getpwuid(), and getgrgid() calls than it used to.  It is much choosier
+aobut when to call dsrfinfo().   It understands that when you're
+verifying whether a directory exists you don't need to do a lot of
+useless work.  It was going to a lot of work to support forwarding.
+
+Note the definition SERVER_DO_NOT_SUPPORT_FORWARDING in <pserver.h>.
+This is turned on by default right now.  This isn't a permanent change
+(the permanent change is to make forwarding a lot more efficient), but
+it will work until we need forwarding again.  If you are using
+forwarding, then contact me right away so that I can up the priority
+of fixing this.  For now, leaving this definition enabled produces a
+considerable speedup in server performance.
+
+I would like to see  how well this improves the efficiency problems
+that Bunyip has been experiencing.    I believe there will be a factor
+of ten speedup as a result of these changes.
+
+I have modified lib/psrv/archie3/Makefile to meet the new specs; I
+have not done this yet with archie2.  I have not tested the
+lib/psrv/archie* makefiles and code.  Please give me feedback on this.
+If somebody installs all of the release except for the archie stuff, I
+will be glad to make modifications to those makefiles and code.
+However, I do not myself have a copy of the archie server software on
+hand to test it with.
+
+The configuration of this release has considerably changed from the
+last time the INSTALLATION instructions were revised.  I like to think
+it's easier to understand.  It's certainly easier to maintain.
+
+To build it:
+	untar the release
+	copy include/pmachine.h.dist to include/pmachine.h.  
+		Edit include/pmachine.h 
+	copy include/pserver.h.dist to include/pserver.h.
+		Edit include/pserver.h 
+	copy include/psite.h.dist to include/psite.h.
+		Edit include/psite.h 
+	edit Makefile.config to meet your needs.
+		To make archie work fast, add -O3 to the CFLAGS in this makefile; you no longer should need to modify lib/psrv/archie3/Makefile.
+	Link the archie sources to lib/psrv/archie3/archie_src, as usual.
+	type 'make' in the top level directory.
+
+In this prerelease, I have included both the .dist files
+(include/pmachine.h.dist, include/psite.h.dist,
+include/pserver.h.dist, Makefile.config.dist) and our own versions
+that have been set up to work on ZEPHYR.ISI.EDU.  You will want to
+proceed as above, and just delete the zephyr.isi.edu versions.
+
+
+Please send minor feedback to bug-prospero@ISI.EDU.  Please send
+feedback about things keeping you from getting work done directly to
+me via telephone (numbers above).  Follow it up with an email message
+to bug-prospero@ISI.EDU so that other people on my project will know
+that there's a problem and will hassle me about it on your behalf.
+
+---swa

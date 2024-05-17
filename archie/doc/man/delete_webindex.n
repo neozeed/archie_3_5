@@ -1,0 +1,121 @@
+.\" Copyright (c) 1992, 1994, 1996 Bunyip Information Systems Inc.
+.\" All rights reserved.  
+.\"	
+.\" Archie 3.5
+.\" August 1996
+.\"	
+.\"	@(#)delete_webindex.n	
+.\"
+.TH DELETE_WEBINDEX N "August 1996"
+
+.SH NAME
+.B delete_webindex 
+\- delete a site from the Archie webindex database
+
+.SH SYNOPSIS
+.B delete_webindex 
+.BI \-H " <hostname>"
+[ 
+.BI \-M " <dir>"
+] [ 
+.BI \-h " <dir>"
+] [ 
+.BI \-p " <port>"
+] [ 
+.BI \-w " <dir>"
+] [ 
+.B \-v
+] [
+.B \-l
+] [ 
+.BI \-L " <logfile>"
+]
+
+.SH OPTIONS
+.TP
+.BI \-H " <hostname>"
+The fully qualified domain name or IP address, in standard `quad' or `dotted
+decimal' format, of the site to be deleted.  This name must already exist in
+the Archie host database, or be resolvable via the Domain Name System. This
+parameter is required.
+.TP
+.BI \-M " <dir>"
+The name of the master Archie database directory. By default, the program
+first looks in the directory
+.BR ~archie/db ,
+then
+.BR ./db .
+.TP
+.BI \-w " <dir>"
+The name of the directory in which the Archie webindex catalog resides.  This
+parameter overrides the default catalog name,
+.BR ~archie/db/webindex ,
+as well as the
+.B \-M
+option.
+.TP
+.BI \-h " <dir>"
+The name of the Archie host database directory.  By default, the program first
+looks in
+.BR ~archie/db/host_db ,
+then
+.BR ./host_db .
+.TP
+.BI \-p " <port>"
+The port number at the Web site.  The default value is 80.
+.TP
+.B \-v
+Verbose mode.  Debugging information is printed to
+.IR stderr ,
+or to the log file, if
+.B \-l
+is specified.
+.TP
+.B \-l
+Write output to the default log file
+.BR ~archie/logs/archie.log .
+The name of this file can be overridden with the 
+.B \-L
+option.  By default, errors are written to
+.IR stderr .
+.TP
+.BI \-L " <logfile>"
+The name of the log file.  This option has no effect unless the
+.B \-l
+option is also specified.  Note that debugging information is also written to
+the log file.
+
+.SH DESCRIPTION
+.B delete_webindex 
+modifies and deactivates the appropriate entry in the auxiliary host database.
+If the specified host does not exist in the webindex catalog, the program
+prints an error message, then exits.  Normally, this program is only invoked
+by
+.BR update_webindex (n).
+.PP
+When running
+.B delete_webindex
+from the command line, one should ensure
+that no other processes are modifying the webindex catalog.
+The exclusive locking mechanism provided by
+.BR update_webindex (n),
+is not available from the command line.
+
+.SH FILES
+~archie/db/host_db/*
+.br
+~archie/db/webindex_db/*
+.br
+~archie/db/webindex_db/start_db/*
+
+.SH "SEE ALSO"
+.BR update_webindex (n),
+.BR insert_webindex (n)
+
+.SH AUTHOR
+Bunyip Information Systems.
+.br
+Montr\o"\'e"al, Qu\o"\'e"bec, Canada
+.sp
+Archie is a registered trademark of Bunyip Information Systems Inc., Canada,
+1990.

@@ -1,0 +1,29 @@
+#
+# ppc/tcl
+#
+
+#
+# Put this first to override the FORCE target in the included make file.
+#
+all: prspsh
+
+
+include $(ARCHIE_ROOT)/Makefile.post
+
+
+prspsh: tclAppInit.o prsp.o prsp_vlink.o $(LIBS)
+	$(CC) $(CFLAGS) -o $@ -u_plog -u_sindex $(OBJS) \
+        ../../lib/$(SYSTYPE)/quoting.o ../../lib/$(SYSTYPE)/error.o $(TCL) \
+        $(MOD_LIBS) $(SYS_LIBS) -lm
+
+prspdp: tkMain.o tkAppInit.o prsp.o prsp_vlink.o $(LIBS)
+	$(CC) -o $@ $(CFLAGS) tkMain.o tkAppInit.o prsp.o prsp_vlink.o $(LIBS) $(MOD_LIBS) $(SYS_LIBS)
+
+#
+# Overkill, but good enough for now.
+#
+#$(MLIB) $(PSRV) $(VCCH) $(PFS) $(FILT) $(ARDP): FORCE
+#	cd $(PROSPERO_ROOT) && $(MAKE)
+
+clean:
+	rm -f *.o prspsh prspdp TAGS core

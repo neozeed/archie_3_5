@@ -1,0 +1,110 @@
+#
+# Patrie module.
+#
+
+#
+# Put this first to override the FORCE target in the included make file.
+#
+all: libpatrie.a
+
+progs: $(EXES)
+
+
+include $(ARCHIE_ROOT)/Makefile.post
+
+
+libpatrie.a: bits.o build.o case.o init.o int_stack.o \
+             levels.o page.o search.o sort.o state.o \
+             ptr_stack.o text.o timing.o trailer.o utils.o
+	$(AR) r $@ $?
+	$(RANLIB) $@
+
+DiffSort: DiffSort.o Test.o Makefile
+	$(CC) $(CFLAGS) -o $@ $@.o Test.o $(MOD_LIBS) $(SYS_LIBS)
+
+ExSort: ExSort.o Test.o utils.o Makefile
+	$(CC) $(CFLAGS) -o $@ $@.o Test.o utils.o $(MOD_LIBS) $(SYS_LIBS)
+
+ExSort.ma: ExSort.o Test.o utils.o Makefile
+	$(SENTINEL) $(CC) $(SEFLAGS) -o $@ ExSort.o Test.o utils.o $(MOD_LIBS) $(SYS_LIBS)
+
+O_build: O_build.o Makefile
+	$(CC) $(CFLAGS) -o $@ $@.o $(MOD_LIBS) $(SYS_LIBS)
+
+O_search: O_search.o Test.o Makefile
+	$(CC) $(CFLAGS) -o $@ $@.o Test.o $(MOD_LIBS) $(SYS_LIBS)
+
+O_sort: O_sort.o Test.o utils.o Makefile
+	$(CC) $(CFLAGS) -o $@ $@.o Test.o utils.o $(MOD_LIBS) $(SYS_LIBS)
+
+RandSearch: RandSearch.o Test.o libpatrie.a Makefile
+	$(CC) $(CFLAGS) -o $@ RandSearch.o Test.o libpatrie.a $(MOD_LIBS) $(SYS_LIBS)
+
+RandText: RandText.o Makefile
+	$(CC) $(CFLAGS) -o $@ RandText.o $(MOD_LIBS) $(SYS_LIBS)
+
+Test_GetSubstring: Test_GetSubstring.o libpatrie.a Makefile
+	$(CC) $(CFLAGS) -o $@ $@.o libpatrie.a $(MOD_LIBS) $(SYS_LIBS)
+
+Test_bits: Test_bits.o bits.o Makefile
+	$(CC) $(CFLAGS) -o $@ $@.o bits.o $(MOD_LIBS) $(SYS_LIBS)
+
+Test_bs: Test_bs.o Test.o libpatrie.a Makefile
+	$(CC) $(CFLAGS) -o $@ $@.o Test.o libpatrie.a $(MOD_LIBS) $(SYS_LIBS)
+
+Test_bs.ma: Test_bs.o Test.o libpatrie.a Makefile
+	$(SENTINEL) $(CC) $(CFLAGS) $(SENT_FLAGS) -o $@ Test_bs.o Test.o libpatrie.a $(MOD_LIBS) $(SYS_LIBS)
+
+Test_stats_infix: Test_stats_infix.o Makefile
+	$(CC) $(CFLAGS) -o $@ $@.o $(MOD_LIBS) $(SYS_LIBS)
+
+Test_fast_strcmp: Test_fast_strcmp.o Makefile
+	$(CC) $(CFLAGS) -o $@ $@.o $(MOD_LIBS) $(SYS_LIBS)
+
+Test_fast_ustrncmp: Test_fast_ustrncmp.o Makefile
+	$(CC) $(CFLAGS) -o $@ $@.o $(MOD_LIBS) $(SYS_LIBS)
+
+Test_page: Test_page.o Test.o libpatrie.a Makefile
+	$(CC) $(CFLAGS) -o $@ $@.o Test.o libpatrie.a $(MOD_LIBS) $(SYS_LIBS)
+
+Test_page2: Test_page2.o Test.o libpatrie.a Makefile
+	$(CC) $(CFLAGS) -o $@ $@.o Test.o libpatrie.a $(MOD_LIBS) $(SYS_LIBS)
+
+Test_page.ma: Test_page.o Test.o libpatrie.a Makefile
+	$(SENTINEL) $(CC) $(SEFLAGS) -o $@ Test_page.o Test.o libpatrie.a $(MOD_LIBS) $(SYS_LIBS)
+
+Test_page2.ma: Test_page2.o Test.o libpatrie.a Makefile
+	$(SENTINEL) $(CC) $(SEFLAGS) -o $@ Test_page2.o Test.o libpatrie.a $(MOD_LIBS) $(SYS_LIBS)
+
+Test_ptr_stack: Test_ptr_stack.o ptr_stack.o Makefile
+	$(CC) $(CFLAGS) -o $@ $@.o ptr_stack.o $(MOD_LIBS) $(SYS_LIBS)
+
+Test_search: Test_search.o Test.o libpatrie.a Makefile
+	$(CC) $(CFLAGS) -o $@ $@.o Test.o libpatrie.a $(MOD_LIBS) $(SYS_LIBS)
+
+Test_search.ma: Test_search.o Test.o libpatrie.a Makefile
+	$(SENTINEL) $(CC) $(CFLAGS) -o $@ Test_search.o Test.o libpatrie.a $(MOD_LIBS) $(SYS_LIBS)
+
+Test_sort: Test_sort.o Test.o libpatrie.a Makefile
+	$(CC) $(CFLAGS) -o $@ $@.o Test.o libpatrie.a $(MOD_LIBS) $(SYS_LIBS)
+
+Test_sort.ma: Test_sort.o libpatrie.a Makefile
+	$(SENTINEL) $(CC) $(SEFLAGS) -o $@ Test_sort.o libpatrie.a $(MOD_LIBS) $(SYS_LIBS)
+
+Test_state: Test_state.o libpatrie.a Makefile
+	$(CC) $(CFLAGS) -o $@ $@.o libpatrie.a $(MOD_LIBS) $(SYS_LIBS)
+
+Test_state.ma: Test_state.o libpatrie.a Makefile
+	$(SENTINEL) $(CC) $(CFLAGS) -o $@ Test_state.o libpatrie.a $(MOD_LIBS) $(SYS_LIBS)
+
+Test_tolower: Test_tolower.o Makefile
+	$(CC) $(CFLAGS) -o $@ $@.o $(MOD_LIBS) $(SYS_LIBS)
+
+Sort2Infix: Sort2Infix.o Makefile
+	$(CC) $(CFLAGS) -o $@ $@.o $(MOD_LIBS) $(SYS_LIBS)
+
+tree: tree.o Makefile
+	$(CC) $(CFLAGS) -o $@ $@.o $(MOD_LIBS) $(SYS_LIBS) -lm
+
+clean:
+	rm -f *.o $(EXES) libpatrie.a core bb.out

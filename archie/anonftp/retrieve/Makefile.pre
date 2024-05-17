@@ -1,0 +1,33 @@
+#
+# Anonftp/retrieve module.
+#
+
+#MOD_CFLAGS = -traditional -pipe
+MOD_DEBUG  = -g3
+MOD_WARN   = -Wall -Wshadow -Wpointer-arith -Wcast-align 
+MOD_INCS   = -I$(INCLUDE_MODULE) -I$(REGEX_MODULE) -I.
+MOD_LIBS   = \
+              -L$(LIBARCHIE_MODULE)/$(SYSTYPE) -larchie \
+              -L$(HOSTDB_MODULE)/$(SYSTYPE)    -lhostdb
+
+
+include $(ARCHIE_ROOT)/Makefile.pre
+
+
+INCS = \
+        ftp.h           \
+        ftp_getfile.h   \
+        lang_retrieve.h
+
+SRCS = \
+        ftp.c           \
+        ftp_getfile.c   \
+        lang_retrieve.c
+
+OBJS = \
+        ftp.o           \
+        ftp_getfile.o   \
+        lang_retrieve.o
+
+EXES = \
+        retrieve_anonftp

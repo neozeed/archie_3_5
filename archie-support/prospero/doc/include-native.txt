@@ -1,0 +1,194 @@
+This file documents the handling of native directories under Prospero.
+This is not a presentation of an ideal design, but describes the
+current status and behavior of the code.  Suggestions for improvement
+of the code are welcome, though we can't do much about them until
+mid-November at the earliest.  
+
+This is a first draft, dated 11/3/93.
+
+This will become part of the user's manual.
+
+Directories under Prospero have an attribute associated with them
+called INCLUDE-NATIVE.  Until the full Alpha.5.3 release is out using
+the new unified Prospero database format, this attribute cannot be set
+or read via the Prospero protocol.   You can look at it by examining
+the server's data files in /usr/pfs/shadow (or the equivalent) on your
+system, and change it by manually modifying those files -- not a very
+nice solution, but a temporary kludge.
+
+The values you'll see for it are:
+
+        NONATIVE -- this is always true for directories under
+/usr/pfs/pfsdat (see the Data: line in the status report returned by
+'pstatus' for the equivalent on your server).  This means that all
+links in the directory are virtual Prospero links.  
+
+        INCLREAL -- this is the default for directories you've said
+Prospero can access but which aren't under the Data: area.  This
+includes AFS directories, directories under the area described by the
+Root: line on your server's status report, and your anonymous FTP
+area.  These directories are sometimes called 'include-native'
+directories too.
+
+INCLREAL directories contain both (a) 'native links', from the real
+UNIX directory with the UNIX pathname that is the same as the Prospero
+HSONAME, and (b) virtual links.  They start off with all the links in
+the real UNIX directory (except for . and ..).  
+
+The purpose of the INCLREAL directories is to make it easier to
+get started organize your files using Prospero.  You can run the
+Prospero server out of the box and immediately make files under the
+AFS, anonymous FTP, and additional (what we call PSRV_ROOT) areas
+accessible through Prospero.
+
+You can add links to such directories with vln, and you can
+remove the same virtual links with vrm.  So far, this is the expected
+behavior. 
+
+. Making subdirectories of INCLREAL directories.
+
+Let's say you want to create a subdirectory of an INCLREAL
+directory.  If you want to create a real native directory that will be
+both on the UNIX and Prospero sides, go to the corresponding real unix
+parent directory with the normal unix commands and use the usual
+'mkdir' command.  If you want to create a virtual directory that will
+only be seen by Prospero, use the prospero 'vmkdir' command.  When
+you're creating a virtual subdirectory of a real UNIX directory,
+Prospero will create a new HSONAME for the new directory to have.  The
+new HSONAME will be made in the object_pool subarea of the PFSDAT
+area, and is guaranteed to be unique.  (Versions of Prospero before
+11/3/93 behave in a confusing and inappropriate manner when this
+happens.)
+
+. Deleting links from INCLREAL directories.
+
+Let's say you want to delete a native link from an INCLREAL directory.
+(a) If you want that native link to be gone from both the Prospero
+virtual directory and from the corresponding native UNIX directory,
+manually delete it from the native unix directory.
+(b) If you want that native link to be gone only on the Prospero side,
+but to stay in place on the unix side, you'll be tempted to use the
+VRM user command.  The Prospero servers, as currently implemented, do
+not delete native links, and provide you with an explanatory failure
+message when you attempt to do so.   (see below for a listing of
+alternatives)
+
+.. What can I do instead?
+
+You could decide to delete the file from the real native UNIX directory
+after all.
+
+You could copy the links in the Prospero directory to a new virtual
+directory (thereby making all the links virtual).  Then delete one of
+the virtual links.  Now, though, the Prospero directory won't follow
+changes you make to the real directory.
+
+You could change the directory to be NONATIVE.  This is, for most
+purposes, the same as the solution above, except that it can be
+confusing to have NONATIVE directories outside the PFSDAT (PFS Data) area.
+
+You could set the link to be invisible.  This is what I'd suggest.
+This is particularly appropriate for files such as the '.cap' files that
+are needed by services such as Gopher.  To do this, use the command:
+
+        set_atr <linkname> LINK-TYPE -linkprec -replace -field I 
+
+. So, why can't I delete a native link from a Prospero directory?  
+
+You can't do this because what it means is pretty unclear.  Let's say
+you delete the link '.cap' from the Prospero virtual directory which
+corresponds to a subdirectory of your FTP area.  The directory server
+will have to save in its database a bit of information that says "the
+link named .cap in this real UNIX directory should be ignored."  Now,
+let's say that the link .cap goes away.  Should this record be deleted
+or not?  
+
+If not, then when a new link named .cap is created a few
+months later, that new link won't appear on the directory listing,
+perhaps to the surprise of the maintainer, who might not remember
+having deleted it a long time ago.  Also, this means that native
+directories will get bigger over time.
+
+If yes, then files that are temporarily non-present but then reappear
+(such as files being temporarily updated or rewritten) may have to be
+deleted all over again.  
+
+You could use the filter mechanism and write an 'occluding' filter
+that hides the native link.  It would be subject to the same design
+considerations mentioned at the start of this subsection about unclear
+semantics.  We haven't done this yet, but if you have a need for it
+contact us and we'll tell you how to go about it.
+
+We've talked about installing an 'occluding' filter on directories in
+Prospero. 
+
+. Conflicting Links in INCLREAL directories.
+
+If you try to create a link in a Prospero directory that has the same
+name as an existing link but isn't a replica of it, the server will
+not let you do it.  This avoids a lot of confusion.
+
+However, the server can't protect you if you already have a virtual
+link in an INCLREAL directory, and then a native link with the same
+name is created in the real directory.  The server shouldn't throw
+away the old link, nor should it ignore that the new link has
+appeared.  So two links with the same link name (although different
+HSONAMEs) will appear.  These are known as 'conflicting' links.
+
+The server has been deliberately implemented so that the virtual link
+always comes first.  'vrm <linkname>' will delete the purely virtual link.
+To delete the native link, see suggestions listed above.
+
+Admittedly, this isn't a great mechanism; vrm should note the conflict
+and give you a way to select between the two conflicting links.  We've
+specified in the protocol methods that make this possible, but they aren't
+implemented yet.
+
+. Born-again objects and their ghosts.
+
+Let's say that you do an 'rmdir' or 'rm' on a native unix object that
+is shadowed by a Prospero virtual directory.  The link in the virtual
+directory will go away, and all will be happy.
+
+Now let's say you create a new native UNIX object with the same name.
+If you set any attributes on the old native UNIX object, they will
+reappear on the new native object!  Moreover, the new object will have
+the same ACL entry that the old one did.
+
+This is a bug.  It is unlikely to be fixed before the end of November.
+
+A problem with fixing it in the obvious way is that files that are
+temporarily non-present but then reappear (such as files being
+temporarily updated or rewritten) may lose all of their attributes.
+The correct behavior is Not Fully Clear to me.  Suggestions please.
+
+Before making suggestions involving storing UNIX inode numbers (which
+might work for directories), please note that some popular text
+editors, such as EMACS, change a file's inode # every time they create
+a new backup version of the file, at least in EMACS's default mode of
+operation. 
+
+. Permissions on native objects.
+
+All native objects start out with the DEFAULT and SYSTEM entries in
+their ACLs, but can have their ACLs modified just like any other
+object, with the set_acl command.
+
+. Minor details
+
+The INCLUDE-NATIVE attribute can also be set to:
+
+INCLNATIVE:  Works like INCLREAL, but also includes . and ..
+
+MUNGED: for objects that do not correspond to any real Prospero object
+-- e.g., a directory with union links expanded in it.  These must
+never be written out on the server.
+
+PSEUDO: for objects from databases.  These can be written out for
+writeable databases.  
+
+UNINITIALIZED: an internal value used on the server, never sent across
+the network.
+
+NOTDIR:  For objects that are not directories
+

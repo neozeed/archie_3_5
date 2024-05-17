@@ -1,0 +1,376 @@
+%
+% Copyright (c) 1996 Bunyip Information Systems Inc.
+% All rights reserved
+%
+% Archie 3.5
+% August 1996
+%
+% dirsrv.tex
+%
+
+
+\Chapter{The Archie/Prospero server (dirsrv)}
+
+
+The basic Archie system is primarily concerned with the location, retrieval
+and collation of data on the network and does not explicitly define a method
+to serve this information to the end-user. However, a close relationship
+between Archie and the Prospero Virtual System exists: all of the most popular
+freely-available Archie clients as well as those provided by Bunyip use the
+Prospero protocol to communicate with a modified Prospero server. This server
+allows users to search and access the various Archie catalogs.
+
+
+
+The Archie system includes a Prospero server, modified from the
+freely-available version, to accommodate many of the new features that Archie
+offers. The directory \Path{\archie/pfs/bin} contains the complete range of
+pre-compiled Prospero binaries that are supplied for your convenience.
+
+The Prospero binaries that are supplied have been modified based on the
+directory structure in the Archie distribution and are rooted in the
+\Path{\archie/pfs} directory.
+
+If this structure is changed, the system will need to be recompiled. Please
+check the Prospero configuration files to make sure that they are correct for
+your installation.
+
+
+
+\alertbox{The modified Prospero server retains the full functionality of the
+basic Prospero system and can be used as such. Please see the Prospero
+documentation or send mail to info-prospero@prospero.isi.edu for more
+information.}
+
+
+
+
+
+\section{Configuring the server}
+
+The Archie/Prospero server needs to be configured before it is started.
+
+
+
+
+\subsection{Configuring dirsrv for the catalogs}
+
+Before you start the server, you may need to modify the dirsrv configuration
+file, \archie/etc/catalogs.cf. This file tells dirsrv the catalogs to serve to
+the outside world and where they reside. It has the following format:
+
+\param{<catalog name> <type> <access method> <location>}
+
+
+\param{<catalog name>} The name of the catalog. Now anonftp !
+
+\param{<type>} The type of catalog, For the moment this is always archie.
+
+\param{<access method>} The way this catalog is accessed. See text below.
+
+\param{<location>} Pathname, relative to \archie/db of where this catalog resides.
+
+For example, here is the default catalogs.cf file that comes with the Archie
+system distribution.
+
+
+\param{\#}
+
+\param{\#This is a comment}
+
+\param{\#database type access method location}
+
+\param{\# name}
+
+\param{anonftp archie anonftp anonftp\_db}
+
+
+
+
+Note that comments can be placed in the file with the use of a ``\#''
+character. The comment continues from that character to the end of the current
+line. Any configuration line may be continued on to the next line with the use
+of a ``\\'' character at the end of the line to be continued.
+
+%In this example, the system serves two catalogs, anonftp and gopherindex both
+%having a type of archie. This means that these catalogs are specific to the
+%Archie system which also defines their access methods, anonftp and gopherindex
+%respectively. The last field specifies the path of the data files for these
+%catalogs relative to the \Path{\archie/db} directory. Thus, the data files for the
+%anonftp catalog can be found in \Path{\archie/db/anonftp\_db} while those for the
+%gopherindex catalog can be found in \Path{\archie/db/webindexrindex\_db}. As the
+%system evolves, new types and access methods will be defined to allow the
+%server to access other kinds of catalogs.
+
+
+
+\subsection{Starting the server}
+
+\alertbox{You will require root access to perform the following operations.}
+
+
+The following line may be added to the /etc/services file (or to the
+appropriate NIS file, if it is running on your host). However, the server will
+operate without this line being present.
+
+
+
+\param{dirsrv 1525/udp}
+
+
+
+To allow the Prospero server to start whenever the Archie server machine is
+rebooted, the following command should be added to the end of the
+/etc/rc.local file on the Archie server host.
+
+\comm{<archie home>/pfs/bin/pstart}
+
+where \Param{<archie home>} is the full path of Archie home directory.
+
+You may also start the Prospero server manually by issuing the pstart command
+from the command line. If a version of the program is already running, an
+error message will be displayed and the new version will not start.
+
+The pstart program should be set to have the Archie group as its group. This
+can be achieved as follows:
+
+\comm{chmod g+s pstart}
+
+This will normally be done by make when initially installing the system.
+
+The pstart process is responsible for starting the program, dirsrv which
+actually performs the queries. This program must not be renamed, or else it
+will not be able restart automatically in case of failure.
+
+\alertbox{dirsrv makes extensive use of the files in \Path{\archie/db}. If you plan
+to do extensive work on these files (such as rebuilding the databases there),
+make sure that dirsrv is terminated and restarted after the work is 
+complete. Failure to do so may cause the program to fail or operate
+unpredictably.}
+
+
+
+\alertbox{The Archie/Prospero server dirsrv in normal operation writes all log
+messages to the file \Path{/pfs/pfs.log}}
+
+
+
+It is possible in theory simultaneous heavy update and query loads will cause
+the dirsrv program to fail. In general, it's best to plan catalog updates for
+off-peak query hours.
+
+
+
+
+\section{The dirsrv log files}
+
+The dirsrv program writes its logging information to the file
+\Path{/pfs/pfs.log}. This file contains information about the general operation of
+the server (startup times, errors encountered etc.) and the user queries
+processed. Lines containing the string ARCHIE/MATCH signify searches in the
+anonftp catalog. See the manual sections in the catalog for a detailed
+description of the syntax of these log entries.
+
+
+
+\alertbox{\begin{center}IMPORTANT\end{center}
+Information contained in the dirsrv log file must be considered confidential
+and should not, under any circumstances, be released without first removing
+any information which may identify individual users or hosts from which the
+queries originated.}
+
+
+
+\section{The Message of the day}
+
+The administrator can set a ``Message Of The Day'' on the Prospero server via
+the use of the padmin command found in the \Path{\archie/pfs/bin} directory. This
+message will be available to all remote Archie (Prospero) clients and is
+normally displayed by the telnet and email clients for the anonftp catalog
+supplied with the Archie distribution. You can either prepare a file
+beforehand containing the message that you want installed or you can type it
+on the command line. You then issue the command as the superuser (root):
+
+
+\comm{padmin -set MOTD < messagefile}
+
+
+
+If you do not redirect the input the program will prompt for the message on
+the command line and read it in from stdin. You may wish to put this line in
+your \Path{/etc/rc.local} file as the MOTD is only set through the padmin
+command will not be ``''remembered'' between host reboots or crashes.
+
+
+\begin{itemize}
+
+\item The Archie/Prospero server will not start: \NOTE
+
+\begin{itemize}
+\item 
+Make sure the pstart program has setgid permissions and that it is owned by
+the archie group.
+\end{itemize}
+
+\item dirsrv complains ``cannot bind to socket'':
+
+\begin{itemize}
+\item 
+There is another dirsrv process already running.
+\end{itemize}
+
+\item
+the server will not respond to queries from Archie clients
+
+\begin{itemize}
+\item 
+Check the log file for possible error messages explaining the problem.
+
+\item
+Check to make sure that the \Path{\archie/etc/catalogs.cf} file is correctly
+configured.
+
+\item
+Make sure that the permissions on all files in the \Path{\archie/db} directories
+are correct.
+
+\item
+Check to see if the server is running under heavy server load. If it is, the
+query may just be taking a long time to execute. This can be done by
+monitoring the log file and checking the ongoing use of the system.
+
+\item
+ Make sure that the catalogs that you wish to access have been
+initialized. The Archie/Prospero server requires that the catalog desired has
+been initialized before any queries can be processed. See the section on the
+particular catalog for more details.
+\end{itemize}
+\end{itemize}
+
+
+\section{The Log file}
+
+The dirsrv process logs client requests to the file \Path{/pfs/pfs.log}. Lines
+containing the string ARCHIE/MATCH signify searches of the anonftp catalog,
+while entries with ARCHIE/HOST contain queries related to the telnet-client
+list command. The syntax of the two entries are described below. Note that the
+`/' character acts as a separator in the Prospero system.
+
+
+
+\subsection{The MATCH request}
+
+A typical anonftp catalog search query is (this is split here across two lines
+for readability).
+
+
+\begin{center}
+\texttt{4-May-94 19:08:03 127.0.0.1(root)[ggB(P53.3Mar94)] - L
+ARCHIE/MATCH(15,100,100,0,=)/public\_access *}
+\end{center}
+
+\begin{center}
+\begin{tabular}{|l|p{4in}|} \hline
+Field Contents & Description \\ \hline\hline
+
+4-May-94 & Date of query \\ \hline
+
+19:08:03 & Time of query (local) \\ \hline
+
+127.0.0.1 & 
+IP address of host where query originated. Note that for the telnet and email
+anonftp catalog clients the will ususally be 127.0.0.1 (localhost). \\ \hline
+
+(root) & 
+Name of user sending the query. For the telnet and email clients this will
+normally be archie. If the email is being run in ``interactive'' (not batched)
+mode, this user will be daemon. \\ \hline
+
+[ggB(P53.3Mar94)] & 
+Client ID. All Prospero-based clients are allocated by the Prospero group
+(info-prospero@prospero.isi.edu) a unqiue identifier. This identifier is
+changed with each new version of the client. \\ \hline
+
+ARCHIE & 
+Specifies to Prospero that this query is intended for the Archie subsystem. \\ \hline
+
+MATCH & Search of the anonftp catalog \\ \hline
+
+(15,100,100,0,=) & 
+Paramters to the search. The first 3 values set the maxhits, maxmatch, and
+max\_hitspm variables respectively. The 4th value (``0'') is the ``offset'',
+currently unused. The final charater specifies the type of search to be
+performed. Possible values and meanings are: 
+
+\begin{tabbing}
+= \= exact \\ 
+R \> regex \\
+r \> exact\_regex \\
+X \> string-only regex \\
+x \> string-only exact\_regex \\
+C \> subcase \\
+c \> exact\_subcase \\
+K \> string-only subcase \\
+k \> string-only exact\_subcase \\
+S \> sub \\
+s \> exact\_sub \\
+Z \> string-only sub \\
+z \> string-only exact\_sub \\
+n \> string-only exact \\
+\end{tabbing}
+\\ \hline
+
+``public\_access'' & String to be searched for \\ \hline
+\end{tabular}
+\end{center}
+
+
+\subsection{The HOST request}
+
+The HOST Prospero request is used to perform both the telnet-client list as
+well as the ``directory expansion'' feature found on some Archie clients
+(notably xarchie). The function performed is determined by the form of the
+final argument: if it is a regular expression the list function is carried
+out, otherwise the argument is taken as the host and pathname of a directory
+to be expanded. HOST commands have the following syntax:
+
+
+
+\begin{center} \texttt{2-May-94 01:32:23 132.206.35.4(suzie)[B42E] - L
+ARCHIE/HOST/sequoia.ccsd.uts.edu.au/pub}
+\end{center}
+
+\begin{center}
+\begin{tabular}{|l|p{4in}|} \hline
+Field Contents & Description \\ \hline\hline
+
+2-May-94 & Date of query \\ \hline
+
+01:32:23 & Time of query (local) \\ \hline
+
+132.206.35.4 &
+IP address of host where query originated. Note that for the telnet and email
+anonftp catalog clients the will ususally be 127.0.0.1 (localhost). \\ \hline
+
+(suzie) & Name of user sending the query. \\ \hline
+
+[B42E] & Client ID. \\ \hline
+
+ARCHIE & 
+Specifies to Prospero that this query is intended for the Archie subsystem. \\ \hline
+
+HOST & list or ``directory expansion''. \\ \hline
+
+sequoia.ccsd.uts.edu.au & 
+Hostname to be expanded. If this value contains regular expression characters
+(such as ``*'' or `]') then the names of all sites matching that expression are
+returned (the list command). \\ \hline
+
+pub/xntp &
+Directory pathname to be expanded. That is all files and subdirectories
+contained within the given directory (if it exsits) will be returned. \\
+\hline
+\end{tabular}
+\end{center}
+
+

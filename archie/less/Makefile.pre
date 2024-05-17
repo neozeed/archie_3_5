@@ -1,0 +1,61 @@
+#
+# less
+#
+
+#MOD_CFLAGS = -ansi -pedantic -pipe
+MOD_DEBUG  = -g3
+MOD_INCS   = -I.
+MOD_LIBS   = -ltermcap
+MOD_WARN   = -Wall -Wtraditional -Wshadow -Wpointer-arith -Wcast-align
+
+
+include $(ARCHIE_ROOT)/Makefile.pre
+
+
+##########################################################################
+# Files
+##########################################################################
+
+INCS = \
+	cmd.h \
+	defines.h \
+	funcs.h \
+	less.h \
+	option.h \
+	position.h
+
+# replace help.c with archie_help.c
+SRC1 =	ch.c cmdbuf.c command.c decode.c archie_help.c input.c 
+#SRC1 =	ch.c cmdbuf.c command.c decode.c help.c input.c 
+
+SRC2 =	line.c linenum.c main.c edit.c option.c optfunc.c \
+	opttbl.c os.c 
+
+# remove lsystem.c
+SRC3 =	charset.c filename.c output.c position.c ifile.c \
+	brac.c forwback.c jump.c search.c 
+#SRC3 =	charset.c filename.c lsystem.c output.c position.c ifile.c \
+#	brac.c forwback.c jump.c search.c 
+
+SRC4 =	mark.c prompt.c screen.c signal.c tags.c ttyin.c version.c
+
+SRCS =	$(SRC1) $(SRC2) $(SRC3) $(SRC4)
+
+#OBJ =	brac.o ch.o charset.o cmdbuf.o command.o decode.o edit.o filename.o \
+#	forwback.o help.o input.o jump.o line.o linenum.o \
+#	lsystem.o main.o option.o optfunc.o opttbl.o os.o \
+#	output.o position.o mark.o ifile.o prompt.o screen.o \
+#	search.o signal.o tags.o ttyin.o version.o
+
+# OBJ without lsystem.o & with help.o replaced with archie_help.o
+OBJS =	brac.o ch.o charset.o cmdbuf.o command.o decode.o edit.o filename.o \
+	forwback.o archie_help.o input.o jump.o line.o linenum.o \
+	main.o option.o optfunc.o opttbl.o os.o \
+	output.o position.o mark.o ifile.o prompt.o screen.o \
+	search.o signal.o tags.o ttyin.o version.o
+
+
+
+EXES = \
+	less
+

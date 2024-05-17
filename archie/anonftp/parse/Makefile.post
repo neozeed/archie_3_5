@@ -1,0 +1,50 @@
+#
+#  module.
+#
+
+all: $(EXES)
+
+
+include $(ARCHIE_ROOT)/Makefile.post
+
+
+parse_anonftp_unix_bsd: \
+                        $(LIBARCHIE_MODULE)/$(SYSTYPE)/libarchie.a \
+                        $(HOSTDB_MODULE)/$(SYSTYPE)/libhostdb.a \
+                        $(REGEX_MODULE)/$(SYSTYPE)/libregex.a \
+                        unix.o unix2.o ${COMMON_OBJ}
+	${CC} ${CFLAGS} ${INCLUDES} -o parse_anonftp_unix_bsd unix.o unix2.o \
+    ${COMMON_OBJ} ${LIBS} ${SYS_LIBS}
+
+parse_anonftp_vms_std: \
+                       $(LIBARCHIE_MODULE)/$(SYSTYPE)/libarchie.a \
+                       $(HOSTDB_MODULE)/$(SYSTYPE)/libhostdb.a \
+                       $(REGEX_MODULE)/$(SYSTYPE)/libregex.a \
+                       vms.o vms2.o ${COMMON_OBJ}
+	${CC} ${CFLAGS} ${INCLUDES} -o parse_anonftp_vms_std vms.o vms2.o \
+    ${COMMON_OBJ} ${LIBS} ${SYS_LIBS}
+
+parse_anonftp_novell: \
+                      $(LIBARCHIE_MODULE)/$(SYSTYPE)/libarchie.a \
+                      $(HOSTDB_MODULE)/$(SYSTYPE)/libhostdb.a \
+                      $(REGEX_MODULE)/$(SYSTYPE)/libregex.a \
+                      novell.o novell2.o ${COMMON_OBJ}
+	${CC} ${CFLAGS} ${INCLUDES} -o parse_anonftp_novell novell.o novell2.o \
+    ${COMMON_OBJ} ${LIBS} ${SYS_LIBS}
+
+parse_anonftp: \
+               $(LIBARCHIE_MODULE)/$(SYSTYPE)/libarchie.a \
+               $(HOSTDB_MODULE)/$(SYSTYPE)/libhostdb.a \
+               $(REGEX_MODULE)/$(SYSTYPE)/libregex.a \
+               parse_anonftp.o lang_anonftp.o
+	${CC} ${CFLAGS} ${INCLUDES} -o parse_anonftp parse_anonftp.o lang_anonftp.o \
+    ${LIBS} ${SYS_LIBS}
+
+test-queue: test-queue.o queue.o
+	${CC} ${CFLAGS} ${INCLUDES} -o test-queue test-queue.o
+
+test-vms_parser: test-vms_parser.o vms_parser.o
+	${CC} ${CFLAGS} ${INCLUDES} -o test-vms_parser test-vms_parser.o ${SYS_LIBS}
+
+clean:
+	rm -f *.o $(EXES) core

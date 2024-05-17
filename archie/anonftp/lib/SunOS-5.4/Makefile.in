@@ -1,0 +1,12 @@
+#
+# Use GNU's fixed header files.
+#
+SYS_DEFS   = -D__USE_FIXED_PROTOTYPES__  -DSOLARIS
+SENT_FLAGS = -ffixed-%g2 -ffixed-%g3 -ffixed-%g4
+SYS_LIBS = -lresolv 
+
+include ../Makefile.pre
+RANLIB = :
+include ../Makefile.post
+
+# DO NOT DELETE THIS LINE -- make depend depends on it

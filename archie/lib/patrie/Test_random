@@ -1,0 +1,36 @@
+#!/bin/sh
+#
+# Usage: Test_random [-atsz <avg-text-size>] <text-file> <patrie-file>
+#
+
+usage() {
+  echo "Usage: $prog [-atsz <avg-text-size>] <text-file> <patrie-file>" 1>&2
+  exit 1
+}
+
+prog=$0
+tdir=/tmp
+atsz=100000
+
+
+while [ expr $1 : - ] ; do
+  case $1 in
+    -atsz) atsz=$2 ;;
+    *) usage ;;
+  esac
+done
+
+if [ $# != 2 ] ; then
+  usage
+fi
+
+done=0
+trap "done=1" 1 2 3 15
+
+while [ ! $done ] ; do
+  RandText -atsz $atsz > $tdir/$txt
+  Test_page $tdir/$txt $tdir/I.$$ $tdir/L.$$ $tdir/P.$$
+  RandSearch $tdir/$txt $tdir/P.$$
+done
+
+rm $tdir/I.$$ $tdir/L.$$ $tdir/P.$$

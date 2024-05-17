@@ -1,0 +1,94 @@
+An Alpha release of version 5 of the Prospero file system is now
+available by anonymous FTP from PROSPERO.ISI.EDU in the file
+pub/prospero/prospero.tar.Z (840 blocks).  It can also be obtained
+through Prospero itself from /releases/prospero/prospero.tar.Z
+
+The most important change since the last major release is that the
+protocol has been significantly revised.  Quoting, a feature that the
+previous version of the protocol mentioned but which was never
+implemented, is now fully supported.  This means that filenames and
+object names with spaces and other strange characters in their names
+now work.  This is important, since Prospero is being increasingly used to
+index and organize other types of data than UNIX files.  The server
+will still speak the older version of the protocol to older clients.
+
+Other significant changes since the last major release include the
+following
+
+ . The code is now in ANSI C.
+
+ . Remote modification and retrieval of attributes on links and files
+   is now fully supported.  Attributes have changed significantly.
+   You can modify attributes through the new set_atr client program or
+   through the pset_at() and pset_linkat() library routines.
+   Attributes that happen to be stored on the VLINK structure (such as
+   the link name) are now treated the same as all other attributes and
+   can be modified with the same commands used to modify other
+   attributes.
+
+ . The MAGIC-NUMBER mechanism has been generalized into an ID
+   mechanism.  This allows Prospero to be used to experiment with
+   unique document identifiers (currently the subject of an IETF
+   working group).  
+
+ . The ACCESS-METHOD attribute has been generalized.  It no longer
+   assumes that the host providing directory information about an
+   object is the same host from which the object should be retrieved. 
+
+ . Support for the GOPHER access method (at the moment, only on
+   EXTERNAL links) is now included.  This means that objects of
+   interest you discover through Gopher can be added to the Prospeo
+   namespace. 
+
+ . Filters have been generalized considerably.  This release includes
+   support for PREDEFINED filters that run on the server side.  Such
+   filters solve the security and portability problems that have
+   plagued filters in the past.  A later release will come with a
+   number of predefined standard server and client filters.
+
+ . Various bug fixes and fixes for some machine dependencies
+
+ . Additional features in the Asynchronous Reliable Delivery Protocol
+   (ARDP; formerly the Reliable Datagram Protocol) that support new
+   features in the archie server and client, such as the ability for a
+   client to ask for how long it must wait until its query will be
+   serviced, and the ability to cancel pending requests.  The ARDP
+   library is now a separate component from the rest of prospero, and
+   we encourage developers to use it in their applications.
+
+ . Kerberos Version 5 is now available as an authentication mechanism.
+
+ . It is now possible for the same binaries to support users running C
+   shell variants and Bourne shell variants.  
+
+ . The server now can provide a message of the day, and the client
+   libraries provide support for retrieving it.
+
+ . The protocol manual has been considerably expanded and improved.
+
+ . Introduced in the last beta release and still present:  a
+   standalone client to query archie servers, and an alternative ls
+   program (ALS). 
+
+The release has been tested on Suns running SunOS, DEC MIPS machines
+running ULTRIX, and HP 9000 series 700 workstations running HP-UX.
+
+Please report bugs to bug-prospero@ISI.EDU
+
+We would like to thank the following people for bug fixes, for porting
+Prospero to other machine types (and feeding back the changes), or for
+adding new features.
+
+Eric Anderson           SURAnet
+Joseph Boykin           Encore Computer Corporation
+Steve Cliffe            University of Wollongong
+John Curran 		NSF Network Service Center (NNSC)
+Alan Emtage             Bunyip Information Systems
+George Ferguson         Univeristy of Rochester
+Jonathan Kamens		MIT Project Athena
+Brendan Kehoe           Cygnus
+Case Larsen		Lawrence Berkeley Laboratory
+Gaute Nessan            University of Tromsoe, Norway
+Rainer Orth             University of Cologne, Germany
+
+  -- Clifford Neuman and Steven Augart

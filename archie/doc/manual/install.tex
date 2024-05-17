@@ -1,0 +1,300 @@
+%
+% Copyright (c) 1996 Bunyip Information Systems Inc.
+% All rights reserved
+%
+% Archie 3.5
+% August 1996
+%
+% install.tex
+%
+
+\chapter{Installing the basic Archie system}
+\label{chap:install}
+
+This section will guide you through the process of installing the Archie
+software on your system. With an understanding of the overall Archie system
+architecture, as presented in chapter~\ref{chap:overview}, we will then proceed
+to the configuration of the system.
+
+
+\section{Archie system space requirements}
+
+
+Choosing a location for the Archie system on your file system depends
+on the databases that you intend to maintain. We estimate that a complete
+{\bf anonftp} catalog (covering about 1200 archive sites) requires
+between 600 and 1000 megabytes. In the case of a {\bf webindex} catalog,
+the space requirements are as much as possible!  
+
+To help decide on the location of the Archie system, let's take a look
+at the directory structure that will be created once the distribution
+is unpacked.
+
+\begin{center}
+\begin{tabbing}
+Directory/file pathname\hspace*{5mm}\= Purpose \\
+\\
+archie/ \> Archie system home directory \\
+archie/cgi \> CGI related directories \\
+archie/cgi/bin \> CGI binaries \\
+archie/cgi/html \> HTML files \\
+archie/contrib/ \> public domain and third-party software \\
+archie/config/ \> installation configuration \\
+archie/bin/ \> system binaries and shell scripts \\
+archie/db/ \> Archie database home directory \\
+archie/db/anonftp\_db/ \> anonymous FTP catalog files \\
+archie/db/webindex\_db/ \> WWW catalog files \\
+archie/db/host\_db/ \> host database files \\
+archie/db/locks/ \> directory for lock files \\
+archie/db/tmp/ \> temporary or ``holding'' directory for data files \\
+archie/doc/ \> system documentation \\
+archie/etc/ \> system configuration files \\
+archie/help/ \> Archie client help directories and files \\
+archie/logs/ \> system log files \\
+archie/logs/archie.log \> main Archie system log file \\
+archie/logs/email.log \> log file for email client (if installed) \\
+archie/manpages/ \> Archie system manual pages \\
+archie/pfs/ \> Archie/Prospero system home \\
+archie/pfs/bin/ \> Archie/Prospero binaries \\
+archie/pfs/pfs.log \> Prospero log file  \\
+\end{tabbing}
+\end{center}
+
+The directories \Path{db/tmp}, \Path{db/anonftp\_db} and
+\Path{db/webindex\_db} will likely use the most space. Previous versions of
+the Archie system required that those directories be part of the same disk
+partition. The current version removes that restriction. \new The only
+limitation still present, in this version, is the requirement that
+\Path{db/tmp}  and 
+\Path{etc} still be in the same partition. The catalog directories may reside in
+separate partitions.
+
+
+
+%
+% Archie user codes 
+%
+
+\section{Archie user codes}
+
+
+Two user codes need to be created to enable Archie system operation and
+maintenance. The first, called {\it archie}, is used for non-administrative
+access to the Archie system (e.g., for accepting user queries to the Archie
+databases). The second, called {\it archuser}, is for system maintenance by
+the Archie system administrator. The password file entries for these two users
+should specify, in the home directory field, the full path to the root of the
+Archie system. The password file entries for these two codes also should meet
+the following requirements:
+
+
+\begin{itemize}
+
+\item
+both codes must have the same UID (User ID) number
+
+\item
+NEITHER code should have any special privileges, such as belonging to the
+wheel or staff groups
+
+\item
+the archie user code must appear {\it before} the archuser code in the password
+file
+
+\item
+the archuser code should have whatever shell you normally use (e.g.
+/bin/csh or /bin/ksh)
+
+\item
+the archie user's shell field should be set to /bin/false for the time
+being. This will be changed if a telnet client is installed
+(See ``Setting up the anonftp catalog clients'' on page~\ref{chap:clients}.)
+
+\item
+the password field for archie should be set to asterisk (`*') for now. This
+will be changed if you install the Archie telnet client
+(See ``Setting up the anonftp catalog clients'' on page~\ref{chap:clients}.)
+
+\item
+The password field for the archuser code should be set to one of your choosing
+
+\item
+The \Path{/etc/group} file must be modified to create a group named ``archie''
+for the Archie user codes. For example:
+
+\texttt{archie:*:1000:archie,archuser}
+
+\item both codes must have the same GID (Group ID) number in the password
+file, and this must be the number, set above, for the archie group.
+
+\end{itemize}
+
+Thus, an example of the entries in the \Path{/etc/passwd} file is:
+
+\texttt{archie:*:23:1000:archie client code:/usr/local/archie:/bin/false}
+
+\texttt{archuser:ufUn9Ap.:23:1000:archie admin code:/usr/local/archie:/usr/bin/csh}
+
+
+If you are using the Network Information System (NIS) you should only need to
+add the above entries to the /etc/passwd file for the local Archie host, not
+for the entire NIS system.
+
+\alertbox{The naming convention of \archie \ or \Path{\Archie}
+is used here to specify the home directory of the Archie system.}
+
+
+
+
+
+%
+%
+%
+
+\section{Unbundling the distribution}
+
+This new version of Archie contains not only a new set of binaries and a new
+catalog, but certain elements, internal to the system, also have been modified.
+If you already have an existing Archie installation, the catalogs will
+have to be rebuilt. \new Fortunately, you can convert the existing host\_db database
+to the new format.
+
+\alertbox{If you are upgrading your software from version 3.3 and want to
+save the host database, you will need to make a backup copy of the directory
+\Path{\archie/db/host\_db}. Be sure to read section~\ref{ndbm} before
+proceeding with this.
+
+
+Once you have installed all the software, restore the host database
+then run the program \Path{convert\_hostdb}, as follows:
+
+\comm{convert\_hostdb}
+
+The new host database will then be converted and will contain only
+those sites for which you are responsible (i.e. that you retrieve).
+}
+\new 
+
+
+First start by FTPing the distribution from ftp.bunyip.com. In the directory
+archie-\version \ you will find the files that need to be retrieved.
+
+\begin{itemize}
+\item archie-\version-install.tar 
+\item archie-\version-arch-version.tgz 
+\item archie-\version-arch-version-A.tgz 
+\item archie-\version-arch-version-B.tgz
+\end{itemize}
+
+where ``arch-version'' is one of: `sunos-4.1.4', `sunos-5.4', or `aix-3.2'.
+
+Untar `archie-\version-install.tar' with the command:
+
+\comm{tar xvpf archie-\version-install.tar}
+
+There you will find three scripts that will be used to install the binaries,
+`unwrap', `untar', and `unrotate'.  The single command, `unwrap' should take
+care of installing the binaries and other files.
+
+
+To install the server software, as superuser, type:
+
+\comm{./unwrap}
+
+and follow the instructions. As indicated by the script, you need to
+set the correct permissions. If you want to install the Archie man pages
+in a system-wide area, read the next section. As superuser type:
+
+\comm{cd \archie/config}
+
+\comm{make}
+
+
+
+This will change the permissions of the files in the Archie system to the
+appropriate values, as well as install the manual pages into the directory
+specified above.
+
+In addition, a symbolic link will be created from the root directory pointing
+to the Prospero tree. Typing
+
+\comm{ls -al /pfs}
+
+will show you the link and the directory to which it points. It will look
+similar to:
+
+\param{lrwxrwxrwx 1 root 33 Mar 2 23:28 /pfs -$>$ /usr/local/archie/pfs}
+
+
+
+It is suggested that the installation and configuration be performed as the
+user archuser except for those changes that must be made as the superuser.
+
+
+
+%
+% Man pages 
+%
+
+\section{Manual Pages}
+
+The on-line manual pages are, by default, configured to be installed in the
+Archie man directories \Path{\archie/man}.
+However, you may opt to install the man pages in a different location,
+as described below.
+
+First
+\Path{cd \archie/config} and edit the file
+\Path{Makefile}. Modify the line:
+
+\path{MAN=../man}
+
+to be the name of the directory where you would like the Archie system
+manual pages placed, if it is different from the existing location.
+
+Change the line:
+
+\path{MANEXT=n}
+
+to reflect the manual page name extension for that directory.
+
+For example, if you wanted to store the Archie manual pages with the system
+man pages, you could change the appropriate lines, as follows:
+
+\path{MAN=/usr/man/mann}
+
+\path{MANEXT=n}
+
+
+
+If the manual pages are placed anywhere other than your system's default manual
+directories, you may have to change your UNIX environment variable MANPATH to
+reflect the changes. Otherwise, the \Path{man} command will not find the Archie
+manual pages.
+
+
+
+\section{ndbm and Berkeley DB files}
+\label{ndbm}
+\new
+
+In the previous versions of Archie, ndbm files were used to maintain certain
+information on hosts etc. It, now, uses Berkeley DB library to construct and
+maintain those databases.  These files have extension \Path{.db}.
+
+%
+% Congratulations
+%
+
+\section{Done !}
+
+You have now finished the initial installation of the Archie system. The next
+section  will describe how to configure the system. You may want, first,
+to reread the overview section~\ref{chap:overview} to understand the different
+aspects of Archie.
+
+
+
+
+
+

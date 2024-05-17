@@ -1,0 +1,11 @@
+# This is used in ../Makefile.pre.
+COMPILER_PREPENDS_C_SYMBOLS_WITH_UNDERSCORE =
+
+SYS_DEFS   = -D__USE_FIXED_PROTOTYPES__ -DSOLARIS
+SYS_LIBS   = -lnsl -lsocket -ldl -L${BERKDB_ROOT}/${SYSTYPE} -ldb
+SENT_FLAGS = -ffixed-%g2 -ffixed-%g3 -ffixed-%g4
+
+include ../Makefile.pre
+include ../Makefile.post
+
+# DO NOT DELETE THIS LINE -- make depend depends on it

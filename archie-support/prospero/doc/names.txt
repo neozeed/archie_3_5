@@ -1,0 +1,277 @@
+This is Mitra's understanding of Prospero's different naming schemes and 
+their interrelationship, based upon phone conversations with Steve.
+
+I found
+and still find these incredibly confusing, and this is a first cut at 
+a summary. I've neccessarily skipped over much of the details to avoid 
+confusing the reader. I'm using examples based upon our system which - 
+I believe - accepts all the sensible defaults.  The system is flexible
+enough that none of this could be correct, but in that case you'd probably
+know enough not to be reading this.
+
+There are three different naming schemes for files around Prospero.
+
+A) The regular unix filename, this is rarely used in Prospero
+
+B) User-level-names, which are relative to virtual file systems. Similarly to
+   unix filenames, if you specify these without leading /, then they are
+   relative to the current working directory. (see environment below)
+   user-level names are always relative to the virtual file system you 
+   are set up in. This is the state set up by the "vfsetup" command.
+
+C) Hsonames - Host Specific Object Names, always accompanied by a host(port)
+   to specify which host(port) it's meaningfull at. This concept is often
+   simplified to "hsoname". Except in the case of gateways, hsonames are 
+   usually the real (unix) name of the file on the remote system.
+
+
+Who uses what names
+-------------------
+Most of the data structures - vlink, vdirs etc use host(port) and hsoname (C). 
+
+Various functions map between them - especially rd_vlink will take a User-level
+name (B), and return a vlink (host(port) and hsoname) (C)
+
+Most commands - e.g. set_atr take User-level names (B)
+
+vln -n   is used to create a user-level name (B) for a hsoname (C)
+
+
+Variations on User Level names
+------------------------------
+The way that a user-level name appears is significantly more complicated
+than a standard unix filename. For what follows, lets assume you
+are set up in the Virtual File System "aol", and that your system is setup
+the way most are.
+
+/ 		is the root of your virtual system
+xxx/yyy		is relative to the current workign directory (see vwd)
+swa:/zzz	means /zzz relative to the virtual file system "swa" 
+#/INET/EDU/ISI/swa	means the swa virtual file system on isi.edu, this is 
+		sometimes called a global-name, with # being the global root.
+swa:zzz		Has a currently undefined meeting DONT USE IT
+
+		In reality, these are all based upon certain links being 
+		present in the user-level directory /VIRTUAL-SYSTEMS.
+
+Expressed differently, your virtual system looks like this
+/			Root of virtual system
+/aol			Typically your home directory.
+/VIRTUAL-SYSTEMS/	Links to other virtual systems
+/VIRTUAL-SYSTEMS/swa/	Link to swa's virtual system description (also
+			often stated as "link to swa's virtual system"). This
+			can also be expressed as swa:/VS-DESCRIPTION
+/VIRUTAL-SYSTEMS/swa/ROOT Link to the root of swa's virtual system system. This
+			can also be expressed as swa:/
+/VIRTUAL-SYSTEMS/#/	Link to global root aka "#/"
+/VS-DESCRIPTION/	Definition of your virtual system
+/VS-DESCRIPTION/ROOT/	Root of your virtual system same as "/"
+/VS-DESCRIPTION/HOME/	Home directory, "cwd" at startup, same as /aol
+
+
+To link a virtual system into this - use the command
+vln #/INET/EDU/ISI/swa:/VS-DESCRIPTION /VIRTUAL-SYSTEMS/swa  
+
+
+Unix filesystem to virtual file system
+--------------------------------------
+hsoname's map to Unix names real easy - they are the same except for hsonames
+that don't start with a slash. e.g.: GOPHER-GW/PATH.NET(8001)/1/
+
+user-level names are more complicated, the root of the "aol" virtual file
+system will (according to swa) typically be /usr/pfs/pfsdat/local-vsystems/aol
+
+On our system, I find the following structure:
+
+/usr/pfs		Root of our prospero data area
+/usr/pfs/pfsdat		Real hierarchy of prospero data
+/usr/pfs/pfsdat/vs	Dont know what this is - there is NOTHING in it
+/usr/pfs/shadow		Start of shadow hierarcy, links and attributes
+/usr/pfs/shadow/xyz	Shadow hierarchy for Unix directory /xyz
+/usr/pfs/shadow/usr/pfs/pfsdat Shadow of data area
+/usr/pfs/shadow/usr/pfs/pfsdat/local_vsystems/aol    root of aol virtual system 
+/usr/pfs/shadow/usr/pfs/pfsdat/local_vsystems/master virtual-systems directory
+			is master copy of all vs's at this site
+/usr/pfs/shadow/usr/pfs/pfsdata/local_vsystems/master/storage specifies
+			hosts where virtual-systems on this site can be stored
+/usr/pfs/shadow/usr/pfs/pfsdat/local_vsystems/protoype	copied by newvs
+/usr/pfs/shadow/usr/pfs/pfsdat/vs/		junk created by newpsite?
+/usr/pfs/shadow/usr/pfs/pfsdat/vs:1		ditto
+
+Each directory in the shadow typically contains a file
+".directory#contents" with attribute information and links in it.
+(This is soon to be supreseded by .directory#object)
+
+Environment variables
+---------------------
+Certain environment variables give the base which maps user-level names to
+hsonames and Unix names. vfsetup sets these up. The hsoname is always the 
+Unix name for the directory, but beware, this directory may only exist under
+the shadow hierarchy.
+VSWORK		User-level name for cwd
+VSWORK_HOST	Host of cwd
+VSWORK_FILE	hsname of cwd
+VSDESC_HOST and VSDESC_FILE	host and hsoname of VSDESCRIPTION directory
+		this always has the user-level name of /VS-DESCRIPTION
+VSHOME,VSHOME_HOST and VSHOME_FILE   user-level, host and hsoname of 
+		home directory.
+VSROOT_HOST and VSROOT_FILE	host and hsoname of Root directory 
+		this always has the user-level name of /
+(Note at some time the _FILE variables will probably be replaced with _HSONAME)
+
+Other information:
+------------------
+See the manual 5.1 for more details (but absolutely ZERO examples)
+vwp -  will tell you the host and hsoname of the current working directory
+vwd -  will give the user-level name of the cwd.
+
+Whats wrong with this!
+----------------------
+
+Having described it, here are some ideas on what is wrong with it. 
+*) Hsonames are long, and expose internal directory structure 
+   to external view.  Clients shoudlnt need to have to know where
+   my prospero directories are kept.  Contrast gopher, where paths 
+   are short and typically something like / or /Agriculture
+
+*) Confusion of two names (hsoname and virtual name). And two 
+   physical directory trees (real and shadow) 
+
+*) object-pool, picking another arbitrary location for directories 
+   that appear only in the shadow hierarchy but not in the real hierarchy is 
+   a bad move.  Especially since many of these are going to aquire real 
+   files at some point (e.g. About files).
+
+*) Multiple steps for simple operations - e.g. needing vmkdir and mkdir 
+   to create something, causes potential for mistakes.
+
+*) vmv is not available, and really hard to do by hand, since
+   the things you are trying to move are in multiple locations.
+
+This is Mitra's understanding of Prospero's different naming schemes and 
+their interrelationship, based upon phone conversations with Steve.
+
+I found
+and still find these incredibly confusing, and this is a first cut at 
+a summary. I've neccessarily skipped over much of the details to avoid 
+confusing the reader. I'm using examples based upon our system which - 
+I believe - accepts all the sensible defaults.  The system is flexible
+enough that none of this could be correct, but in that case you'd probably
+know enough not to be reading this.
+
+There are three different naming schemes for files around Prospero.
+
+A) The regular unix filename, this is rarely used in Prospero
+
+B) User-level-names, which are relative to virtual file systems. Similarly to
+   unix filenames, if you specify these without leading /, then they are
+   relative to the current working directory. (see environment below)
+   user-level names are always relative to the virtual file system you 
+   are set up in. This is the state set up by the "vfsetup" command.
+
+C) Hsonames - Host Specific Object Names, always accompanied by a host(port)
+   to specify which host(port) it's meaningfull at. This concept is often
+   simplified to "hsoname". Except in the case of gateways, hsonames are 
+   usually the real (unix) name of the file on the remote system.
+
+
+Who uses what names
+-------------------
+Most of the data structures - vlink, vdirs etc use host(port) and hsoname (C). 
+
+Various functions map between them - especially rd_vlink will take a User-level
+name (B), and return a vlink (host(port) and hsoname) (C)
+
+Most commands - e.g. set_atr take User-level names (B)
+
+vln -n   is used to create a user-level name (B) for a hsoname (C)
+
+
+Variations on User Level names
+------------------------------
+The way that a user-level name appears is significantly more complicated
+than a standard unix filename. For what follows, lets assume you
+are set up in the Virtual File System "aol", and that your system is setup
+the way most are.
+
+/ 		is the root of your virtual system
+xxx/yyy		is relative to the current workign directory (see vwd)
+swa:/zzz	means /zzz relative to the virtual file system "swa" 
+#/INET/EDU/ISI/swa	means the swa virtual file system on isi.edu, this is 
+		sometimes called a global-name, with # being the global root.
+swa:zzz		Has a currently undefined meeting DONT USE IT
+
+		In reality, these are all based upon certain links being 
+		present in the user-level directory /VIRTUAL-SYSTEMS.
+
+Expressed differently, your virtual system looks like this
+/			Root of virtual system
+/aol			Typically your home directory.
+/VIRTUAL-SYSTEMS/	Links to other virtual systems
+/VIRTUAL-SYSTEMS/swa/	Link to swa's virtual system description (also
+			often stated as "link to swa's virtual system"). This
+			can also be expressed as swa:/VS-DESCRIPTION
+/VIRUTAL-SYSTEMS/swa/ROOT Link to the root of swa's virtual system system. This
+			can also be expressed as swa:/
+/VIRTUAL-SYSTEMS/#/	Link to global root aka "#/"
+/VS-DESCRIPTION/	Definition of your virtual system
+/VS-DESCRIPTION/ROOT/	Root of your virtual system same as "/"
+/VS-DESCRIPTION/HOME/	Home directory, "cwd" at startup, same as /aol
+
+
+To link a virtual system into this - use the command
+vln #/INET/EDU/ISI/swa:/VS-DESCRIPTION /VIRTUAL-SYSTEMS/swa  
+
+
+Unix filesystem to virtual file system
+--------------------------------------
+hsoname's map to Unix names real easy - they are the same except for hsonames
+that don't start with a slash. e.g.: GOPHER-GW/PATH.NET(8001)/1/
+
+user-level names are more complicated, the root of the "aol" virtual file
+system will (according to swa) typically be /usr/pfs/pfsdat/local-vsystems/aol
+
+On our system, I find the following structure:
+
+/usr/pfs		Root of our prospero data area
+/usr/pfs/pfsdat		Real hierarchy of prospero data
+/usr/pfs/pfsdat/vs	Dont know what this is - there is NOTHING in it
+/usr/pfs/shadow		Start of shadow hierarcy, links and attributes
+/usr/pfs/shadow/xyz	Shadow hierarchy for Unix directory /xyz
+/usr/pfs/shadow/usr/pfs/pfsdat Shadow of data area
+/usr/pfs/shadow/usr/pfs/pfsdat/local_vsystems/aol    root of aol virtual system 
+/usr/pfs/shadow/usr/pfs/pfsdat/local_vsystems/master virtual-systems directory
+			is master copy of all vs's at this site
+/usr/pfs/shadow/usr/pfs/pfsdata/local_vsystems/master/storage specifies
+			hosts where virtual-systems on this site can be stored
+/usr/pfs/shadow/usr/pfs/pfsdat/local_vsystems/protoype	copied by newvs
+/usr/pfs/shadow/usr/pfs/pfsdat/vs/		junk created by newpsite?
+/usr/pfs/shadow/usr/pfs/pfsdat/vs:1		ditto
+
+Each directory in the shadow typically contains a file
+".directory#contents" with attribute information and links in it.
+(This is soon to be supreseded by .directory#object)
+
+Environment variables
+---------------------
+Certain environment variables give the base which maps user-level names to
+hsonames and Unix names. vfsetup sets these up. The hsoname is always the 
+Unix name for the directory, but beware, this directory may only exist under
+the shadow hierarchy.
+VSWORK		User-level name for cwd
+VSWORK_HOST	Host of cwd
+VSWORK_FILE	hsname of cwd
+VSDESC_HOST and VSDESC_FILE	host and hsoname of VSDESCRIPTION directory
+		this always has the user-level name of /VS-DESCRIPTION
+VSHOME,VSHOME_HOST and VSHOME_FILE   user-level, host and hsoname of 
+		home directory.
+VSROOT_HOST and VSROOT_FILE	host and hsoname of Root directory 
+		this always has the user-level name of /
+(Note at some time the _FILE variables will probably be replaced with _HSONAME)
+
+Other information:
+------------------
+See the manual 5.1 for more details (but absolutely ZERO examples)
+vwp -  will tell you the host and hsoname of the current working directory
+vwd -  will give the user-level name of the cwd.
+

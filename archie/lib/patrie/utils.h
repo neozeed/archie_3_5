@@ -1,0 +1,10 @@
+extern char *bdequote(const char *src, int dstsz, char *dst);
+extern char *bmstrstr(char *pat, size_t txtlen, char *txt, void *state);
+extern char *chstr(int ch);
+extern char *stringcopy(const char *s);
+extern char strch(const char *s);
+extern int _patrieReAlloc(void *buf, size_t sz, void **new);
+extern int bmpreproc(char *pat, void **state);
+extern int memsprintf(char **buf, const char *fmt, ...);
+extern off_t _patrieFpSize(FILE *fp);
+extern void _patrieDebugBreak(void);

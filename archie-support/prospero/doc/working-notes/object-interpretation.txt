@@ -1,0 +1,256 @@
+This document describes the OBJECT-INTERPRETATION attribute.
+
+This attribute resides in the APPLICATION namespace.  It is of type
+SEQUENCE.  It normally has OBJECT precedence.
+
+There may be multiple instances of the OBJECT-INTERPRETATION attribute.
+
+The first token specifies the class of the object.  The class tells
+the user of a simple-minded browser what you can DO with the object.
+It tells the browser what icon to put up.
+In general, the second token is interpreted on a per-class basis as
+the particular format in use.  The third and subsequent tokens depend
+upon the file format in use.
+
+(For the Prospero menu browsers, the icons we put up currently are :
+for searches, . for files, ] for portals, and > for directories).
+
+The classes are:
+
+.. UNKNOWN      This will never be sent over the network.  It is used
+internally by clients.
+
+.. VOID
+
+This class is used when the TARGET of a link is NULL.  The only cases 
+in which this arises are (A) when a link is listable but not readable
+(then the server's LIST command returns this link) and (b) when a
+gopher type of 'i' is sent.  (This is a little-used type supported by
+Panda, the University of Iowa Gopher variant.)
+
+A menu browser should just display this with no type character -- it's
+a pure text string.  All attempts to retrieve it will fail.  Just look
+at the MENU-ITEM-DESCRIPTION and NAME.
+
+A server should never return such a link with any attributes except
+(possibly) an OBJECT-INTERPRETATION of VOID.
+
+.. PORTAL -- Portals are always attached to raw OBJECTs (not yet
+implemented) or to EXTERNAL links.  They will NEVER be attached to
+FILEs or DIRECTORYs, although the implementor should not bother
+checking this fact.  One looks at the ACCESS-METHOD to determine how
+to use it. 
+
+An OBJECT-INTERPRETATION of portal means that the process of accessing
+the object leaves the user in some sort of interactive session.
+
+. Details
+
+PORTALS: For now, the only implementation of the PORTAL class is to
+have the TELNET access method on an object.  This instance of the
+ACCESS METHOD token has type TELNET, and that is the 1st token.  Of
+the conventional next 4 arguments, only HOST is relevant.  The hsoname
+is ignored.  The fifth argument is a set of instructions to display to
+the user before opening the connection.  If the fifth argument is not
+present, that is the same as if it is explicitly specified as the null
+string.  We will later extend that to a full template, so anything
+that parses this access method should ignore any additional arguments
+beyond the fifth for now; they may be used later.
+
+The conventional 4 arguments to an ACCESS METHOD are that the 2nd
+token is the host type (always INTERNET-D for now), the 3rd is a
+hostname, optionally followed by a port # in parentheses (in the case
+of the TELNET access method, the port # is mandatory), the 4th is the
+HSONAME type (always ASCII) and the fifth is the HSONAME (ignored in
+this case)
+
+If the port # is not specified in the HOST name, then the default port
+for the TELNET service is used.
+
+.. Gopher mapping
+
+This can be served up by a Gopher server as a gopher menu/directory
+containing two entries: (a) the directions, as a Gopher file.  (b) the
+TELNET link.
+
+A Prospero server that makes Gopher protocol queries should serve up
+the Gopher type '8' (Telnet session) as an objet with PORTAL class and
+TELNET access method.  If a GOPHER selector string (username) is
+present, the instructions should be the literal string:
+
+        'Use the account name "<selector-string>" to log in'
+
+This convention will guarantee that information transformed from
+Gopher Protocol to Prospero format will be able to automatically be
+transformed back into Gopher protocol.
+        
+The TN3270 access method is identical to the TELNET access method,
+except that the word TELNET is replaced by TN3270 in the above
+description.  Gopher type 'T' should be served up as the TN3270 access
+method.  If the HOST does not specify a port, then the default port
+should be used.
+
+.. EXECUTABLE -- At the moment, the only format (2nd token) firmly
+defined is PRM.  The third token is always PRM_V1.  We propose
+EXECUTABLE SUN4 and EXECUTABLE SUN3, but this is subject to change
+depending on implementation experience.  The third and subsequent
+tokens are not clear (SUNOS4, perhaps?).
+Treat it as DATA if you don't recognize the format.
+
+.. DOCUMENT
+
+At this moment, the only format is TEXT.  The third token is ASCII;
+other character sets will be defined later.
+
+DOCUMENT MIME is defined but won't be implemented immediately.  The
+GOPHER 'M' type will be exported under Prospero as DOCUMENT MIME.
+If you don't have a MIME reader, treat it as DOCUMENT TEXT ASCII.
+
+.. SEARCH -- 
+
+Only form for this: SEARCH QUERY-METHOD V1.
+
+A long form of the query-method attribute is currently defined in
+/pfs/notes/query-method.  This will be SEARCH QUERY-METHOD V2, and
+will be a superset of V1.  For V1, we are just implementing the simple
+Gopher search type.  Look at how to do this in the file
+'/pfs/notes/gopher-searches', under the section 'How to handle this
+under Prospero'.
+
+If no QUERY-METHOD attribute is found, this can be handled at your
+discretion.  One reasonable way to handle it would be to quietly (not
+obnoxiously) warn the user that the link has an erroneous format.
+Don't go to the expense of more protocol requests to retrieve the
+QUERY-METHOD until the link is actually selected.
+
+This corresponds to gopher type '7' and will correspond to type '2'
+when I implement the CSO gateway.
+
+.. VIRTUAL-SYSTEM
+
+The only format for this CLASS is VS-DESCRIPTION.  The VIRTUAL-SYSTEM
+VS-DESCRIPTION format is only associated with directories.
+
+Menu browser should treat it as a DIRECTORY for now.
+
+.. SOUND  
+
+No format defined at the moment.
+Corresponds to gopher type 'S' and Gopher+ type '<'.
+Treat it as DATA if you don't have a sound player or don't recognize
+the format.
+
+.. IMAGE 
+
+Only format currently in use: IMAGE GIF.  IMAGE POSTSCRIPT is defined;
+an object may be DOCUMENT POSTSCRIPT or IMAGE POSTSCRIPT, depending on
+whether it is primarily considered an image or a document.
+
+MPEG, JPEG, X bitmaps, and other image encodings will be added later
+as needed.   
+
+IMAGE GIF corresponds to the gopher 'g' type.
+
+Treat it as DATA if you don't have an image viewer.
+
+.. VIDEO 
+
+The VIDEO class may contain prerecorded (perhaps live too?  We'll have
+to see as a result of use) sound and image data.  Treat it as DATA for now.
+
+.. SOURCE-CODE
+
+The MENU API may treat this as identical to DOCUMENT TEXT ASCII.  The
+file-format (2nd field) is the computer language it's source code for.
+The current defined computer language is 'C'.  
+
+.. DATA
+
+This is for raw files that just contain raw binary data.  No
+file-format is defined for them.  They cannot be displayed or printed.
+Just offer to save them.
+
+.. PROGRAM
+
+Interpreted code will be of class "PROGRAM", which means you can
+execute it using the interpreter named in the format field, and you
+can display it as an ASCII document.  No official interpreter names
+are currently defined for PROGRAM, although we will come up with some
+on an as-needed basis.  I suggest the first interpreter names be 'PERL',
+'SED', 'SH', and 'CSH'.  This class is for things which are really
+both SOURCE-CODE and EXECUTABLE.
+
+.. EMBEDDED 
+
+This class is used for objects that have to be uncompressed, unzipped,
+untarred, or have some other transformation applied to them to be
+useful. 
+
+The 2nd token (format) should identify the transformation.  Currently
+defined ones: GZIP, COMPRESS, TAR, BINHEX (macintosh BinHex format),
+UUENCODE. 
+
+The third field for any transformation of class EMBEDDED may be a
+number.  If it is, it indicates the number of additional arguments to
+be specified for the transformation.  If a number is specified, that
+many arguments follow.  Any tokens after the arguments are parsed as
+if they were a new freestanding OBJECT-INTERPRETATION attribute.  If
+this third field is not a number, then it is assumed to be zero, and
+the third and subsequent tokens should be parsed as if they were a
+freestanding OBJECT-INTERPRETATION attribute.
+
+GZIP, COMPRESS, TAR, BINHEX, and UUENCODE are not currently defined to
+take additional arguments.  If a specific file is to be extracted from
+the tar file, see the SEGMENT field (as defined in
+/pfs/notes/aggregate).
+
+Default for saving should be to save it in the raw (unextracted) form.
+A more sophisticated client can offer to unembed it before saving it.
+If you don't recognize a particular EMBEDDED type, just treat it as
+DATA.  You can still offer to save it in a file.
+
+.. AGGREGATE
+
+This type is documented in another file but does not need to be
+discused here (yet).
+
+.. DIRECTORY
+
+This is a raw DIRECTORY with no special OBJECT-INTERPRETATION.
+
+. Kwynn:
+
+For now, just implement the following types:
+
+ PORTAL (with the ACCESS-METHOD TELNET)
+ DOCUMENT TEXT ASCII
+ SEARCH 
+ DIRECTORY
+ DATA
+
+Your next pass will be to implement:
+
+ VOID
+ IMAGE GIF
+ EMBEDDED GZIP
+ EMBEDDED COMPRESS
+
+Until you implement all of the OBJECT-INTERPRETATIONs, please do this hack:
+
+EXECUTABLE, AGGREGATE, IMAGE, SOUND, EMBEDDED, and DATA should all be
+treated as raw DATA. 
+Treat DOCUMENT MIME, SOURCE-CODE, and PROGRAM as if they were DOCUMENT
+TEXT ASCII. 
+Treat VIRTUAL-SYSTEM as if it were just DIRECTORY.
+
+
+. If No OBJECT-INTERPRETATION present
+
+If no OBJECT-INTERPRETATION is present, treat random FILEs as if
+they were either DOCUMENT TEXT ASCII or DATA.  Just display them as
+TEXT, but when you're asked to retrieve them, sample the first 1k or
+so and make sure it's printable.  If it isn't, say that the file isn't
+really text, and offer to save it.
+
+Treat unadorned directories as if they were DIRECTORY.
+

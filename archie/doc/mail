@@ -1,0 +1,130 @@
+
+
+
+Hello
+
+        Finally, the day has come for the release of an Archie pre-beta
+version. You will find below the list of new features.
+
+
+        This release does not include all of the components of the Archie
+system. The main missing component is the Prospero server (dirsrv).
+Nonetheless all of the Archie functionality is present in this
+distribution. This will allow us to perform some more tests on the remaining
+parts of the system.
+
+
+          Those of you interested in being a beta-tester for this release
+should contact me, appropriate accounts will be setup and extra documentation
+will be given.  Beta testers with accessible spare machines would be greatly
+appreciated in order to not disrupt the exist Archie and  facilitate the
+test phase.  Of course, we will, in our daily support,  give priority to the
+beta testers.
+        
+
+Thank you, 
+
+                
+                                                -Sandro Mazzucato
+                                                 and the Archie team
+                                                 
+
+
+
+===========================================================================
+
+
+
+                        Archie 3.5 Beta
+                        ---------------
+
+
+
+
+New in this release:
+====================
+
+Here are the major added components to the system with some
+of the key points involved in each one of them.
+
+
+- Support for a new database module (webindex)
+        - retrieval of HTML pages through http protocol
+        - Keyword extraction
+        - Controlled crawling of the WWW
+        - Site by site basis
+        - Content extraction
+        - configurable stoplist (keyword exclusion)
+
+- New database structure
+        - More reliable structure.
+        - NOTE: Cannot used this version with the database of Archie 3.3
+
+- New search engine
+        - Based on a paged tree structured index
+        - Faster searches
+        - Less memory required
+        - More disk space for construction of the index
+
+- New search interface
+        - cgi-bin compliant interface
+
+
+- A better domain filter for anonftp
+        - results can be pre-configured to return in a certain order
+          (e.g. ftp sites close to the server first)
+        - configurable on a server basis
+
+
+
+
+Fixed bugs
+==========
+
+
+- the ``-t'' switch on arcontrol creates the new files  and work files
+  in the specified temp directory and not in ~archie/db/tmp
+
+
+- Lock files are now created in ~archie/db/locks
+
+
+- host_manage can handle multiple preffered hostnames for a site
+
+
+
+Currently working on:
+=====================
+
+- Rewrite of the cgi-bin front-end to be more flexible.
+
+- Archie Help page 
+
+- Regular Expressions with the new search engine.
+
+- New set of manpages and documentation.
+
+- Additional type of searches
+
+
+
+
+
+Currently testing:
+==================
+
+- dirsrv with the new database technology.
+
+
+
+
+Known Problems:
+===============
+
+- arexchange of webindex will not fully functional
+  it will not transfer .excerpt files. We still need to experiment
+  with indexing of the Web and see what is involved with
+  exchanges of data.
+
+
+

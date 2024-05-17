@@ -1,0 +1,19 @@
+/.cvsignore/1.1.1.1/Thu Mar 18 16:50:37 1999//
+/FILES/1.1.1.1/Thu Mar 18 16:50:37 1999//
+/Makefile.in/1.1.1.1/Thu Mar 18 16:50:37 1999//
+/closedir.c/1.1.1.1/Thu Mar 18 16:50:37 1999//
+/creat.c/1.1.1.1/Thu Mar 18 16:50:37 1999//
+/execve.c/1.1.1.1/Thu Mar 18 16:50:37 1999//
+/getvdirent.c/1.1.1.1/Thu Mar 18 16:50:37 1999//
+/open.c/1.1.1.1/Thu Mar 18 16:50:37 1999//
+/opendir.c/1.1.1.1/Thu Mar 18 16:50:38 1999//
+/pcompat_init.c/1.1.1.1/Thu Mar 18 16:50:38 1999//
+/pfs_access.c/1.1.1.1/Thu Mar 18 16:50:38 1999//
+/pfs_default.c/1.1.1.1/Thu Mar 18 16:50:38 1999//
+/pfs_quiet.c/1.1.1.1/Thu Mar 18 16:50:38 1999//
+/readdir.c/1.1.1.1/Thu Mar 18 16:50:38 1999//
+/scandir.c/1.1.1.1/Thu Mar 18 16:50:38 1999//
+/seekdir.c/1.1.1.1/Thu Mar 18 16:50:38 1999//
+/stat.c/1.1.1.1/Thu Mar 18 16:50:38 1999//
+/telldir.c/1.1.1.1/Thu Mar 18 16:50:38 1999//
+D

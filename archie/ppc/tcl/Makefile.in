@@ -1,0 +1,104 @@
+#
+# Top of distribution tree
+#
+TOPDIR = ../..
+
+#
+# Location of local software.
+#
+LOCDIR = /usr/local/packages
+
+
+#
+# TCL directories and files
+#
+TDIR    = $(LOCDIR)/tcl-7.3
+TINCDIR = $(TDIR)/include
+TLIBDIR = $(TDIR)/lib
+
+TCL_INC = -I$(TINCDIR)
+TCL_LIB = -L$(TLIBDIR) -ltcl
+
+#
+# Tk directories and files (used only by prspdp)
+#
+TKDIR    = $(LOCDIR)/tk
+TKINCDIR = $(TKDIR)/include
+TKLIBDIR = $(TKDIR)/lib
+
+TK_INC = -I$(TKINCDIR)
+
+
+#
+# TCL-DP directories and files
+#
+DPDIR    = $(LOCDIR)/tcl-dp
+DPINCDIR = $(DPDIR)/include
+DPLIBDIR = $(DPDIR)/lib
+
+DP_INC   = -I$(DPINCDIR)
+DP_LIB   = -L$(DPLIBDIR) -ldplite
+
+
+#
+# Prospero directories and files
+#
+PDIR    = $(PROSPERO_ROOT)
+PINCDIR = $(PDIR)/include
+PLIBDIR = $(PDIR)/lib
+
+PROSP_INC = -I$(PINCDIR)
+PROSP_LIB = -L$(PLIBDIR)/pfs -L$(PLIBDIR)/ardp -L$(PLIBDIR)/filters -L$(PLIBDIR)/psrv \
+            -lpfs -lardp -lfilter -lpsrv
+
+
+#
+# Prospero menu directories and files
+#
+MDIR = $(PDIR)/user/menu
+MINCDIR = $(MDIR)
+MLIBDIR = $(MDIR)
+
+MENU_INC = -I$(MINCDIR)
+MENU_LIB = -L$(MLIBDIR) -lmenu
+
+
+#
+# Miscellaneous options we need.
+#
+OTHER_INC = -I$(PPC_MODULE)/lib -I$(INCLUDE_MODULE)
+OTHER_LIB = -L$(PPC_MODULE)/lib/$(SYSTYPE) -lppc \
+             -L$(LIBPSARCHIE_MODULE)/libpsarchie/$(SYSTYPE) -lpsarchie -lm
+
+
+#
+# The executables we can make.
+#
+EXES = prspsh prspdp
+
+
+PRSPSH_DEF =
+PRSPSH_INC = $(TCL_INC) $(PROSP_INC) $(MENU_INC) $(OTHER_INC)
+PRSPSH_LIB = $(TCL_LIB) $(PROSP_LIB) $(MENU_LIB) $(OTHER_LIB)
+
+PRSPDP_DEF = -DHAVE_SYS_TIME_H -DHAVE_STDLIB_H -DHAVE_MALLOC_H -DHAVE_NTONL -DNO_X11 -DHAVE_TOLOWER
+PRSPDP_INC = $(PRSPSH_INC) $(DP_INC) $(TK_INC) -I.
+PRSPDP_LIB = $(PRSPSH_LIB) $(DP_LIB)
+
+#
+# Compiler options.
+#
+CC     = gcc
+CFLAGS = -g3 -Wall $(PRSPDP_INC) $(PRSPDP_DEF)
+UNDEF  = -u _sindex -u _month_sname
+
+# ----------------------------------------------------------------------
+
+prspsh: tclAppInit.o prsp.o prsp_vlink.o
+	$(CC) $(CFLAGS) $(PRSPSH_DEF) $(UNDEF) tclAppInit.o prsp.o prsp_vlink.o $(PRSPSH_LIB) -o $@
+
+prspdp: tkMain.o tkAppInit.o prsp.o prsp_vlink.o
+	$(CC) $(CFLAGS) $(PRSPDP_DEF) $(UNDEF) tkMain.o tkAppInit.o prsp.o prsp_vlink.o $(PRSPDP_LIB) -o $@
+
+clean:
+	rm -f *.o core $(EXES)

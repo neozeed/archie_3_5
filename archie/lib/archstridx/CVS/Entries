@@ -1,0 +1,28 @@
+/API.txt/2.0/Tue Aug 20 22:47:50 1996//
+/Makefile.post/2.1/Mon Sep 23 02:26:28 1996//
+/Makefile.pre/2.0/Tue Aug 20 22:47:51 1996//
+/Test.h/2.0/Tue Aug 20 22:47:52 1996//
+/Test_archstridx.c/2.1/Wed Aug 28 02:10:08 1996//
+/Test_exists.c/2.0/Tue Aug 20 22:47:53 1996//
+/Test_exists.sh/2.0/Tue Aug 20 22:47:54 1996//
+/Test_lock.c/2.0/Tue Aug 20 22:47:55 1996//
+/Test_regex.c/2.0/Tue Aug 20 22:47:56 1996//
+/Test_regexp.c/2.0/Tue Aug 20 22:47:56 1996//
+/Test_state.c/2.0/Tue Aug 20 22:47:57 1996//
+/Test_strsrch.c/2.0/Tue Aug 20 22:47:58 1996//
+/all.h/2.2/Mon Apr 28 19:30:42 1997//
+/api.c/2.5/Mon Apr 28 19:30:44 1997//
+/archstridx.h/2.0/Tue Aug 20 22:48:01 1996//
+/lock.c/2.0/Tue Aug 20 22:48:02 1996//
+/lock.h/2.0/Tue Aug 20 22:48:02 1996//
+/newstr.c/2.1/Wed Nov  6 17:20:54 1996//
+/newstr.h/2.0/Tue Aug 20 22:48:04 1996//
+/re.c/2.2/Wed Aug 28 02:10:50 1996//
+/re.h/2.0/Tue Aug 20 22:48:05 1996//
+/strsrch.c/2.1/Mon Apr 28 19:30:46 1997//
+/strsrch.h/2.1/Mon Apr 28 19:30:48 1997//
+/utils.c/2.1/Mon Apr 28 19:30:49 1997//
+/utils.h/2.1/Mon Apr 28 19:30:50 1997//
+D/AIX-2////
+D/SunOS-4.1.4////
+D/SunOS-5.4////

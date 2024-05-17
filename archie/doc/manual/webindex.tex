@@ -1,0 +1,126 @@
+%
+% Copyright (c) 1996 Bunyip Information Systems Inc.
+% All rights reserved
+%
+% Archie 3.5
+% August 1996
+%
+% webindex.tex
+%
+
+
+\chapter{The webindex catalog}
+
+\new
+
+\section{Overview}
+
+The webindex catalog follows the same philosophy as the anonftp catalog.
+Multiple steps, retrieve, parse, update  are used to maintain the database.
+The host database (host_db) maintains the set of sites for both databases.
+
+
+
+\section{The Retrieve process}
+
+Archie retrieves all the urls from a remote site by sequentially retrieving
+the url and inspecting the document. It will start, by default, at the root of
+the remote WWW server. The administrator can specify a different entry
+point, in the \Param{Path} field in host-manage, restricting the urls
+to be retrieved to have the same specified prefix.
+
+Archie will not wander off a site to roam all around the planet, instead
+all the local urls of that site will be inspected recording the external
+urls in the database \Path{\archie/db/webindex_db/exturls_db.\{pag,dir\}}.
+This database will be inspected by the program \comm{extern_urls}, explained
+in more details in section~\ref{sec:addsite}
+
+Archie retrieves only textual documents. Images and sound files are not
+indexed, their url is. 
+
+\subsection{Being polite} 
+
+In the early days of Archie, administrators of anonymous ftp sites were
+not always pleased to be indexed by Archie. With the crawlers, nowadays,
+things are different. We still believe that 
+informing a WWW administrator about Archie's indexing a nice gesture.
+
+The \Param{retrieve_webindex} program will call the script
+\Path{\archie/bin/mail_inform} that will send the message
+store in \Path{\archie/etc/inform_web}, if present. 
+
+\alertbox{You will have to edit the script and adapt the reply address}
+
+
+\subsection{Robots.txt standard} 
+
+Archie complies to the \Path{robots.txt} exclusion standard.
+
+
+\section{Keywords}
+
+The file \Path{\archie/etc/stoplist} contains a list of english words
+ that will not be indexed. You can add common words in other languages
+to that list.
+
+
+
+\section{Adding new sites}
+\label{sec:addsite}
+
+New sites for the webindex can be added in two ways. Either through
+the \prog{host-manage} program or through the program \Path{extern_urls}.
+
+\subsection{Via host-manage}
+Adding a new site with host-manage is just like for anonftp sites.
+The fields \Path{Path} and \Path{Port} allow to have multiple
+
+
+\subsection{Via extern_urls}
+
+As mentioned above, the external urls encountered while roaming a WWW server
+are kept in a database (\Path{\archie/db/webindex_db/exturls_db.*}). This
+is a dbm database.  The program \Comm{extern_urls} can be used to add some
+of those sites in the host_db database. An interactive mode is available for
+administrator that want to control this process. A crontab entry can also
+be created to automatically process a number $n$ of sites each time.
+
+Typically one would call the program as follows.
+
+\comm{extern_urls -d pl -n 10 -v -l -L logs/extern.log}
+
+This specifies to add at most 10 sites from the domain \Param{.pl} to the
+host_db database. The execution is logged.
+
+\section{Exchanges}
+
+With the amount of information that will be indexed by all the Archie servers,
+it is difficult to a priori know how much bandwidth is required to exchange
+the information around the world.
+
+We have modified the exchange process to exchange partial information
+instead of the entire  site file. The partial information is then processed
+to recreate a \Path{.update} file, ready for insertion.
+
+The files received  while running \Comm{arexchange}  are
+\Path{.partial_update} and \Path{.partial_excerpt}. These files need then to
+be incorporated with the local date for that site, creating the
+\Path{.update} and \Path{.excerpt} files.
+This last step is performed by running
+
+\comm{arcontrol -P -v }
+
+The program \Comm{partial_webindex} will be executed.
+
+Of course, if the site does not exist yet on the local end, all the
+information is transfer ed.
+
+
+\alertbox{You may want to add the above execution line as part of your
+crontab some time after the \Comm{arexchange} is called. Enough time
+should be allocated so that multiple sites are transferred.}
+
+\alertbox{This is new technology and although we have tested the code 
+we hope that you will inform us of any anomalies that you may encounter.}
+
+

@@ -1,0 +1,88 @@
+#
+# lib/archsearch module.
+#
+
+#MOD_CFLAGS = -ansi -pedantic -pipe
+#MOD_DEBUG  = -g3 -pg
+#MOD_DEBUG  = -g3 
+MOD_OPT    = -O3
+MOD_WARN   = -Wall -Wtraditional -Wshadow -Wpointer-arith -Wcast-align 
+#             -Wstrict-prototypes -Wnested-externs
+
+MOD_INCS = -I$(INCLUDE_MODULE) -I$(PROSPERO_ROOT)/include \
+	   -I$(PATRIE_MODULE) -I$(STARTDB_MODULE) -I$(STRIDX_MODULE)  \
+	   -I$(WEBINDEX_MODULE)/lib -I.
+
+include $(ARCHIE_ROOT)/Makefile.pre
+
+#  For interact
+#INTERACT_SRC  = interact.c get-info.c util.c
+#INTERACT_OBJ  = interact.o get-info.o util.o
+#INTERACT_BIN = interact
+
+INCS = \
+       search.h   \
+       get-info.h
+
+SRCS = \
+       search.c   \
+       boolean-search.c	\
+       boolean-ops.c	\
+       get-info.c \
+       util.c
+
+OBJS = \
+       search.o   \
+       boolean-search.o	\
+       boolean-ops.o	\
+       get-info.o \
+       util.o
+
+EXES = \
+       libarchsearch.a
+
+
+ARCHIE_LIBP = $(LIBARCHIE_MODULE)/$(SYSTYPE)/libarchie.a
+HOSTDB_LIBP = $(HOSTDB_MODULE)/$(SYSTYPE)/libhostdb.a
+STARTDB_LIBP = $(STARTDB_MODULE)/$(SYSTYPE)/libstartdb.a
+WEBINDEX_LIBP = $(WEBINDEX_MODULE)/lib/$(SYSTYPE)/libwebindex.a
+ANONFTP_LIBP = $(ANONFTP_MODULE)/lib/$(SYSTYPE)/libanonftp.a
+PATRIE_LIBP = $(PATRIE_MODULE)/$(SYSTYPE)/libpatrie.a
+STRIDX_LIBP = $(STRIDX_MODULE)/$(SYSTYPE)/libarchstridx.a
+
+ARCHIE_LIB = archie
+HOSTDB_LIB = hostdb
+STARTDB_LIB = startdb
+WEBINDEX_LIB = webindex
+ANONFTP_LIB = anonftp
+PATRIE_LIB = patrie
+STRIDX_LIB = archstridx
+
+ARCHIE_LIBF = libarchie.a
+HOSTDB_LIBF = libhostdb.a
+STARTDB_LIBF = libstartdb.a
+WEBINDEX_LIBF = libwebindex.a
+ANONFTP_LIBF = libanonftp.a
+PATRIE_LIBF = libpatrie.a
+STRIDX_LIBF = libarchstridx.a
+
+
+LIBARCHIE_DIR = $(LIBARCHIE_MODULE)/$(SYSTYPE)
+LIBHOSTDB_DIR = $(HOSTDB_MODULE)/$(SYSTYPE)
+LIBSTARTDB_DIR = $(STARTDB_MODULE)/$(SYSTYPE)
+LIBWEBINDEX_DIR = $(WEBINDEX_MODULE)/lib/$(SYSTYPE)
+LIBANONFTP_DIR = $(ANONFTP_MODULE)/lib/$(SYSTYPE)
+LIBPATRIE_DIR = $(PATRIE_MODULE)/$(SYSTYPE)
+LIBSTRIDX_DIR = $(STRIDX_MODULE)/$(SYSTYPE)
+
+
+LIBDIR = -L${LIBSTARTDB_DIR} -L${LIBARCHIE_DIR} -L${LIBHOSTDB_DIR} \
+         -L${LIBWEBINDEX_DIR} -L${LIBSTRIDX_DIR} -L${LIBPATRIE_DIR} \
+         -L${LIBANONFTP_DIR}
+
+LIBS = -l${STARTDB_LIB} -l${WEBINDEX_LIB} -l${ARCHIE_LIB} -l${HOSTDB_LIB} \
+        -l${STRIDX_LIB} -l${PATRIE_LIB} -l${ANONFTP_LIB} 
+
+
+MOD_LIBS = $(LIBDIR) $(LIBS)
+

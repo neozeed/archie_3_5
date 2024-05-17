@@ -1,0 +1,454 @@
+.\" Copyright (c) 1996 Bunyip Information Systems Inc.
+.\" All rights reserved.  
+.\"	
+.\" Archie 3.5
+.\" April 1996
+.\"	
+.\"	@(#)archie_clients.n
+.\"
+.TH ARCHIE_CLIENTS N "August 1996"
+.SH NAME
+.B telnet-client, email-client
+\- Archie client interfaces
+.SH SYNOPSIS
+.B telnet-client
+[
+.BI -d \ <debug\ level>
+] [
+.B -e
+] [
+.B -i
+] [
+.B -l
+] [
+.BI -L \ <logfile>
+] [
+.BI -o \ <output\ file>
+] [
+.B -s
+]
+.sp
+.B email-client
+[
+.BI -i \ <input\ file>
+] [
+.BI -M \ <dir>
+] [
+.BI -h \ <dir>
+] [
+.B -l
+] [
+.BI -L \ <logfile>
+] [
+.BI -T \ <telnet\ client>
+] [
+.BI -t \ <tmp\ dir>
+] [
+.BI -u
+] [
+.BI -v
+]
+.SH DESCRIPTION
+.LP
+This manual page describes the Archie telnet and email interface clients for
+Archie system administrators. The instructions for general use can be found in
+.BR archie (n).
+In Archie versions 3.X all clients use the Prospero server to process incoming
+requests. This lowers the demand that each telnet session and email message
+places on the host and allows more users to access the system at one time.
+
+Currently the email and telnet clients only support access to the
+\fBanonftp\fP database. It is likely that in future releases they will be
+modified to allow access to other databasess.
+
+.SH "EMAIL CLIENT"
+The email client interface is a wrapper around the telnet client, which
+performs all of the query processing. The email client determines the return
+address from the header of the incoming mail as well as extracting the
+`Subject:' line, which, in the Archie system, is treated as part of the
+message body. This information is passed to the telnet client, which arranges
+for the queries to be performed and the resulting message returned to the
+user.
+.SS "Email Client Options"
+The following options are accepted by the email client.
+.TP
+.B \-l
+\fIDo not\fP write any user output to the default email log file
+.B ~archie/logs/email.log.
+Note that this is the \fIreverse\fP of most other programs in the Archie
+system.  Errors will be written to
+.I stderr
+if this option is used.
+.TP
+.BI \-M \ <dir>
+The master Archie database directory path. If not specified, the program
+looks in the directory
+.BR ~archie/db ,
+then
+.BR ./db .
+.TP
+.BI \-h \ <dir>	
+The Archie host database directory path. If not specified, the program first
+tries
+.BR ~archie/db/host_db ,
+then
+.BR ./host_db .
+.TP
+.BI \-L \ <logfile>	
+The name of the file to be used for logging information, rather than the
+default,
+.BR ~archie/logs/email.log .
+Note that debugging information is also written to the log file. This option is
+passed to the telnet client.
+.TP
+.BI -i \ <input\ file>
+Read the incoming mail from
+.I <input\ file>
+rather than the default,
+.IR stdin .
+This option is provided so that the incoming mail may be queued in a temporary
+directory, then processed periodically.
+.TP
+.BI -T \ <telnet\ client>
+Use the
+.I absolute path
+specified by
+.I <telnet\ client>
+as the program to execute to process the incoming mail. If omitted, the
+program invokes the program
+.BR ~archie/bin/telnet-client .
+.TP
+.BI -t \ <tmp\ dir>
+Use the directory
+.I <tmp\ dir>
+for temporary files. This must be the absolute path of the directory. By
+default, the directory
+.B ~archie/db/tmp
+is used.
+.TP
+.BI -u
+Log the incoming mail to the current log file. The log entry contains the
+default return address and a timestamp. Note that the log will not reflect
+return addresses modified in the message body by the \fBpath\fP command or
+\fBmailto\fP variable. A entry is written to the log file on completion of the
+request.
+.TP
+.BI -v
+Verbose mode. The email client will log each phase of the request processing,
+as well as echoing each line of the input message as it is written to the
+telnet client process. This mode should only be used when trying to determine
+problems, as the verbosity will cause the log file to become very large, very
+quickly.
+.PP
+Once the appropriate information has been extracted from the incoming mail,
+the email client invokes the telnet client to service the request, then exits
+when the telnet client has completed.  Note that the email client performs
+only minor processing and that all queries are ultimately submitted to the
+Prospero server, thus it uses very few system resources.
+
+.SS Variables
+Variables in the telnet client have a number of attributes affecting their
+use.  These are:
+.TP
+.B name
+This is the unique character string by which the user refers to a variable.
+.TP
+.B type
+Boolean, numeric and string.  A boolean variable is either set or unset,
+corresponding to true and false.  Except in certain cases, both numeric and
+string variables may also be unset, in which case they lose their current
+value.
+.TP
+.B    status
+Set or unset.
+.TP
+.B value
+As above, boolean variables have no value, merely a status.  When set, numeric
+and string variables will have \fIsome\fP value, when unset they lose their
+current value.  Some numeric or string variables have default values when the
+telnet client is invoked.
+
+Some variables may not be set by the user, and may be set only in the telnet
+client initialization file.
+.TP
+.B visibility
+Some variables may be set only through the initialization file.  Such
+variables are typically used for internal state information or for local
+configuration, and may neither set nor displayed by the user.
+.TP
+.B range
+Due to their special meaning, some numeric and string variables are restricted
+to a limited range of values.  (Currently, these ranges are fixed in the
+software.)  An example is the \fBsearch\fP variable, which, due to fixed
+search types, \fImust\fP take one of a preselected range of values.
+
+If the value of a string variable is to contain leading or trailing spaces
+then it must be quoted.  Text may be quoted by surrounding it with a pair of
+double quotes (`"'), or by preceding individual characters with a
+backslash (`\e').  (A double quote, or a backslash may itself be quoted by
+preceding it by a backslash.)  The resulting value is that of the string with
+the quotes stripped off.  For example
+.\" WARNING: the indented lines contain _real_ tabs.  Keep 'em.
+.sp
+	set prompt "zork-archie> "
+.sp
+would cause the value of \fBprompt\fP to retain the trailing space.
+.sp
+	set prompt "a "prompt\\ >
+.sp
+embeds two spaces in the prompt, while
+.sp
+	set prompt slash-quote\\\\\\"
+.sp
+will put a slash and a double quote at the end of the prompt.
+
+.SH "TELNET CLIENT"
+This client has four modes which determine how it behaves for certain
+operations. Some variables may only be set, and are only visible when the
+telnet client is running in a particular mode. Similarly, some commands may
+only be executed in certain modes. The current modes are \fIsystem batch\fP,
+for initialization files set up by the administrator, \fIuser batch\fP, for
+initialization files set up by an ordinary user, \fIinteractive\fP, for the
+normal command line mode and \fIemail\fP, when the telnet client is run from
+the email client.  These are explained below.
+
+.SS "Telnet Client Options"
+.TP
+.B \-l
+Write any user output to the default log file
+.B ~archie/logs/archie.log.
+If desired, this can be overridden with the 
+.B -L
+option. Errors will, by default, be written to
+.IR stderr .
+.TP
+.BI \-L " <logfile>"
+The name of the file to be used for logging information.  Note that debugging
+information is also written to the log file.
+.TP
+.B -e
+Set the telnet client to run in email mode. See
+.SM "Email Mode"
+below.
+.TP
+.B -i
+Set the program to run in interactive mode. See
+.SM "Interactive Mode"
+below.
+.TP
+.BI -o " <output file>"
+This option is no longer supported and is allowed for backward compatibility
+only.
+.TP
+.B -s
+Run in system batch mode. See
+.SM "System Batch Mode"
+below.
+.PP
+The telnet client need not reside on the same machine as the Prospero server,
+or the rest of the Archie system. For example, a university may decide to
+install the telnet client on several machines around the campus.
+
+Users have the option of executing the telnet client on these hosts to have
+their queries performed. This technique allows the Archie server machine to be
+free of any Archie sessions itself, although it is still responsible for
+processing the queries in the normal fashion.  In this way the telnet client
+is effectively the same as other client programs like
+.BR xarchie ,
+or the Archie command line client. If this technique is used then the
+\fBserver\fP variable must be set to the name of the Archie server host.
+
+.SS "System Batch Mode"
+Unless the
+.B \-i
+option is supplied, the telnet client always starts in this mode. The purpose
+is to allow system specific commands to be executed, and variables to be set,
+which cannot then be changed once in interactive or email mode. The client
+first reads the default configuration file
+.BR ~archie/.archierc .
+If the client is invoked as any user other than the
+pre-defined
+.I archie
+user, it will then switch to
+.I user batch
+mode and attempt to read the file
+.BI ~ <user> /.archierc
+for further configuration information (where
+.I <user>
+is the name of the user executing the program).
+
+The following variables may only be set in the system configuration file.
+Variables which are interactive in nature (such as
+.B term
+and
+.BR status )
+should
+.I not
+be set in the configuration file.
+.TP
+.B niceness
+A number passed to the
+.BR nice (3)
+function before the client enters the command loop. This has the effect of
+reducing the priority of the telnet client process. This may be useful when
+the host system is under a high load or has other, more time\-critical,
+processes running.
+.TP
+.B email_help_file
+The name of the help file, returned to the sender, when the incoming mail
+message contains the command
+.BR help ,
+or an empty message is received.  By default this is
+.BR ~archie/etc/email.help .
+.TP
+.B help_dir
+The name of the directory containing the help tree. It has a default value of
+.BI ~archie/help/ <language>\fR,\fP
+where
+.I <language>
+is the value of the
+.B language
+variable. This value is modified when the
+.B language
+variable is modified.  The internal system default is
+.BR ~archie/help/english .
+See
+.SM "The Help System"
+below.
+.TP
+.B mail_from
+This is the `From' address put in mail sent to the user.  The default is
+`archie\(emerrors'.
+.TP
+.B mail_host
+The machine to which to connect in order to send mail. This machine contains
+the programs to actually compress, encode, split, etc. the mail.  The default
+is `localhost'.
+.TP
+.B mail_service
+The service, as listed in in
+.BR /etc/services ,
+to which to connect, in order to reach the actual mail sending program. A
+numeric value is interpreted as a port number.  The default is
+`archiemail'.
+.TP
+.B man_ascii_file
+The path to the plain ASCII version of the Archie manual page, which is
+accessed through the
+.B manpage
+command.  It has a default value of
+.BR ~archie/etc/manpage.ascii .
+.TP
+.B man_roff_file
+As above, but the troff (nroff) version.  The default value is
+.BR ~archie/etc/manpage.roff .
+.TP
+.B pager_help_opts
+Options to be passed to the pager, when invoked within the help system. The
+default is
+.BR \-c .
+See the
+.BR less (1)
+manual page for further information.
+.TP
+.B pager_opts
+Similar to the previous variable, but it applies when the pager is used
+outside of the help system.  The default is
+.BR \-c .
+.TP
+.B prompt
+The prompt displayed in the main command loop.  The default is `archie> '.
+.TP
+.B servers_file
+Relative path to the file containing the list of current Archie servers.  The
+contents of the file are printed when the
+.B servers
+command is invoked. The default is
+.BR ~archie/etc/serverlist .
+.PP
+The following commands may only be used in system batch mode.
+.TP
+.BI disable
+Disables the use of the command name supplied as an argument. For example, the
+line
+.sp
+.\" WARNING: the indented line contains _real_ tabs.  Keep 'em
+	\fCdisable mail\fP
+.sp
+if placed in the system configuration file, will disable the use of the
+.B mail
+command by users.
+
+.SS "User Batch mode"
+Currently all variables available in interactive mode are also available in
+user batch mode.
+
+.SS "Email Mode"
+None of the interactive commands (such as
+.BR status )
+or variables (such as
+.BR pager )
+are available in email mode.
+
+.SS "Interactive mode"
+The variables documented in
+.BR archie (n)
+may all be set by the user. In addition, Archie administrators should be aware
+of the following variables.
+.TP
+.B language
+This variable allows the user to specify the language in which help, etc. is
+presented. Currently the default value is `english'. The directory
+.BI help/ <language>
+must exist for this variable to be changed to
+.IR <language> .
+To add a new language to the help facility, the directory
+.BI ~archie/help/ <language>
+must be created.  Then, a translated version of an existing help hierarchy
+must be placed under that directory.
+
+.SS "The Help System"
+The Archie help system is hierarchical, in that there is an initial set of
+topics, some of which may have further subtopics.  Within the help system the
+user is presented with a different prompt and has a limited set of commands
+for moving around the hierarchy. Different languages may be supported in the
+help system by creating an alternate hierarchy for each language.
+
+For example, to set up a hierarchy for French, you would create the directory
+.BR ~archie/help/francais ,
+under which you would create a separate directory for each topic for which you
+wanted to provide help.  In each such directory, a file called
+.B =
+must contain the actual text to be displayed. For example, the
+.BR ~archie/help/english
+directory contains the directory
+.BR set .
+If the user types `help set' the text in the file
+.B ~archie/help/english/set/=
+is displayed.
+
+Subcommands (or subtopics) are supported by creating subdirectories of the
+main topic directories similarly to that described above. For example, the
+text for the subtopic `search', under the topic `set', would be in
+the file
+.BR ~archie/help/english/set/search/= .
+
+Please note that while the help system can support multiple languages, the
+list of commands, as well as error messages are currently returned in English.
+Future versions of the client will also allow these to be converted in an
+administrator-defined fashion, thereby allowing the client to operate
+completely in the language of choice.
+
+Full details of the operation of the Archie clients can be found in the user
+manual page in
+.BR ~archie/etc/manpage.roff .
+
+.SH "SEE ALSO"
+.BR archie (n).
+.SH AUTHOR
+Bunyip Information Systems.
+.br
+Montr\o"\'e"al, Qu\o"\'e"bec, Canada
+.sp
+Archie is a registered trademark of Bunyip Information Systems Inc., Canada,
+1990.

@@ -1,0 +1,12 @@
+#!/bin/sh
+awk '
+{
+  hist[length]++
+}
+
+END {
+  for (len in hist) {
+    printf "%3d\t%5d\n", len, hist[len]
+  }
+}
+' | (echo "Len	Count" ; sort -n)

@@ -1,0 +1,16 @@
+#
+# re-posix module.
+#
+
+all: libregex.a
+
+
+include $(ARCHIE_ROOT)/Makefile.post
+
+
+libregex.a: $(OBJS)
+	$(AR) r $@ $?
+	$(RANLIB) $@
+
+clean:
+	rm -f *.o *.a core

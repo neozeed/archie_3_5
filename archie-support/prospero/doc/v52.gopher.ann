@@ -1,0 +1,105 @@
+An Alpha release of version 5.2 of the Prospero file system is now
+available by anonymous FTP from PROSPERO.ISI.EDU in the file
+pub/prospero/prospero-alpha.5.2.tar.Z.  It can also be obtained
+through Prospero itself from /releases/prospero/prospero-alpha.5.2.tar.Z.  
+The name prospero.tar.Z in those directories still points to the stable
+Beta 5.1 release; this has been done for the sake of the archie server
+maintainers and other information providers who depend upon Prospero. 
+
+Some important changes since the last Prospero release should be of
+interest to the readers of comp.infosystems.gopher:
+
+(a) A menu-based browser client, similar to the Gopher client
+(b) A gateway server which makes all of Gopherspace available through 
+    Prospero queries. 
+(c) A menu-based browser API interface library to Prospero, which allows
+    one to easily write new browsers that use Prospero to make their underlying
+    calls.
+
+The menu-based browser supports all of the basic Gopher types:
+searches, text files, data files, and portals (what Gopher calls
+telnet sessions).  It does not yet support sophisticated display of
+binary image files, reading Postscript or MIME documents, playing
+sounds, or automatic decoding of uuencoded, compressed, or tarred
+files.  These enhancements will be added shortly; the protocol
+definitions for them have already been made.
+
+We support authenticated remote modifications to menus, though not
+presently from within the browser itself.  For now you will have to
+learn how to use a few Prospero commands to add new menus or items and
+set descriptions.  We plan to eventually support remote update within
+the browser itself.
+
+Prospero, and thus menus available to the menu browser (as a Prospero
+client), supports fine grained access control based on client
+identity.  Authentication is provided using 4 alternative
+authentication mechanisms, depending on your specific needs: (a)
+Kerberos (version 5); (b) per user passwords; (c) trusted port and
+trusted host assertion (like the Berkeley R commands); and (d) a check
+of the host from which a request originated and the asserted user
+identity of the client.
+
+Prospero provides full access control list mechanisms for those who
+wish to put fine-grained permissions on particular objects or
+directories.  For instance, one can easily set some directories so
+that anybody at your company or university can read data in them, only
+a particular group of people can insert data into them, and only the
+system administrator or the author of a particular piece of
+information is allowed to modify and delete it.  Of course, anyone who
+does not need these security mechanisms can export data using the
+default permissions defined on a per server basis.
+
+An elegant new Prospero feature we're rather proud of is the search
+interface.  We support a variety of search methods, including direct
+queries to Prospero-speaking database servers, such as Archie servers
+and all Gopher servers via a Prospero-Gopher gateway.  The search
+servers are self defining, exporting attributes that tell the client
+what to prompt for, help messages to display if requested by the user,
+and how to package the search when it is sent to the server.
+
+Client implementors need not worry about the generality of this
+mechanism since they can make perfectly functional clients that use
+only a small subset of the available data.  The menu browser has a
+subset of this search interface built into it.
+
+The philosophy behind this work, or why we are doing this:
+
+One of Gopher's greatest strengths is its clear, straightforward user
+interface.  However, the gopher protocol itself has a number of
+limitations which keep it from being suitable as a universal Internet
+information infrastructure, such as the fact that all updates to data
+must be made through means outside the protocol (i.e., editing files
+on the server) and its lack of security mechanism.
+
+Most current Internet information services, such as Gopher, World Wide
+Web, and WAIS, have their own specialized clients, servers, and
+network protocols.  This makes it difficult for these services to
+interoperate smoothly.  People attempt to address these issues with
+inefficient ad-hoc gateways, such as the Gopher servers that make
+Archie queries on behalf of Gopher clients, or even our own
+Prospero-Gopher gateway.  These are not very good solutions. 
+
+Prospero provides a framework for integrating information from diverse
+sources.  Client writers can work on interesting clients, and service
+providers can publish their data, without needing to work on issues of
+little interest to them.  We explore these ideas in greater depth in
+the paper 'Prospero: A Base for Building Information Infrastructure',
+to be presented at the INET '93 conference in August, and available
+via anonymous FTP from PROSPERO.ISI.EDU as
+/pub/papers/prospero/prospero-bii.ps.Z.
+
+We encourage others to build clients that make their queries through
+Prospero and to publish their data through Prospero.  We provide an
+application library (much better documented in this release than in
+previous ones) and a simple application interface designed
+specifically for the authors of read-only menu browsers.  It is also
+not difficult to publish your data through Prospero, and we are eager
+to work with those who wish to do so.
+
+-- Steven Seger Augart
+   Research Staff, USC Information Sciences Institute
+
+-- B. Clifford Neuman
+   Scientist, USC Information Sciences Institute
+
+email: info-prospero@isi.edu

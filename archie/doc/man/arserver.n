@@ -1,0 +1,335 @@
+.\" Copyright (c) 1992, 1994, 1996 Bunyip Information Systems Inc.
+.\" All rights reserved.  
+.\"	
+.\" Archie 3.5
+.\" August 1996
+.\"	
+.\"	@(#)arserver.n	
+.\"
+.TH ARSERVER N "August 1996"
+.SH NAME
+.B arserver 
+\- Archie data exchange server
+.SH SYNOPSIS
+.B arserver
+[ 
+.BI \-M " <dir>"
+] [ 
+.BI \-h " <dir>"
+] [ 
+.BI \-C " <config>"
+] [ 
+.B \-S 
+] [ 
+.B \-c
+] [
+.B \-v
+] [
+.B \-l 
+] [ 
+.BI \-L " <logfile>"
+] 
+
+.SH DESCRIPTION
+.PP
+.B arserver 
+is responsible for providing remote access to and from the Archie
+catalogs and data. This process is currently used
+to perform two functions:
+.RS
+.IP a) 
+Allow the exchange of preprocessed data between Archie hosts in conjunction
+with the
+.B arexchange
+program and
+.IP b) 
+Provide the information to the local data aquisition phase of the update cycle
+in conjunction with the
+.B arretrieve
+program.
+.RE
+
+.SH OPTIONS
+.TP 
+.BI \-M " <dir>"
+The name of the master Archie database directory. If not given, the program
+tries to look in the directory
+.B ~archie/db 
+and, failing that, defaults to 
+.BR ./db .
+.TP 
+.BI \-h " <dir>"
+The name of the Archie host database directory. If not supplied the program
+will default first to
+.B ~archie/db/host_db 
+and failing that, to 
+.BR ./host_db .
+.TP 
+.BI \-C " <config>"
+Use the file 
+.I <config> 
+as the configuration file. See below.
+.TP 
+.B \-S
+Sleep for 20 seconds after initial startup. This is primarily used for
+debugging.
+.TP
+.B \-c
+Send outgoing inter-Archie data in compressed format (using the 
+.BR compress (1)
+program). This results in a significant improvement in transfer times.  Remote
+clients may specifically override this setting and get the data
+uncompressed. However, in this case a message that this has occurred is logged
+in the log file.
+.TP
+.B \-v
+Verbose mode. Output is written to the current log file.
+.TP 
+.BI \-L " <logfile>"
+The name of the file to be used for logging information.  Note that debugging
+information is also written to the log file. Logging is by default written to
+the default log file
+.BR ~archie/logs/archie.log .
+
+.SH CONFIGURATION
+.PP
+This program is designed to be run from the 
+.BR inetd (8)
+process in normal operation (see
+.SM "Configuring the System"
+in the Archie documentation).
+.PP
+The program uses a configuration file,
+.BR ~archie/etc/arupdate.cf ,
+unless overridden by the 
+.B \-C 
+option. This file is also used by the arexchange program (See
+.BR arexchange (n)) 
+Any program contacting the arserver process is called a
+.IR client .
+The file has lines of the following format:
+.IP 
+.IR "<archie host> <config>" " [, " <config> " ] ..."
+.PP
+where
+.RS
+.TP
+.I <archie host> 
+is the Fully Qualified Domain Name of the host with which data is to be
+exchanged. This name enforces a basic security mechanism by specifying which
+remote Archie clients are allowed to connect to the local Archie host. The
+asterisk character (`*') may be used to signify the fact that \fIany\fP remote
+Archie host may connect to the local Archie host.
+.RE
+.PP
+For each 
+.I <archie host> 
+there may be multiple 
+.I <config line> 
+entries. Since each entry starting with 
+.I <archie host> 
+is considered to be a single line, the backslash character (`\\') is used as a
+line continuation marker. Each
+.I <config> 
+consists of the following fields:
+.PP
+.I <db list> <domain list> <maxno> <perms> <freq> <date> <fail>
+.PP
+.B Field Interpretation
+.RS
+.PP
+The fields have the following syntax and semantics:
+.RS
+.TP
+.I <db list>
+A colon separated list of Archie catalog names. The requesting client may
+query the local server only about the catalogs listed here.
+.I All
+catalogs may be queried by using the asterisk character (`*').
+.TP
+.I <domain list>
+A colon separated list of Archie pseudo-domains and domains.  The client
+program asks questions of any site in the local server which belongs to the
+domains listed here.  Specify an asterisk (`*') if queries about \fIall\fP
+domains are to be allowed.
+.TP
+.I <max no> 
+The maximum number of sites, matching the above constraints, to be returned to
+the client process.
+.TP
+.I <perms>
+If the character `r' occurs in this field then the client has `read
+permission' on the catalogs/domains specified on this configuration line. This
+field exists to allow \fIasymmetric\fP data exchanges where Archie site A may
+request data from Archie site B but not vice versa.
+.TP
+.I <freq>
+Ignored (and never modified) by
+.BR arserver .
+See below.
+.TP
+.I <date>
+Ignored by
+.BR arserver .
+See below.
+.TP
+.I <fail>
+Ignored by
+.BR arserver .
+See below.
+.RE
+.LP
+Example:
+.LP
+The following is a sample configuration file entry accompanied by an
+explanation of how the server would interpret this line.
+.sp
+\fCbunyip.com anonftp:webindex europe:usa 30 r 12h 19920703162322 0\\
+.br
+.RS
+whois:yp asia 10 r 30d 19920603162322 0\fP
+.RE
+.PP 
+Line 1.
+.RS
+.TP 
+Field 1.
+The remote client (RC) on the site `bunyip.com' is allowed to
+contact the local server.
+.TP 
+Field 2. 
+The RC is allowed to query the local server about the anonftp \fIand\fP
+webindex Archie catalogs.
+.TP 
+Field 3. 
+The RC can query about sites in the Archie pseudo domains of `europe'
+\fIand\fP `usa' (which of course must be defined in the server Archie
+system). See
+.BR ardomains (n).
+.TP
+Field 4. 
+The RC data for can request at most 30 sites in any given session.
+.TP
+Field 5. 
+The data in the Archie catalogs specified by this line is `enabled' for the
+RC.
+.TP
+Field 6. 
+Ignored.
+.TP
+Field 7. 
+Ignored.
+.TP
+Field 8. 
+Ignored.
+.RE
+.PP
+Line 2.
+.RS
+is a continuation of line 1, due to the continuation character (\\) as the
+last character on line 1.  Therefore line 2 applies to the remote client
+connecting from `bunyip.com'.
+.RS
+.TP
+Field 1
+For the sake of clarity there is no ``Field 1'' used on continuation lines.
+.TP
+Field 2. 
+The RC may query for entries in the `whois' and `yp' catalogs.
+.RE
+.RE
+.PP
+Note that both the
+.B arserver
+and
+.B arexchange
+programs read the same configuration file, and further note that it is through
+the
+.I <perms> 
+field that the respective server and client invocations can determine the
+lines intended for them.  The server picks up lines with a
+.I <perms> 
+value of `r'.  It is also possible to specify `rw' as the permission
+field. This means both that the remote client may contact the local server and
+that the local client can contact the remote server.
+.PP
+Example:
+.RS
+.PP
+The following line specifies one
+.I symmetric
+and two
+.I asymmetric
+examples of data exchange.
+.LP 
+\fCbunyip.com anonftp usa 50 rw 1d 19920703162322 0\\
+.PD .1v
+.RS
+.IP
+\fCwebindex europe 30 r 10d 19920703162322 0\\
+.IP
+.PD 1v
+\fCwhois usa 70 w 5d 19920703162322 0\ \fP
+.RE
+.PP 
+The first line specifies that the local client is to contact the remote server
+on `bunyip.com' and request all sites in the `anonftp' catalog from the `usa'
+pseudo-domain. In addition, the remote client may contact the local server and
+request the same information (symmetric).
+.PP 
+The second line specifies that the remote client may request information about
+the `webindex' catalog for sites in the `europe' domain.  Since `r' is
+specified as the permissions field, the local client will not query the remote
+server for this information (asymmetric).  Similarly, the local client is to
+query the remote server about information on the `webindex' catalog from sites
+in `usa' (line 3), but may not be queried by the remote client about this
+catalog in this domain.
+.RE
+.RE
+.RE
+.RE
+.PP
+.B Data Exchange
+.RS
+.PP
+The actual data exchange is not performed by the server or client which just
+negotiate the information which is to be received and transmitted.  The
+protocol used by arserver and its clients is described in
+.BR archie_protocol (5).
+An auxililary process designed specifically to transfer the underlying data is
+used for actual data transmission. The client and server processes
+automatically generate the name of the program to run from the following rule:
+.IP
+.BI net_ <dbname>
+.PP
+where 
+.I <dbname> 
+is the name of the Archie catalog with which this data is associated.  This
+auxiliary program resides in the
+.B ~archie/bin
+directory. The data exchanged in this manner may be in a `raw' or preprocessed
+state depending on the catalog. No assumptions should be made as to the state
+of this data. However, the underlying data exchange routines will produce
+files appropriately prepared for insertion at some phase of the update cycle.
+.RE
+
+.SH FILES
+~archie/etc/arupdate.cf,
+.br
+~archie/db/host_db/*
+
+.SH SEE ALSO
+.PP 
+.BR inetd (8),
+.BR arexchange (n),
+.BR arretrieve (n),
+.BR archie_protocol (5),
+Archie system documentation
+
+.SH AUTHOR
+Bunyip Information Systems.
+.br
+Montr\o"\'e"al, Qu\o"\'e"bec, Canada
+.sp
+Archie is a registered trademark of Bunyip Information Systems Inc., Canada,
+1990.

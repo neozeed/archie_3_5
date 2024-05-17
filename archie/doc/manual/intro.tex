@@ -1,0 +1,113 @@
+%
+% Copyright (c) 1996 Bunyip Information Systems Inc.
+% All rights reserved
+%
+% Archie 3.5
+% August 1996
+%
+% intro.tex
+%
+
+\chapter{Introduction}
+
+\pagenumbering{arabic}
+\setcounter{page}{1}
+
+
+It was inevitable that the technology under which Archie was built changed.
+With the introduction of faster applications and newer media on the Internet,
+Archie had to reshape its structure to accomodate these new factors and
+stay in the race.
+
+Speed in this day and age is a big gain and Archie is thought to have
+achieved it with the utilization of a string indexing tree for faster string
+searches.
+
+As for the World Wide Web and its many new faces, Archie also introduces its
+latest web crawling and indexing engine.  In addition, a new web interface has
+been added to accomodate the web users.  And with a few more newly added
+features and face-lifts, Archie v3.5 is ready to undergo deployment.
+
+This manual is an attempt to clarify the many components of Archie v3.5 and
+its functionality.  Please keep in mind that this manual is also undergoing
+changes, so we appreciate any comments sent to archie-group@bunyip.com.
+
+What follows is the list of added features in Archie v3.5. You will find in
+the table of contents, symbols such as the one in the margin, to help you
+find the relevant documentation concerning the new features. \New
+
+\begin{itemize}
+\item Support for a new database module (webindex):
+  \begin{itemize}
+    \item Retrieval of HTML pages through HTTP protocol.
+    \item Keyword extraction.
+    \item Controlled crawling of the WWW.
+    \item Site by site basis.
+    \item Content extraction.
+    \item Configurable stoplist (keyword exclusion).
+  \end{itemize}
+\item New database structure:
+  \begin{itemize}
+    \item A more reliable and independent database structure. 
+  \end{itemize}
+\item New strings search engine:
+  \begin{itemize}
+    \item Based on a paged, tree structured strings index.
+    \item Faster searches.
+    \item Less memory required.
+    \item More disk space needed for construction of the index.
+  \end{itemize}
+\item New search interface:
+  \begin{itemize}
+    \item New WWW (CGI compliant) front-end to the Archie database.
+  \end{itemize}
+\item A better domain filter for any database:
+  \begin{itemize}
+    \item Results can be pre-configured to return in a certain order (e.g. FTP sites closest to the server first).
+    \item Configurable on a server basis.
+  \end{itemize}
+\item General new features:
+  \begin{itemize}
+    \item Support for ls-lR.gz files.
+    \item ISO-Latin-1 support for searches.
+  \end{itemize}
+\end{itemize}
+
+
+
+\section{Future}
+
+We hope in the very near future to be able to produce
+the following list of features. If you have any suggestions
+to add to the list please feel free to contact us at
+archie-group@bunyip.com:
+
+\begin{itemize}
+  \item  Search tools:
+    \begin{itemize}
+      \item Add boolean searches.
+      \item Allow other types of searches. (For example, return a
+            list of hosts in any database and when they were last updated.)
+      \item Multi-lingual Web front-end.
+    \end{itemize}
+  \item  Database:
+    \begin{itemize}
+      \item  An automated check-up program that runs periodically on the
+             databases.  It will check the consistency of the database and
+             fix any errors it runs into.   This will reduce the amount of
+             time an Archie administrator needs to spend maintaining an Archie server.
+      \item  Improve on filters and parsers to handle strange and unusual site
+             listings.
+      \item  Parallelize the parsing and updating of different databases.
+      \item  Build multiple databses with the same access method.
+    \end{itemize}
+  \item  Management tools:
+    \begin{itemize}
+      \item  CGI web interface to allow web and FTP administrators to register
+             their sites automatically.
+      \item  Replace ``host\_manage'' with a new method for managing the
+             host\_db database.
+      \item  Statistical tools.
+    \end{itemize}
+\end{itemize}
+

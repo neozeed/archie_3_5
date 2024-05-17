@@ -1,0 +1,352 @@
+.\" Copyright (c) 1994, 1996 Bunyip Information Systems Inc.
+.\" All rights reserved.  
+.\"	
+.\" Archie 3.5
+.\" August 1996
+.\"	
+.\"	@(#)arcontrol.n	
+.\"
+.TH ARCONTROL N "August 1996"
+.SH NAME
+.B arcontrol 
+\- perform automated updating routines on Archie catalogs
+.SH SYNOPSIS
+.B arcontrol \-u | \-p | \-r 
+[ 
+.BI \-M \ <dir> 
+] [ 
+.BI \-h \ <dir> 
+] [ 
+.BI \-m \ <maxcount>
+] [
+.B \-U
+] [
+.B \-n
+] [
+.BI \-T \ <timeout>
+] [
+.BI \-Z
+] [
+.B \-t 
+.I <dir> 
+] [
+.B \-v 
+]  [ 
+.B \-l 
+] [
+.B \-L 
+.I <logfile>
+]
+.SH DESCRIPTION
+.LP
+The 
+.B arcontrol 
+program is normally invoked automatically by the 
+.BR cron (8)
+daemon. The program initiates the processes necessary to acquire, process
+and incorporate new data into the various Archie catalogs.
+
+.SH "OPTIONS"
+.PP
+One of the following options must be supplied:
+.RS
+.TP
+.B \-r
+Process data files with the 
+.B .retr
+suffix, deposited in the holding (temporary)  directory by the retrieval phase.
+.TP
+.B \-p
+Process data files with the 
+.B .parse 
+suffix, created by the data aquisition phase
+.TP
+.B \-u
+Process data files with the 
+.B .update 
+suffix, created by the parse phase
+.RE
+.PP
+In addition, the following options are available:
+.RS
+.TP
+.BI \-M  " <dir>"
+The name of the master Archie database directory. If not given, 
+the program tries to look in the directory 
+.B ~archie/db 
+and, failing that, defaults to 
+.BR ./db .
+.TP
+.BI \-h " <dir>"
+The name of the Archie host database directory. If not
+supplied the program will default first to
+.B ~archie/db/host_db 
+and failing that, to 
+.BR ./host_db .
+.TP
+.BI \-t " <dir>"
+Sets the name of the directory used for temporary files.
+If not given, the program uses 
+.BR ~archie/db/tmp .
+.TP
+.BI \-m " <maxcount>"
+The maximum number of date files to process in any given invocation. This
+is especially useful when there are many date files and a limit of how
+many to process simultaneously is desired. There is an internal
+default of 30 data files in retrieval mode, which may be raised or
+lowered by this option. By default in update or parse mode, as many files
+as are available will be processed. The special value 0 may be supplied
+as an argument to this option and has the meaning of overriding the internal
+default maximum: as many files as are available will be processed.
+.TP
+.B \-n
+Do not modify the compression status of the temporary data files. By
+default data stored temporary on disk throught the Update Cycle is stored
+in a compressed state. However, this data must be uncompressed before
+being used. This option tells the system to perform the least amount of
+processing in order to use the data. This option requires that there be
+more disk space for the uncompressed data.
+.TP
+.B \-U
+Actively uncompress temporary data. Data that is obtained in compressed
+form should be uncompressed before writing temporary files. This may
+speed processing at certain stages of the update cycle. This option
+requires that there be more disk space for the uncompressed data.
+.TP
+.BI \-T " <timeout>"
+Set the timeout on the retrieval phase of the Update Cycle. If the
+retrieval connection has been idle for more than the timeout value the
+retrieval is terminated and an error generated.
+.I <timeout>
+is specified in minutes. This value is passed directly to the data acquisition
+process.  The default is 10 minutes.
+.TP
+.B \-Z
+If in retrieval mode, then the retrieval process will automatically look
+for an indexing file (this is defined in the retrieval program's
+configuration file).
+.TP
+.B \-v
+Verbose mode. Will tell you what it is doing.
+.TP
+.B \-l
+Write any user output to the default log file
+.B ~archie/logs/archie.log.
+If desired, this can be overridden with the 
+.B \-L
+option. Errors will by default be written to
+.IR stderr .
+.TP
+.BI \-L " <logfile>"
+The name of the file to be used for logging information.
+Note that debugging information is also written to the
+log file.  This implies the 
+.B \-l 
+option, as well.
+.RE
+.SH "NAMING CONVENTIONS"
+The subprocesses spawned by 
+.B arcontrol 
+follow a well-defined naming convention:
+.IP
+.IR "<phase prefix>" _ <dbname> _ <special>
+.PP
+where 
+.I <phase prefix> 
+is one of
+.RS
+.TP
+.B retrieve	
+For the data aquistion phase of the cycle
+.TP
+.B parse	
+For the parse phase
+.TP
+.B update	
+For the update phase
+.RE
+.PP
+and 
+.I <dbname> 
+is the name of the catalog associated with the data being processed. 
+.PP
+In certain cases, it is nessesary to process data destined for the same
+Archie catalog in different ways, depending on their source. For example,
+UNIX and VMS anonymous FTP listings are significantly different in form
+and are parsed differently. Therefore 
+.I <special> 
+could apply to, among other things, operating systems.
+.TP
+Example:
+.RS
+.PP 
+.B parse_anonftp 
+is responsible for parsing the data for the anonftp 
+catalog. This program then spawns
+.IP
+.PD .1v
+.B parse_anonftp_unix_bsd
+.PP 
+or 
+.IP 
+.PD 1v
+.B parse_anonftp_vms_std
+.PP 
+depending on the operating system of the source data host. The
+information required to determine which program to use is read from the
+header record associated with all data files.
+.br
+.PP 
+The current convention for naming data files during the 
+update cycle is:
+.IP 
+\fI<site name>\fR\(em\fI<dbname>\fR_\fI<cntl num>\fR.\fI<phase suffix>\fR[\fI<tmp suffix>\fR]
+.PP
+where
+.RS
+.TP 
+.I <site name>
+is the name of the source host for this data
+.TP
+.I <dbname>
+is the name of the Archie catalog with which this data is
+associated
+.TP
+.I <cntl num>
+is a number whose function is to distinguish different
+sets of data from the same site and for the same catalog.
+Note that this number is arbitrarily determined and may
+change after undergoing any given phase of the update
+cycle
+.TP
+.I <phase suffix>
+is one of `.retr', `.parse' or `.update' depending on which phase of the cycle
+the data is destined for.
+.TP
+.I <tmp suffix>
+is usually `_t'. This is used as a temporary name for data files currently
+undergoing processing.
+.RE
+.PP
+Example:
+.RS
+.PD .1v
+.PP
+The retrieval phase may generate a file with the name
+.IP
+.PD .1v
+.sp
+\fCarchie.mcgill.ca-anonftp_69.parse\fP
+.sp
+.PP
+during the processing. The file may be called
+.sp
+.IP 
+.PD 1v
+\fCarchie.mcgill.ca-anonftp_23.parse_t\fP
+.sp
+.PP 
+.TP 
+upon completion.
+.RE
+.SH "DATA PROCESSING"
+.PP
+Data aquisition, processing and update provide the basis for the Archie
+system model and operate under the direction of 
+.B arcontrol.
+.PP
+The Archie system temporary directory (by default 
+.B ~archie/db/tmp 
+unless overridden by the 
+.B \-t 
+option) is first scanned for the data files whose
+filename suffixes are appropriate for the mode in which the program was
+invoked. The header record for each file is then read to determine the
+actions which are to be taken.  A pre-process pass is taken over each
+data file which may modify it to conform to the correct format for the
+next processing phase. For example, a compressed data file may be
+uncompressed.  
+.B arcontrol 
+is also responsible for coordinating the processing operations so that 
+for example, no more than one processing program is operating on any 
+given data file concurrently.
+.PP
+.B Data Acquisition Phase
+.RS
+.PP
+All retrieval is performed asynchonously. That is, all retrieval 
+processes are launched without the control process waiting for them 
+to return immediately. They are monitored after all have been 
+launched. 
+.PP
+The connection on which the retrieval is taking place is monitored by the
+retrieval process responsible. If the connection has been idle for more
+than a preset limit, the connection is closed. Since arcontrol is
+responsible for running the appropriate retrieval process in normal
+operation this idle interval may be set with the
+.B \-T 
+switch, with units in minutes.
+.PP
+All programs in the retrieval phase generate data files with the `.parse'
+suffix.
+.RE
+.PP
+.B Parse Phase
+.RS
+.PP
+Parsing is performed synchonously, each file in turn. This phase generates
+data files with the `.update' suffix.
+.RE
+.PP
+.B Update Phase
+.RS
+.PP
+Updating is performed synchronously. 
+.B arcontrol 
+waits for the return of the appropriate update process after launching it. 
+This mechanism aims to prevent the concurrent updating of any of the Archie 
+catalogs by more than one process.
+.RE
+.SH "STOPPING PROCESSING"
+If for some reason it is necessary for the Archie administrator to terminate
+the program before it has completed processing the current batch of files the
+file
+.B ~archie/etc/process.stop
+should be created. After the completion of processing each file, the arcontrol
+program checks for the existence of this file. If it exists, processing
+terminates and log and mail entries are generated (if they are being
+requested). Creation of this will will also prevent further continuation of
+update cycles and thus the file should be removed when no longer needed.
+.PP
+.B Note:
+While this functionality is useful, files that would have been processed
+before the program has terminated will be left with the `_t' suffix and will
+not be picked up by subsequent invocations of the arcontrol program and have
+to be removed or renamed (without the `_t' suffix) manually by the
+administrator.
+.SH BUGS
+.LP
+Files are preprocessed as a batch operation at the start of the program rather
+than one at a time as needed. As a result, if the process terminates before
+completing its tasks, files with the `_t' suffix will be left in the temporary
+directory and have to be removed manually.
+.LP
+Sites that change their primary host names between updates
+are currently not correctly handled.
+.SH FILES
+There are no configuration files currently associated with this program.
+.LP
+The only compression format currently implemented is Lempel-Ziv with
+.BR compress (1)
+.
+.SH "SEE ALSO"
+.BR retrieve_* (n),
+.BR parse_* (n),
+.BR update_* (n),
+.SH AUTHOR
+Bunyip Information Systems.
+.br
+Montr\o"\'e"al, Qu\o"\'e"bec, Canada
+.sp
+Archie is a registered trademark of Bunyip Information Systems Inc., Canada,
+1990.

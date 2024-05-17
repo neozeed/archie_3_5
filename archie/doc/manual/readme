@@ -1,0 +1,21 @@
+%
+% Copyright (c) 1994, 1996 Bunyip Information Systems Inc.
+% All rights reserved.
+%
+% Archie 3.5
+% August 1996
+%
+
+
+This directory contains the .tex files necessary for the
+``Archie System Manual'' of Archie 3.5
+
+The directory <figs> contains all the figures used in the manual.
+
+Requirements: LaTeX 2e
+              with longtable.sty
+                   epsfig.sty
+                   fullpage.sty
+
+
+

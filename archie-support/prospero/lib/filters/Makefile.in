@@ -1,0 +1,35 @@
+# lib/filters/Makefile
+# This is the makefile for the version of the Prospero Directory Service
+# where client-side filters are not loadable.
+# This is the default distributed version.
+
+SOURCEBASE=../..
+include $(SOURCEBASE)/Makefile.config
+
+CFILES = \
+	nl_apply_fil.c 
+
+OBJECTS	= \
+	nl_apply_fil.o 
+
+
+
+all:	${FIL_LIB}
+
+${FIL_LIB}: ${OBJECTS} 
+	rm -f ${FIL_LIB}
+	ar rv ${FIL_LIB} ${OBJECTS}
+	$(RANLIB) ${FIL_LIB}
+
+install:
+
+#	cp ${FIL_LIB} ${P_BINARIES}/${FIL_LIB}
+#	$(RANLIB) ${P_BINARIES}/${FIL_LIB}
+
+# Dependencies
+nl_apply_fil.o : \
+  ../../include/pfs.h ../../include/pfs_utils.h ../../include/ardp.h \
+  ../../include/pfs_threads.h \
+  ../../include/list_macros.h \
+  ../../include/../lib/ardp/flocks.h ../../include/implicit_fixes.h \
+  ../../include/pmachine.h 

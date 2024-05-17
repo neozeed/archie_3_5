@@ -1,0 +1,125 @@
+.\" Copyright (c) 1992, 1994, 1996 Bunyip Information Systems Inc.
+.\" All rights reserved.  
+.\"	
+.\" Archie 3.5
+.\" August 1996
+.\"	
+.\"	@(#)db_build.n	
+.\"
+.TH DB_BUILD N "August 1996"
+
+.SH NAME
+.B db_build
+\- build the strings index file.
+
+.SH SYNOPSIS
+.B db_build 
+[
+.BI \-k " <maxsize>"
+] [ 
+.BI \-d " <database>"
+] [ 
+.B \-f
+] [ 
+.BI \-t " <tmp-dir>"
+] [ 
+.BI \-M " <dir>"
+] [
+.BI \-h " <dir>"
+] [ 
+.B \-v
+] [ 
+.B \-l
+] [
+.BI \-L " <logfile>"
+]
+
+.SH DESCRIPTION
+.B db_build 
+builds the strings index file,
+.BR Stridx.Index .
+The index file allows faster searching in the strings database.  The
+file
+.B Stridx.Split
+contains the size of the initial segment of
+.B Stridx.Strings
+that is currently indexed.  If
+.B Stridx.Strings
+has grown much larger than the value in
+.BR Stridx.Split ,
+it is recommended that
+.B db_build
+be run, to speed up the searching.
+
+.B db_build
+will usually take a long time to build an index.  The time required
+to build the index grows with the size of the
+.B Stridx.Strings
+file.
+
+.SH OPTIONS
+.TP
+.BI \-k " <maxsize>"
+The approximate, maximum amount of memory to use while building the index.
+The value is specified in kilobytes (1024 bytes).
+.TP
+.BI \-f
+Force the building of the index.  By default,
+.B db_build
+checks the sizes of the
+.B Stridx.*
+files to decide whether or not to rebuild the index.
+.TP
+.BI \-M " <dir>"
+The name of the master Archie database directory. If not specified, the
+program looks in the directory
+.BR ~archie/db ,
+then
+.BR ./db .
+.TP
+.BI \-d " <database>"
+The catalog for which to build the index,
+.BR Stridx.Strings .
+By default the program will examine all available catalogs listed in
+.BR ~archie/etc/catalogs.cf .
+.TP
+.BI \-t " <tmp-dir>"
+The name of the temporary directory where the build will be performed.
+.TP
+.BI \-h " <dir>"
+The name of the Archie host database directory. If not specified, the program
+will first try
+.BR ~archie/db/host_db ,
+then
+.BR ./host_db .
+.TP
+.BI \-v
+Verbose.  Print messages indicating what the program is doing.
+.TP
+.BI \-l
+Write messages to the default log file,
+.BR ~archie/logs/archie.log .
+The location of the log file can be overridden with the
+.B \-L 
+option.  By default, messages are written to
+.IR stderr .
+.TP
+.BI \-L " <logfile>"
+The name of the file to be used for logging messages.  Note that debugging
+information is also written to the log file.  The
+.B \-l 
+option must also be specified.
+
+.SH FILES
+~archie/db/\fI<db-name>\fP/Stridx.*
+
+.SH SEE ALSO
+.BR db_stats (n)
+
+.SH AUTHOR
+Bunyip Information Systems.
+.br
+Montr\o"\'e"al, Qu\o"\'e"bec, Canada
+.sp
+Archie is a registered trademark of Bunyip Information Systems Inc., Canada,
+1990.

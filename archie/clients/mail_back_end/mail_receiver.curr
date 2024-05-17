@@ -1,0 +1,101 @@
+#!/bin/sh -u
+#
+# We handle the output, from the telnet and e-mail clients, that is to
+# be mailed to the user.
+#
+
+do_trap ()
+{
+  echo "${prog}: caught trap!" 1>&2
+  failure
+}
+
+failure ()
+{
+  echo "${prog}: cleaning up and exiting." 1>&2
+  rm -f $info $mhead $data $part.*
+  exit 1
+}
+
+# ----------------- Configure ----------------------
+
+#
+# The path must include:
+#
+#   - your mailer ($mailcmd) (e.g. /usr/lib/sendmail)
+#   - any compression programs ($compress) (e.g. /usr/ucb/compress)
+#   - any encoding programs ($encode) (e.g. /usr/bin/uuencode)
+#   - sed
+#   - cat
+#   - split_file  (comes with archie)
+#   - echo
+#   - wc
+#   - expr
+#   - grep
+#   - rm
+
+PATH=/usr/bin:/usr/ucb:/usr/lib:bin
+#PATH=/usr/bin:/usr/ucb:/usr/lib:/archie/src/3.0/telnet-client/archie-client/mail_back_end
+
+tmp=/tmp
+# Must use quotes
+mailcmd="sendmail -t"
+
+# --------------- End Configure --------------------
+
+
+info=$tmp/Info$$
+mhead=$tmp/Head$$
+data=$tmp/Data$$
+part=$tmp/Part$$
+
+prog=`basename $0`
+umask 077
+trap do_trap 1 2 3 15
+
+if sed -e "/@Begin/,/@MailHeader/w $info" -e "/@MailHeader/,/@End/w $mhead" \
+       -e '/@Begin/,/@End/d' > $data ; then
+  :
+else
+  echo "${prog}: failed to extract info and mail headers." 1>&2
+  failure
+fi
+
+if acmd=`sed -n 's/Command: //p' < $info`         && \
+   compress=`sed -n 's/Compress: //p' < $info`    && \
+   encode=`sed -n 's/Encode: //p' < $info`        && \
+   ms_size=`sed -n 's/MaxSplitSize: //p' < $info` ; then
+  :
+else
+  echo "${prog}: failed to extract variables from info header." 1>&2
+  failure
+fi
+
+if [ "$compress" = "none" ] ; then
+  compress=cat
+fi
+
+# uuencode _requires_ an argument; pain in the butt
+#
+case $encode in
+  none) encode=cat ;;
+  uuencode) encode="uuencode archie-output" ;;
+  *) encode=cat ;;
+esac
+
+if $compress < $data | $encode | split_file -s $ms_size -f $part ; then
+  :
+else
+  echo "${prog}: compress, encode, split_file pipeline failed." 1>&2
+  failure
+fi
+
+nparts=`echo $part.* | wc -w | sed 's/[ 	][ 	]*//g'`
+for f in $part.* ; do
+  pnum=`expr $f : '.*\.\(.*\)$'`
+  (grep -v '^@' $mhead ; \
+   echo "Subject: archie [$acmd] part $pnum of $nparts" ; \
+   echo "" ; cat $f) | $mailcmd
+done
+rm -f $info $mhead $data $part.*
+exit 0

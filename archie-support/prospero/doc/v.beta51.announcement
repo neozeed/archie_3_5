@@ -1,0 +1,34 @@
+A Beta release of version 5.1 of the Prospero file system is now
+available by anonymous FTP from PROSPERO.ISI.EDU in the file
+pub/prospero/prospero.tar.Z.  It can also be obtained through Prospero
+itself from /releases/prospero/prospero.tar.Z
+
+A special stripped-down version of the Prospero server is now
+available, for sites that want to publish their anonymous FTP archive
+areas through Prospero and don't want to worry about the full gamut of
+configuration options.  This can be retrieved by anonymous FTP from
+PROSPERO.ISI.EDU in the file pub/prospero/prospero.ftp-only.tar.Z or
+through Prospero itself from /releases/prospero/prospero.ftp-only.tar.Z
+
+This release must be compiled with an ANSI C compiler.
+
+Since Alpha 5.0, there have been the following substantial changes of
+general interest.  See the release notes (in the top-level README file
+in the distribution) for a full list of changes:
+
+The user-level name format has been enhanced.  Special characters in
+user-level names ('#', ':', '/', '(', ')', and now '\') can be quoted
+by preceding them with a backslash ('\').  This change will be useful
+as more new databases with unusual names are integrated into the
+propero naming network.  Library routines have been added to help in
+manipulating the new name format.
+
+The code sending names across the network has been improved; Spaces in
+file names sent across the network still occasionally caused problems
+in the Alpha 5.0 release; they no longer do in Beta 5.1.
+
+A new LOCAL access method has been added.  Along with it is a new
+definition in pserver.h called SHARED_PREFIXES.  This definition,
+among other things, makes it very easy to retrieve files through NFS
+on systems that run an automount demon.
+

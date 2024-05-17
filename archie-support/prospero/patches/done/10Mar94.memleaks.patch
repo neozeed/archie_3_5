@@ -1,0 +1,63 @@
+diff -b -r -c -N 10Mar94.all/lib/psrv/wais_gw/inface.c 10Mar94+/lib/psrv/wais_gw/inface.c
+*** 10Mar94.all/lib/psrv/wais_gw/inface.c	Tue Apr 26 15:37:17 1994
+--- 10Mar94+/lib/psrv/wais_gw/inface.c	Tue Apr 26 18:21:42 1994
+***************
+*** 861,866 ****
+--- 861,867 ----
+  int
+  waisRetrieveFileByHsoname(char *local,char *hsoname)
+  {
++         any *DocumentId = NULL;
+  	char *host = NULL;
+  	char *port = NULL;
+  	char *type = NULL;
+***************
+*** 875,884 ****
+  			"Invalid WAIS hsoname: %s", hsoname);
+  		RETURN(-1);
+  	}
+  	RETURN(waisRetrieveFile(host,port,database,
+! 		un_urlascii(query),type,0,local));
+  
+  cleanup:
+  	stfree(host);
+  	stfree(port);
+  	stfree(type);
+--- 876,890 ----
+  			"Invalid WAIS hsoname: %s", hsoname);
+  		RETURN(-1);
+  	}
++ 	DocumentId = un_urlascii(query);
+  	RETURN(waisRetrieveFile(host,port,database,
+! 		DocumentId,type,0,local));
+  
+  cleanup:
++ 	if (DocumentId) {
++ 	  stfree(DocumentId->bytes);
++ 	  free(DocumentId);
++ 	}
+  	stfree(host);
+  	stfree(port);
+  	stfree(type);
+diff -b -r -c -N 10Mar94.all/lib/psrv/wais_gw/wais_gw_dsdb.c 10Mar94+/lib/psrv/wais_gw/wais_gw_dsdb.c
+*** 10Mar94.all/lib/psrv/wais_gw/wais_gw_dsdb.c	Fri Mar 11 05:31:43 1994
+--- 10Mar94+/lib/psrv/wais_gw/wais_gw_dsdb.c	Tue Apr 26 18:30:59 1994
+***************
+*** 298,305 ****
+  	} else {
+  	APPEND_ITEM(vl,head);
+  	}
+-     }
+      stfree(str);
+      return(head);
+  }
+  
+--- 298,305 ----
+  	} else {
+  	APPEND_ITEM(vl,head);
+  	}
+  	stfree(str);
++     } /*for*/
+      return(head);
+  }
+  

@@ -1,0 +1,41 @@
+The more common entry appears first if multiple rights allow an
+operation.  The operation identifier appears second.
+
+Object  File  Directory*   Link*   Meaning
+  A      A        A         Aa     Administer ACL
+  VYA    VYA      VYA       VvAa   View ACL
+                  L         Ll     List link
+  Rg     RG       RQ        RrQ    Read link, get attribute or file
+  Wu     Ww       WM        WmM    Modify attribute, data, links
+  DzWu            DKWM      DdKWMm Delete link or attribute
+  EiWu   EeWw     EIWM             Insert attributes or links, append (extend)
+  >)     >)       >)        >]     Add rights (that follow the symbol)
+  <(     <(       <(        <[     Remove rights (that follow the symbol)
+
+Note that there used to be a B right, which you should consider as
+equivalent to A, but you should avoid using it.
+
+The following only appear on the server maintenance ACL
+
+  S       Restart server
+  T       Terminate server
+  U       Update system information
+  P       Administer passwords
+  p P     Add new password entry
+
+A "-" sign in an ACL entry means that the specified rights are
+explicitly denied.  
+
+* A small letter on a directory ACL means that this right applies by
+  default for links in the directory that do not specify their own
+  ACL or that include the directory ACL.  A capital letter on a link
+  ACL is ignored.
+
+** When restrictions are supported, they can be used to restrict the
+   specific attributes to which a right applies, or to restrict the
+   interpretation of an ACL entry to only the Object, File, or Directory,
+   or link. 
+
+Note that OBJECT, FILE, and DIRECTORY ACLs are stored in the same
+place, and share the same access control list (well, directory is
+different for now, but will eventually be merged).

@@ -1,0 +1,18 @@
+/Makefile.post/2.1/Mon Sep 23 02:26:32 1996//
+/Makefile.pre/2.2/Fri Dec  6 20:33:17 1996//
+/charset.c/2.0/Tue Aug 20 22:54:01 1996//
+/charset.h/2.0/Tue Aug 20 22:54:02 1996//
+/do_parse.c/2.2/Mon Apr 13 15:10:14 1998//
+/excerpt.c/2.2/Thu Nov 28 17:05:40 1996//
+/keywords.c/2.5/Mon Apr 13 15:25:42 1998//
+/lang_parsers.c/2.0/Tue Aug 20 22:54:05 1996//
+/lang_parsers.h/2.0/Tue Aug 20 22:54:06 1996//
+/parse.c/2.2/Thu Nov 14 03:48:32 1996//
+/parse.h/2.1/Tue Oct 15 03:28:10 1996//
+/recurse.c/2.5/Mon Apr 13 15:26:15 1998//
+/stem.c/2.0/Tue Aug 20 22:54:09 1996//
+/stoplist/2.0/Tue Aug 20 22:54:10 1996//
+/stoplist.c/2.0/Tue Aug 20 22:54:10 1996//
+D/AIX-2////
+D/SunOS-4.1.4////
+D/SunOS-5.4////

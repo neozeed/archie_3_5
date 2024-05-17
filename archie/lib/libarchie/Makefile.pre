@@ -1,0 +1,50 @@
+#
+# libarchie module.
+#
+
+#MOD_CFLAGS = -pipe
+MOD_DEBUG  = -g3
+MOD_INCS   = -I$(INCLUDE_MODULE) -I$(PROSPERO_ROOT)/include -I$(STARTDB_MODULE)
+MOD_WARN   = -Wall -Wtraditional -Wshadow -Wpointer-arith -Wcast-align \
+             -Wnested-externs
+
+
+include $(ARCHIE_ROOT)/Makefile.pre
+
+
+SRCS = \
+        archie_dbm.c     \
+        archie_dns.c     \
+        archie_inet.c    \
+        archie_mail.c    \
+        archie_strings.c \
+        archie_xdr.c     \
+        error.c          \
+        files.c          \
+        header.c         \
+				options.c				 \
+        lang_libarchie.c \
+        master.c         \
+				site_index.c		 \
+				stubs.c          \
+        times.c          \
+        version.c
+        
+OBJS = \
+        archie_dbm.o     \
+        archie_dns.o     \
+        archie_inet.o    \
+        archie_mail.o    \
+        archie_strings.o \
+        archie_xdr.o     \
+        error.o          \
+        files.o          \
+        header.o         \
+ 				options.o				 \
+        lang_libarchie.o \
+        master.o         \
+				site_index.o		 \
+        stubs.o          \
+        times.o          \
+        version.o
+

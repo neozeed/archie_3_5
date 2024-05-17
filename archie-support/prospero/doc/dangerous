@@ -1,0 +1,70 @@
+As always .... this code contains all kind of bad practices, or at least
+things that I think are bad practices.  On the prinicple of ... "If it 
+aint broke, dont fix it" they shouldnt neccessarily get changed now. 
+But here are some things to watch for and/or change as you encounter them!
+
+Please feel free to add bad practices from my code to here :-)   Mitra
+
+General bad principles:
+------------------------
+
+Declaring external functions explicitly, rather than via header files.
+This causes problems when definitions change, since the linker wont spot
+the errors. - Mitra
+
+Ditto for global variables such as errno (see below) - Mitra
+
+Defining standard functions that dont appear on your implementation 
+without ifdef's or comments. Few, if any, linkers will spot the 
+redefinition, and coders will tear their hair out trying to figure out
+why the system routine is behaving the way the man page says. 
+(e.g. syserrstr) - Mitra
+
+Using #define's where enums could be used - this produces identical code,
+but some compilers produce warnings when enums are used inappropriately,
+and most debuggers (e.g. gdb) can produce symbols rather than numbers.
+- Mitra
+
+It would be good to split pmachine.h up, Some of it is 
+obvious machine dependant stuff, other stuff is fixes for broken (or
+at least bent) header files on some systems.  These could usefully
+be in seperate files, removing the dependancy on pmachine.h for many
+files, and removing the requirement to include all the corrected
+header files for every file needing any one of them.   - Mitra
+
+Notes from changes which probably couldnt have been forseen.
+-----------------------------------------------------------
+error strings: 
+errno is a macro on Solaris, however it was declared as an "extern int" 
+all over the place
+
+Standards 
+----------
+These are some ideas for how we could help integrate Prospero into a standards based environment,.
+
+URL's:  
+
+Our access methods are basically URL's and we already handle more than
+one per link.  It might be good to bring them more fully into line with the URL standard, either by ensuring we keep exactly the same peices of ingformation on each type of URL, or even better to use the URL string exactly.
+I'm not sure how we would transition to this gracefully, maybe by adding a new URL attribute?
+
+URN's: These arent really standard enough for us to track yet, but its
+worth considering, especially since we have things like Magic No's
+which perform some of the same functions.
+
+
+Gateways: The current way we do gateways leaves a lot to be
+desired. In particular, the name of the object is something like
+GOPHER-GW//xxx.yyy/11/fred NOT red.path.net/gopher-gw/xxx.yyy/11/fred
+which is how we access it.  The challenge is to allow the client to
+use the most appropriate gateway, while allowing hte clients to remain
+simple .  One alternative is to register a subdomain for gateways, and
+allow either the client, or the client's local DNBS to override the
+address with a more appropriate gateway.
+
+Types: OBJECT-ITNERPRETATION is almost but not quite Mime types, or as
+they are now called iana-types, we should seriously consider migrating
+entirely over to these, as gopher has done, and wais is going
+to. There are far to many flakey translations going on through
+gateways!
+

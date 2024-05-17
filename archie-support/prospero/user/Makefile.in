@@ -1,0 +1,254 @@
+SOURCEBASE=..
+include $(SOURCEBASE)/Makefile.config
+
+CFILES	= \
+	p__vfsetup.c \
+	vls.c \
+	set_atr.c \
+	pstatus.c \
+	list_acl.c \
+	set_acl.c \
+	als.c \
+	aq_query.c \
+	cfp.c \
+	vcopydir.c \
+	vget.c \
+	gen_vfsetup.c \
+	newpsite.c \
+	newvs.c \
+	archie.c \
+	pfs.c \
+	padmin.c \
+	psession.c \
+	p__vcd.c \
+	vln.c \
+	vmkdir.c \
+	vrm.c
+
+OBJECTS	= \
+	p__vfsetup.o \
+	pstatus.o \
+	vls.o \
+	set_atr.o \
+	als.o \
+	aq_query.o \
+	cfp.o \
+	list_acl.o \
+	vcopydir.o \
+	vget.o \
+	gen_vfsetup.o \
+	newpsite.o \
+	newvs.o \
+	archie.o \
+	pfs.o \
+	padmin.o \
+	psession.o \
+	p__vcd.o \
+	set_acl.o \
+	vln.o \
+	vmkdir.o \
+	vrm.o
+
+
+# Documentation for this at the top of Makefile.boilerplate
+
+PROGS	= p__vfsetup vls set_atr pstatus list_acl set_acl p__vcd padmin \
+	vln vmkdir vrm pfs vget psession als 
+
+# 'archie' is also installed by default, but it has its own special rules 
+# for making.
+
+SPECIAL_PROGS = archie
+
+DATA_FILE_TARGETS = vfsetup.source vfsetup.profil
+
+# "newvs" and "newpsite" are only of interest 
+# to site administrators; "cfp" and "vcopydir" are experimental.
+
+OTHERTARGETS = newvs newpsite cfp vcopydir
+
+SPECIAL_OTHERTARGETS =  gen_vfsetup # gen_vfsetup is actually used internally
+
+SUBDIRS = vcache menu
+
+# MORE_USER_PROGS is a subset of OTHERTARGETS and SPECIAL_OTHERTARGETS; these are also made by default.
+
+all:	$(PROGS) $(SPECIAL_PROGS) $(DATA_FILE_TARGETS) $(MORE_USER_PROGS) all_subdirs
+
+install:
+	-for i in $(PROGS) $(SPECIAL_PROGS) $(MORE_USER_PROGS); do \
+	    $(INSTALL) -c -m 755 -o $(OWNER) -g $(GROUP) $$(i) $(P_BINARIES)/$$(i)$(GENERATIONSUFFIX) ;\
+	    $(GENERATION) $(P_BINARIES)/$$(i) ;\
+	done 
+	-rm -f $(P_BINARIES)/pkl
+	-ln $(P_BINARIES)/padmin $(P_BINARIES)/pkl
+	-rm -f $(P_BINARIES)/ppw
+	-ln $(P_BINARIES)/psession $(P_BINARIES)/ppw
+	-for i in $(DATA_FILE_TARGETS)  ; do \
+	    $(INSTALL) -m 644 -o $(OWNER) -g $(GROUP) $$(i) $(P_BINARIES)/$$(i)$(GENERATIONSUFFIX) ;\
+	    $(GENERATION) $(P_BINARIES)/$$(i) ;\
+	done
+	$(SUBDIRS_MAKE_START) install $(SUBDIRS_MAKE_END) 
+
+$(PROGS) $(OTHERTARGETS): $(PFS_LIBS_DEPENDENCIES)
+	$(CC) $(CFLAGS) -o $@ $@.o $(PFS_LIBS) $(ARCHIE_ROOT)/lib/libpsarchie/libpsarchie.a
+
+archie: aq_query.o archie.o $(PFS_LIBS_DEPENDENCIES) 
+	$(CC) $(CFLAGS) -o $@ $@.o aq_query.o $(PFS_LIBS) $(ARCHIE_ROOT)/lib/libpsarchie/libpsarchie.a
+
+vfsetup.source:	gen_vfsetup
+	./gen_vfsetup csh > vfsetup.source
+
+vfsetup.profil:	gen_vfsetup
+	./gen_vfsetup sh > vfsetup.profil
+
+gen_vfsetup:	gen_vfsetup.o 
+	$(CC) $(CFLAGS) -o gen_vfsetup gen_vfsetup.o
+
+# Hand-maintained DEPENDENCIES.  My script is not clever enough to produce
+# these in an automated fashion.
+
+als: als.o
+cfp: cfp.o
+list_acl: list_acl.o
+newpsite: newpsite.o
+newvs: newvs.o
+pfs: pfs.o
+padmin: padmin.o
+pstatus: pstatus.o
+set_acl: set_acl.o
+set_atr: set_atr.o
+p__vcd: p__vcd.o
+vcopydir: vcopydir.o
+p__vfsetup: p__vfsetup.o
+vget: vget.o
+vls: vls.o
+vln: vln.o
+vmkdir: vmkdir.o
+vrm: vrm.o
+psession: psession.o
+
+# Dependencies
+p__vfsetup.o : \
+  ../include/psite.h ../include/pfs.h ../include/pfs_utils.h ../include/ardp.h \
+  ../include/pfs_threads.h \
+  ../include/list_macros.h ../include/../lib/ardp/flocks.h \
+  ../include/implicit_fixes.h \
+  ../include/pmachine.h \
+  ../include/pcompat.h \
+  ../include/perrno.h 
+vls.o : \
+  ../include/pfs.h ../include/pfs_utils.h ../include/ardp.h ../include/pfs_threads.h \
+  ../include/list_macros.h \
+  ../include/../lib/ardp/flocks.h ../include/implicit_fixes.h \
+  ../include/pmachine.h \
+  ../include/perrno.h 
+set_atr.o : \
+  ../include/pfs.h ../include/pfs_utils.h ../include/ardp.h ../include/pfs_threads.h \
+  ../include/list_macros.h \
+  ../include/../lib/ardp/flocks.h ../include/implicit_fixes.h \
+  ../include/pmachine.h \
+  ../include/perrno.h 
+pstatus.o : \
+  ../include/pfs.h ../include/pfs_utils.h ../include/ardp.h \
+  ../include/pfs_threads.h \
+  ../include/list_macros.h \
+  ../include/../lib/ardp/flocks.h ../include/implicit_fixes.h \
+  ../include/pmachine.h \
+  ../include/perrno.h 
+list_acl.o : \
+  ../include/pfs.h ../include/pfs_utils.h ../include/ardp.h \
+  ../include/pfs_threads.h \
+  ../include/list_macros.h ../include/../lib/ardp/flocks.h ../include/implicit_fixes.h \
+  ../include/pmachine.h \
+  ../include/perrno.h 
+set_acl.o : \
+  ../include/pfs.h ../include/pfs_utils.h ../include/ardp.h \
+  ../include/pfs_threads.h \
+  ../include/list_macros.h ../include/../lib/ardp/flocks.h ../include/implicit_fixes.h \
+  ../include/pmachine.h \
+  ../include/perrno.h ../include/pprot.h 
+als.o : \
+  ../include/pfs.h ../include/pfs_utils.h \
+  ../include/ardp.h ../include/pfs_threads.h \
+  ../include/list_macros.h ../include/../lib/ardp/flocks.h \
+  ../include/implicit_fixes.h \
+  ../include/pmachine.h \
+  ../include/pcompat.h \
+  ../include/perrno.h 
+aq_query.o : \
+  ../include/ardp.h ../include/pfs_threads.h ../include/pfs_utils.h \
+  ../include/list_macros.h \
+  ../include/../lib/ardp/flocks.h ../include/pfs.h ../include/pmachine.h \
+  ../include/implicit_fixes.h \
+  ../include/perrno.h ../include/archie.h 
+vget.o : \
+  ../include/pfs.h ../include/pfs_utils.h \
+  ../include/ardp.h ../include/pfs_threads.h \
+  ../include/list_macros.h ../include/../lib/ardp/flocks.h \
+  ../include/implicit_fixes.h \
+  ../include/pmachine.h \
+  ../include/psite.h ../include/perrno.h ../include/pcompat.h 
+gen_vfsetup.o : \
+  ../include/psite.h ../include/pmachine.h 
+newvs.o : ../include/psite.h \
+  ../include/pfs.h ../include/pfs_utils.h ../include/ardp.h ../include/pfs_threads.h \
+  ../include/list_macros.h \
+  ../include/../lib/ardp/flocks.h ../include/implicit_fixes.h \
+  ../include/pmachine.h \
+  ../include/perrno.h 
+archie.o : \
+  ../include/ardp.h ../include/pfs_threads.h ../include/pfs_utils.h \
+  ../include/list_macros.h \
+  ../include/../lib/ardp/flocks.h ../include/pfs.h ../include/pmachine.h \
+  ../include/implicit_fixes.h \
+  ../include/perrno.h ../include/archie.h 
+pfs.o : \
+  ../include/pfs.h ../include/pfs_utils.h ../include/ardp.h ../include/pfs_threads.h \
+  ../include/list_macros.h \
+  ../include/../lib/ardp/flocks.h ../include/implicit_fixes.h \
+  ../include/pmachine.h \
+  ../include/pcompat.h 
+padmin.o : \
+  ../include/pmachine.h \
+  ../include/ardp.h \
+  ../include/pfs_threads.h ../include/pfs_utils.h \
+  ../include/list_macros.h ../include/../lib/ardp/flocks.h \
+  ../include/pfs.h \
+  ../include/implicit_fixes.h \
+  ../include/perrno.h ../include/pprot.h \
+  ../include/pcompat.h 
+psession.o : \
+  ../include/posix_signal.h \
+  ../include/pfs.h ../include/pfs_utils.h ../include/ardp.h \
+  ../include/pfs_threads.h \
+  ../include/list_macros.h \
+  ../include/../lib/ardp/flocks.h ../include/implicit_fixes.h \
+  ../include/pmachine.h \
+  ../include/pprot.h \
+  ../include/perrno.h 
+p__vcd.o : \
+  ../include/pfs.h ../include/pfs_utils.h ../include/ardp.h ../include/pfs_threads.h \
+  ../include/list_macros.h \
+  ../include/../lib/ardp/flocks.h ../include/implicit_fixes.h \
+  ../include/pmachine.h \
+  ../include/perrno.h 
+vln.o : \
+  ../include/ardp.h ../include/pfs_threads.h ../include/pfs_utils.h \
+  ../include/list_macros.h ../include/../lib/ardp/flocks.h \
+  ../include/pfs.h ../include/pmachine.h \
+  ../include/implicit_fixes.h \
+  ../include/perrno.h 
+vmkdir.o : \
+  ../include/pfs.h ../include/pfs_utils.h ../include/ardp.h \
+  ../include/pfs_threads.h \
+  ../include/list_macros.h \
+  ../include/../lib/ardp/flocks.h ../include/implicit_fixes.h \
+  ../include/pmachine.h \
+  ../include/perrno.h 
+vrm.o : \
+  ../include/perrno.h ../include/pfs_threads.h ../include/pfs_utils.h \
+  ../include/pfs.h ../include/ardp.h \
+  ../include/list_macros.h \
+  ../include/../lib/ardp/flocks.h ../include/implicit_fixes.h \
+  ../include/pmachine.h 

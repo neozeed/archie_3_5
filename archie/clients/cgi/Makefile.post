@@ -1,0 +1,24 @@
+#
+# clients/cgi
+#
+
+all: $(EXES)
+
+
+include $(ARCHIE_ROOT)/Makefile.post
+
+
+cgi-client: \
+             $(ANONFTP_MODULE)/lib/$(SYSTYPE)/libanonftp.a \
+             $(LIBARCHIE_MODULE)/$(SYSTYPE)/libarchie.a \
+             $(ARCHSEARCH_MODULE)/$(SYSTYPE)/libarchsearch.a \
+             $(STRIDX_MODULE)/$(SYSTYPE)/libarchstridx.a \
+             $(HOSTDB_MODULE)/$(SYSTYPE)/libhostdb.a \
+             $(PATRIE_MODULE)/$(SYSTYPE)/libpatrie.a \
+             $(STARTDB_MODULE)/$(SYSTYPE)/libstartdb.a \
+             $(WEBINDEX_MODULE)/lib/$(SYSTYPE)/libwebindex.a \
+             $(OBJS)
+	${CC} ${CFLAGS} -o $@ $(OBJS) $(MOD_LIBS) $(SYS_LIBS)
+
+clean:
+	rm -f *.o $(EXES) core

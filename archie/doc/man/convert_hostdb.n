@@ -1,0 +1,53 @@
+.\" Copyright (c) 1992, 1994, 1996 Bunyip Information Systems Inc.
+.\" All rights reserved.  
+.\"	
+.\" Archie 3.5
+.\" August 1996
+.\"	
+.\"	@(#)convert_hostdb.n	
+.\"
+.TH CONVERT_HOSTDB N "August 1996"
+
+.SH NAME
+.B convert_hostdb
+\- convert the host_db database from the old Archie-3.2 format to the new
+Archie-3.5 format
+
+.SH SYNOPSIS
+.B convert_hostdb 
+[  
+.BI \-M " <dir>"
+] [
+.BI \-h " <dir>"
+]
+
+.SH DESCRIPTION
+.B convert_hostdb 
+creates a backup of the old host_db database, then it creates a database, in
+the new format, suitable for Archie-3.5 systems.
+
+.SH OPTIONS
+.TP
+.BI \-M " <dir>"
+The name of the master Archie database directory. If not specified, the
+program looks in the directory
+.BR ~archie/db ,
+then
+.BR ./db .
+.TP
+.BI \-h " <dir>"
+The name of the Archie host database directory. If not specifed, the program
+will first try
+.BR ~archie/db/host_db ,
+then
+.BR ./host_db .
+.PP
+.SH FILES
+~archie/db/host_db/*
+.SH AUTHOR
+Bunyip Information Systems.
+.br
+Montr\o"\'e"al, Qu\o"\'e"bec, Canada
+.sp
+Archie is a registered trademark of Bunyip Information Systems Inc., Canada,
+1990.

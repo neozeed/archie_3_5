@@ -1,0 +1,392 @@
+diff -b -r -c -N 10Mar94.all/include/pserver.h 10Mar94+/include/pserver.h
+*** 10Mar94.all/include/pserver.h	Tue Apr 26 15:38:11 1994
+--- 10Mar94+/include/pserver.h	Sun Apr 24 17:14:56 1994
+***************
+*** 515,518 ****
+--- 515,526 ----
+   * #define PSRV_CACHE_NATIVE
+   */
+  
++ 
++ /*
++  * If DNSCACHE_MAX is defined, then dirsrv will cache up to that many 
++  * DNS addresses. "undef" this for no caching at all.
++  *
++  */
++ 
++ #define DNSCACHE_MAX 300
+  
+diff -b -r -c -N 10Mar94.all/lib/ardp/ardp_mutexes.c 10Mar94+/lib/ardp/ardp_mutexes.c
+*** 10Mar94.all/lib/ardp/ardp_mutexes.c	Tue Apr 26 15:36:22 1994
+--- 10Mar94+/lib/ardp/ardp_mutexes.c	Tue Apr 26 01:51:17 1994
+***************
+*** 18,23 ****
+--- 18,24 ----
+  p_th_mutex p_th_mutexGETHOSTBYNAME; /* declared in pfs_mutexes.c */
+  p_th_mutex p_th_mutexARDP_SELFNUM; /* declared in pfs_mutexes.c */
+  p_th_mutex p_th_mutexDNSCACHE; /* declared in pfs_mutexes.c */
++ p_th_mutex p_th_mutexALLDNSCACHE; /* declared in pfs_mutexes.c */
+  p_th_mutex p_th_mutexFILES; /* declared on p__self_num.c */
+  p_th_mutex p_th_mutexFILELOCK; /* declared in flock.c */
+  #endif
+***************
+*** 35,40 ****
+--- 36,42 ----
+      p_th_mutex_init(p_th_mutexARDP_RQALLOC);
+      p_th_mutex_init(p_th_mutexARDP_SELFNUM);
+      p_th_mutex_init(p_th_mutexDNSCACHE);
++     p_th_mutex_init(p_th_mutexALLDNSCACHE);
+      p_th_mutex_init(p_th_mutexFILES);
+      p_th_mutex_init(p_th_mutexFILELOCK);
+  #endif
+***************
+*** 54,59 ****
+--- 56,62 ----
+      DIAGMUTEX(ARDP_RQALLOC,"ARDP_RQALLOC");
+      DIAGMUTEX(ARDP_SELFNUM,"ARDP_SELFNUM");
+      DIAGMUTEX(DNSCACHE,"DNSCACHE");
++     DIAGMUTEX(ALLDNSCACHE,"ALLDNSCACHE");
+      DIAGMUTEX(FILES,"FILES");
+      DIAGMUTEX(FILELOCK,"FILELOCK");
+  #endif
+diff -b -r -c -N 10Mar94.all/lib/ardp/dnscache_alloc.c 10Mar94+/lib/ardp/dnscache_alloc.c
+*** 10Mar94.all/lib/ardp/dnscache_alloc.c	Fri Mar 11 05:30:24 1994
+--- 10Mar94+/lib/ardp/dnscache_alloc.c	Thu Apr 21 21:39:41 1994
+***************
+*** 32,37 ****
+--- 32,38 ----
+      
+      TH_STRUC_ALLOC(dnscache,DNSCACHE,acache);
+      acache->name = NULL;
++     acache->usecount = 0;
+      bzero(&acache->sockad,sizeof(acache->sockad));
+      return(acache);
+  }
+diff -b -r -c -N 10Mar94.all/lib/ardp/dnscache_alloc.h 10Mar94+/lib/ardp/dnscache_alloc.h
+*** 10Mar94.all/lib/ardp/dnscache_alloc.h	Fri Mar 11 05:30:25 1994
+--- 10Mar94+/lib/ardp/dnscache_alloc.h	Tue Apr 26 01:51:18 1994
+***************
+*** 11,17 ****
+  #endif
+  	char	*name;
+  	struct	sockaddr_in sockad;
+! 
+  	struct	dnscache	*next;
+  	struct	dnscache	*previous;
+  };
+--- 11,17 ----
+  #endif
+  	char	*name;
+  	struct	sockaddr_in sockad;
+! 	int     usecount;       /* For determining size of cache */
+  	struct	dnscache	*next;
+  	struct	dnscache	*previous;
+  };
+***************
+*** 26,31 ****
+--- 26,32 ----
+  
+  #ifdef PFS_THREADS
+  extern p_th_mutex p_th_mutexDNSCACHE;
++ extern p_th_mutex p_th_mutexALLDNSCACHE;
+  #endif
+  
+  #endif /*dnscache_alloc_h*/
+diff -b -r -c -N 10Mar94.all/lib/ardp/hostname2adr.c 10Mar94+/lib/ardp/hostname2adr.c
+*** 10Mar94.all/lib/ardp/hostname2adr.c	Tue Apr 26 15:36:31 1994
+--- 10Mar94+/lib/ardp/hostname2adr.c	Tue Apr 26 01:51:21 1994
+***************
+*** 15,21 ****
+  #include <netinet/in.h>         /* for struct sockaddr_in */
+  #include <pmachine.h>		/* for bzero */
+  #include <string.h>		/* for strcasecmp */
+! 
+  #ifdef PROSPERO
+  #include <pcompat.h>
+  #else /* not PROSPERO */
+--- 15,24 ----
+  #include <netinet/in.h>         /* for struct sockaddr_in */
+  #include <pmachine.h>		/* for bzero */
+  #include <string.h>		/* for strcasecmp */
+! #include <pserver.h>                /* For DNSCACHE_MAX */
+! #ifdef DNSCACHE_MAX
+! #include "dnscache_alloc.h"
+! #endif
+  #ifdef PROSPERO
+  #include <pcompat.h>
+  #else /* not PROSPERO */
+***************
+*** 49,63 ****
+   * It also converts numeric addresses appropriately.
+   */
+  /* If change this - uncomment/comment initialization in server/dirsrv.c */
+- #define CACHE_ARDP_HOSTNAME2ADDR
+  
+! #ifdef CACHE_ARDP_HOSTNAME2ADDR
+  #include "dnscache_alloc.h"
+  #include <mitra_macros.h>		/* FIND_FNCTN_LIST */
+  #include <string.h>			/* For strcmp */
+  
+- DNSCACHE	last_dnscache = NULL;
+  DNSCACHE	alldnscaches = NULL;
+  
+  void
+  sockaddr_copy(struct sockaddr_in *src, struct sockaddr_in *destn)
+--- 52,65 ----
+   * It also converts numeric addresses appropriately.
+   */
+  /* If change this - uncomment/comment initialization in server/dirsrv.c */
+  
+! #ifdef DNSCACHE_MAX
+  #include "dnscache_alloc.h"
+  #include <mitra_macros.h>		/* FIND_FNCTN_LIST */
+  #include <string.h>			/* For strcmp */
+  
+  DNSCACHE	alldnscaches = NULL;
++ int           alldnscache_count = 0;
+  
+  void
+  sockaddr_copy(struct sockaddr_in *src, struct sockaddr_in *destn)
+***************
+*** 65,71 ****
+  	/* Nothing in a sockaddr_in is a pointer */
+  	memcpy(destn, src, sizeof(struct sockaddr_in));
+  }
+! #endif /*CACHE_ARDP_HOSTNAME2ADDR*/
+  
+  /* Caching has been added, to this - take care that it does what you
+     want, I'm certainly open to changes if this isnt what we need.
+--- 67,73 ----
+  	/* Nothing in a sockaddr_in is a pointer */
+  	memcpy(destn, src, sizeof(struct sockaddr_in));
+  }
+! #endif /*DNSCACHE_MAX*/
+  
+  /* Caching has been added, to this - take care that it does what you
+     want, I'm certainly open to changes if this isnt what we need.
+***************
+*** 89,132 ****
+  void
+  ardp_hostname2addr_initcache()
+  {
+!     if (!alldnscaches) {
+! 	last_dnscache = dnscache_alloc();
+! 	last_dnscache->name=stcopy("NoThInG.CoM---");
+! 	APPEND_ITEM(last_dnscache,alldnscaches);
+      }
+  }
+  int
+  ardp_hostname2addr(const char *hostname, struct sockaddr_in *hostaddr)
+  {
+      struct hostent *hp;		/* Remote host we're connecting to. */
+!     
+  #ifdef PROSPERO
+      int DpfStmp;                /* for DISABLE_PFS_START() */
+  #endif
+! #ifdef CACHE_ARDP_HOSTNAME2ADDR
+! 	DNSCACHE	acache;
+  
+  	acache = alldnscaches;
+  	
+! 	p_th_mutex_lock(p_th_mutexDNSCACHE);
+  	/* Cant use TH_FIND_FNCTN_LIST because must retain lock */
+  	FIND_FNCTN_LIST(acache, name, hostname, stcaseequal);
+  	if(acache)  {
+  	    if (hostaddr) {
+  			/* Note is is pointless, but not harmfull to call again
+  		   	for same hostaddr - may just want to rerun*/
+  			sockaddr_copy(&(acache->sockad),hostaddr);
+  	    }
+! 	    p_th_mutex_unlock(p_th_mutexDNSCACHE); /* Also released below*/
+! 	    return ARDP_SUCCESS; 
+  	}
+! 	p_th_mutex_unlock(p_th_mutexDNSCACHE); /* Note also released above*/
+! 	if (!hostaddr){			/* Initializing cache */
+  		acache = dnscache_alloc(); /*locks DNSCACHE temporarily*/
+  		acache->name = stcopy(hostname);
+! 		hostaddr = &(acache->sockad);
+!     	} 
+! #endif /*CACHE_ARDP_HOSTNAME2ADDR*/
+  
+      DISABLE_PFS_START();        /* Turn off compatibility library if on */
+      p_th_mutex_lock(p_th_mutexGETHOSTBYNAME);
+--- 91,148 ----
+  void
+  ardp_hostname2addr_initcache()
+  {
+! }
+! 
+! static void
+! dnscache_clean()
+! {
+!       DNSCACHE    dc, nextdc;
+!        if (alldnscache_count > DNSCACHE_MAX) {
+! 	 p_th_mutex_lock(p_th_mutexALLDNSCACHE);
+! 	 for (dc = alldnscaches; dc ; dc = nextdc) {
+! 	   nextdc = dc->next;
+! 	   if (!(--dc->usecount)) {
+! 	     EXTRACT_ITEM(dc,alldnscaches);
+! 	     dnscache_free(dc);
+! 	     alldnscache_count--;
+! 	   }
+! 	 }
+! 	 p_th_mutex_unlock(p_th_mutexALLDNSCACHE);
+         }
+  }
++ 
+  int
+  ardp_hostname2addr(const char *hostname, struct sockaddr_in *hostaddr)
+  {
+      struct hostent *hp;		/* Remote host we're connecting to. */
+!     int      retval;		/* Value to return */
+! #define RETURN(rv) { retval = (rv); goto cleanup; }
+  #ifdef PROSPERO
+      int DpfStmp;                /* for DISABLE_PFS_START() */
+  #endif
+! #ifdef DNSCACHE_MAX
+! 	DNSCACHE	acache = NULL;
+  
+  	acache = alldnscaches;
+  	
+! 	p_th_mutex_lock(p_th_mutexALLDNSCACHE);
+  	/* Cant use TH_FIND_FNCTN_LIST because must retain lock */
+  	FIND_FNCTN_LIST(acache, name, hostname, stcaseequal);
+  	if(acache)  {
++ 	  acache->usecount++;
+  	    if (hostaddr) {
+  			/* Note is is pointless, but not harmfull to call again
+  		   	for same hostaddr - may just want to rerun*/
+  			sockaddr_copy(&(acache->sockad),hostaddr);
+  	    }
+! 	    p_th_mutex_unlock(p_th_mutexALLDNSCACHE); /* Also released below*/
+! 	    return(ARDP_SUCCESS); /* Dont free acache */
+  	}
+! 	p_th_mutex_unlock(p_th_mutexALLDNSCACHE); /* Note also released above*/
+      acache = dnscache_alloc(); /*locks DNSCACHE temporarily*/
+      acache->name = stcopy(hostname);
+!     if  (!hostaddr) { hostaddr = &(acache->sockad); }
+! #endif /*DNSCACHE_MAX*/
+  
+      DISABLE_PFS_START();        /* Turn off compatibility library if on */
+      p_th_mutex_lock(p_th_mutexGETHOSTBYNAME);
+***************
+*** 141,148 ****
+          hostaddr->sin_addr.s_addr = inet_addr(hostname);
+          if(hostaddr->sin_addr.s_addr == -1) {
+              p_clear_errors();       /* clear p_err_string if set. */
+!             return(perrno = ARDP_BAD_HOSTNAME);
+          }
+      }
+      bzero((char *) hostaddr, sizeof *hostaddr);
+      memcpy((char *)&hostaddr->sin_addr, hp->h_addr, hp->h_length);
+--- 157,165 ----
+          hostaddr->sin_addr.s_addr = inet_addr(hostname);
+          if(hostaddr->sin_addr.s_addr == -1) {
+              p_clear_errors();       /* clear p_err_string if set. */
+!             RETURN(perrno = ARDP_BAD_HOSTNAME);
+          }
++ 	RETURN(ARDP_SUCCESS);
+      }
+      bzero((char *) hostaddr, sizeof *hostaddr);
+      memcpy((char *)&hostaddr->sin_addr, hp->h_addr, hp->h_length);
+***************
+*** 150,164 ****
+      /* Don't unlock the mutex until we're no longer reading from hp. */
+      p_th_mutex_unlock(p_th_mutexGETHOSTBYNAME); /* Note can be unlocked above*/
+      /* Copy last result into cache */
+! #ifdef CACHE_ARDP_HOSTNAME2ADDR
+      if (alldnscaches == NULL)   
+  	ardp_hostname2addr_initcache();
+!     p_th_mutex_lock(p_th_mutexDNSCACHE);
+!     last_dnscache->name = stcopyr(hostname, last_dnscache->name);
+!     sockaddr_copy(hostaddr,&(last_dnscache->sockad));
+!     p_th_mutex_unlock(p_th_mutexDNSCACHE);
+! #endif /*CACHE_ARDP_HOSTNAME2ADDR*/
+!     return(ARDP_SUCCESS);
+  }
+  
+  /* Prototype needs to go into here, not just in pfs.h. */
+--- 167,191 ----
+      /* Don't unlock the mutex until we're no longer reading from hp. */
+      p_th_mutex_unlock(p_th_mutexGETHOSTBYNAME); /* Note can be unlocked above*/
+      /* Copy last result into cache */
+! #ifdef DNSCACHE_MAX
+      if (alldnscaches == NULL)   
+  	ardp_hostname2addr_initcache();
+!      sockaddr_copy(hostaddr,&(acache->sockad));
+!     /* Boost initially, to bias towards keeping recent*/
+!     acache->usecount = 5; 
+!     p_th_mutex_lock(p_th_mutexALLDNSCACHE);
+!     APPEND_ITEM(acache,alldnscaches);
+!     alldnscache_count++;
+!     p_th_mutex_unlock(p_th_mutexALLDNSCACHE);
+!     dnscache_clean();   /* Only does anything if cache too big */
+! #endif /*DNSCACHE_MAX*/
+!     return(ARDP_SUCCESS);	/* Dont free acache */
+! 
+!   cleanup:
+! #ifdef DNSCACHE_MAX
+!     if (acache) dnscache_free(acache);
+! #endif
+!     return(retval);
+  }
+  
+  /* Prototype needs to go into here, not just in pfs.h. */
+diff -b -r -c -N 10Mar94.all/lib/pfs/myhost.c 10Mar94+/lib/pfs/myhost.c
+*** 10Mar94.all/lib/pfs/myhost.c	Tue Apr 26 15:37:03 1994
+--- 10Mar94+/lib/pfs/myhost.c	Tue Apr 19 14:35:31 1994
+***************
+*** 94,105 ****
+              /* gethostbyname reads files, so we must disable pfs */
+  	p_th_mutex_lock(p_th_mutexGETHOSTBYNAME);
+              DISABLE_PFS(current_host = gethostbyname(myhname));
+- 	p_th_mutex_unlock(p_th_mutexGETHOSTBYNAME);
+              strcpy(myhname,current_host->h_name);
+              ucase(myhname);
+              
+             /* Save the address too */
+!            bcopy1(current_host->h_addr,&myhaddr);
+              ++initialized;
+  #ifdef P__MYHOST_MUTEX_AUTOINITIALIZATION
+  #ifdef PFS_THREADS
+--- 94,107 ----
+          /* gethostbyname reads files, so we must disable pfs */
+  	p_th_mutex_lock(p_th_mutexGETHOSTBYNAME);
+          DISABLE_PFS(current_host = gethostbyname(myhname));
+          strcpy(myhname,current_host->h_name);
+          ucase(myhname);
+  
+  	    /* Save the address too */    
+! 	    /* Huh - since when is the address 1 byte!! XXX */
+!            bcopy(current_host->h_addr,&myhaddr,4);
+! 	    /* Dont unlock GETHOSTBYNAME till data safely copied */
+! 	p_th_mutex_unlock(p_th_mutexGETHOSTBYNAME);
+              ++initialized;
+  #ifdef P__MYHOST_MUTEX_AUTOINITIALIZATION
+  #ifdef PFS_THREADS
+diff -b -r -c -N 10Mar94.all/server/dirsrv.c 10Mar94+/server/dirsrv.c
+*** 10Mar94.all/server/dirsrv.c	Tue Apr 26 15:37:57 1994
+--- 10Mar94+/server/dirsrv.c	Sun Apr 24 17:19:53 1994
+***************
+*** 79,81 ****
+  #ifdef PSRV_GOPHER_GW
+  extern int glink_count, glink_max;
+  #endif
+--- 80,83 ----
++ extern int dnscache_count, dnscache_max, alldnscache_count;
+  #ifdef PSRV_GOPHER_GW
+  extern int glink_count, glink_max;
+  #endif
+***************
+*** 1069,1071 ****
+              replyf(req," Memory: %d(%d)vlink %d(%d)pattrib %d(%d)acl \
+  %d(%d)pfile %d(%d)rreq %d(%d)ptext\n",
+                     vlink_count,vlink_max,pattrib_count,pattrib_max,
+--- 1070,1076 ----
++ #ifdef DNSCACHE_MAX
++ 	    replyf(req,"    DNS: %d(%d) caching %d(%d)\n",
++ 		   dnscache_count,dnscache_max,alldnscache_count,DNSCACHE_MAX);
++ #endif
+              replyf(req," Memory: %d(%d)vlink %d(%d)pattrib %d(%d)acl \
+  %d(%d)pfile %d(%d)rreq %d(%d)ptext\n",
+                     vlink_count,vlink_max,pattrib_count,pattrib_max,

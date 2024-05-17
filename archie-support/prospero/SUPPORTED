@@ -1,0 +1,32 @@
+Supported: This release has been tested on:
+
+ Sun3s and Sun4s running SunOS version 4.1.1 -- No known problems
+
+ HP 9000 series 700 workstations running HPUX version 8.0.5
+        -- Clients and server have been tested
+        -- Known Problem: the directory reading parts of the
+           compatability library do not work yet.  You should not
+           install it on such machines.
+
+ MIPS little-endian processor running Ultrix Version 4.2A -- No known problems
+
+ We have received patches for the server for the IBM RS6000 under AIX
+ and merged them in, but do not have access to one of these machines
+ in order to test them ourselves.  The compatability library will not
+ compile under AIX.
+
+ Although SOLARIS is defined in the file include/pmachine.h as a 
+ supported option, , we have not completed merging in the Solaris changes we 
+ were sent.  Those will be in a patchlevel coming in a few days.
+ 
+
+Known Compilation Warnings:
+
+ * Under some versions of ULTRIX, spurious compilation warnings are
+   generated about NULL being redefined.  If you get these messages,
+   you can add the flag  
+	-DCONFLICT_BETWEEN_DEFINITION_OF_NULL_IN_SYS_PARAM_H_AND_STDDEF_H
+   to the definition of MACHDEF in the top-level Makefile.  This will
+   eliminate most (although not all) of the warnings.  These warnings
+   can be safely disregarded.
+

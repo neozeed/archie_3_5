@@ -1,0 +1,56 @@
+#
+# webindex/parse
+#
+
+#MOD_CFLAGS = -ansi -pedantic -pipe -DSLEEP -static
+MOD_DEBUG  = -g3
+MOD_OPT  = -O3
+MOD_WARN   = -Wall -Wtraditional -Wshadow -Wpointer-arith -Wcast-align \
+             -Wnested-externs
+MOD_INCS   = \
+              -I.                      \
+              -I$(INCLUDE_MODULE)      \
+              -I$(WEBINDEX_MODULE)/lib \
+              -I$(PATRIE_MODULE)       \
+              -I$(STRIDX_MODULE)       \
+              -I$(STARTDB_MODULE)
+MOD_LIBS   = \
+              -L$(LIBARCHIE_MODULE)/$(SYSTYPE)    -larchie     \
+              -L$(STRIDX_MODULE)/$(SYSTYPE)       -larchstridx \
+              -L$(HOSTDB_MODULE)/$(SYSTYPE)       -lhostdb     \
+              -L$(PATRIE_MODULE)/$(SYSTYPE)       -lpatrie     \
+              -L$(STARTDB_MODULE)/$(SYSTYPE)      -lstartdb    \
+              -L$(WEBINDEX_MODULE)/lib/$(SYSTYPE) -lwebindex   \
+              -lm
+
+
+include $(ARCHIE_ROOT)/Makefile.pre
+
+
+INCS = \
+        lang_hostdb.h
+
+SRCS = \
+        charset.c      \
+        do_parse.c     \
+        excerpt.c      \
+        keywords.c     \
+        lang_parsers.c \
+        parse.c        \
+        recurse.c      \
+        stem.c         \
+        stoplist.c
+
+OBJS = \
+        charset.o      \
+        do_parse.o     \
+        excerpt.o      \
+        keywords.o     \
+        lang_parsers.o \
+        parse.o        \
+        recurse.o      \
+        stem.o         \
+        stoplist.o
+
+EXES = \
+        parse_webindex

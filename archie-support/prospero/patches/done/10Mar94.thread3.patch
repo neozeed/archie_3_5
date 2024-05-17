@@ -1,0 +1,121 @@
+diff -b -r -c -N 10Mar94.all/include/ardp.h 10Mar94+/include/ardp.h
+*** 10Mar94.all/include/ardp.h	Tue Apr 26 15:38:02 1994
+--- 10Mar94+/include/ardp.h	Mon Apr 18 21:36:31 1994
+***************
+*** 342,347 ****
+--- 342,358 ----
+  int             ardp_acknowledge(RREQ req);
+  extern char     *unixerrstr(void);
+  
++ #include <../lib/ardp/flocks.h>
++ FILELOCK filelock_alloc(void);
++ void         filelock_free(FILELOCK fl);
++ void filelock_lfree(FILELOCK fl);
++ void filelock_freespares(void);
++ void filelock_release(const char *filename, int readonly);
++ int locked_fclose_A(FILE *afle, const char *filename, int readonly);
++ void filelock_obtain(const char *filename, int readonly);
++ FILE *locked_fopen(const char *filename, const char *mode);
++ int locked_fclose_and_rename(FILE *afile, const char *tmpfilename, const char *filename, int retval);
++ 
+  extern	int	ardp_priority;
+  /* Check for case-blind string equality, where s1 or s2 may be null
+     pointer. */
+diff -b -r -c -N 10Mar94.all/lib/ardp/flocks.c 10Mar94+/lib/ardp/flocks.c
+*** 10Mar94.all/lib/ardp/flocks.c	Tue Apr 26 15:37:42 1994
+--- 10Mar94+/lib/ardp/flocks.c	Mon Apr 18 21:08:38 1994
+***************
+*** 18,23 ****
+--- 18,25 ----
+  int		filelock_max = 0;
+  int             filelock_open = 0;
+  int             filelock_open_max = 0;
++ int             filelock_sepwaits = 0;
++ int             filelock_secwaits = 0;
+  FILELOCK        filelock_locked = NULL;
+  
+  /************* Standard routines to alloc, free and copy *************/
+***************
+*** 69,75 ****
+  	TH_STRUC_LFREE(FILELOCK,fl,filelock_free);
+  }
+  
+! void
+  filelock_unreaders(FILELOCK flock)
+  {
+    /* Assumes p_th_mutexFILES is locked already */
+--- 71,77 ----
+  	TH_STRUC_LFREE(FILELOCK,fl,filelock_free);
+  }
+  
+! static void
+  filelock_unreaders(FILELOCK flock)
+  {
+    /* Assumes p_th_mutexFILES is locked already */
+***************
+*** 80,86 ****
+    }
+  }	
+  
+! void
+  filelock_unwriters(FILELOCK flock)
+  {
+    /* Assumes p_th_mutexFILES is locked already */
+--- 82,88 ----
+    }
+  }	
+  
+! static void
+  filelock_unwriters(FILELOCK flock)
+  {
+    /* Assumes p_th_mutexFILES is locked already */
+***************
+*** 131,136 ****
+--- 133,139 ----
+  filelock_obtain(const char *filename, int readonly)
+  {
+    FILELOCK(flock);
++   int haswaited = 0;
+    for (;;) {
+      p_th_mutex_lock(p_th_mutexFILES);
+      flock = filelock_locked;
+***************
+*** 159,164 ****
+--- 162,169 ----
+      /* At this point we cant lock it, so unlock mutex, wait, and try again*/
+      p_th_mutex_unlock(p_th_mutexFILES);
+      plog(L_QUEUE_INFO,NOREQ, "Waiting for filelock for %s", filename, 0);
++     if (!haswaited) filelock_sepwaits++;
++     filelock_secwaits++;
+      sleep(1);     /* Maybe too long */
+    } /*for*/
+    if (++filelock_open > filelock_open_max) {
+diff -b -r -c -N 10Mar94.all/server/dirsrv.c 10Mar94+/server/dirsrv.c
+*** 10Mar94.all/server/dirsrv.c	Tue Apr 26 16:33:30 1994
+--- 10Mar94+/server/dirsrv.c	Sun Apr 24 17:19:53 1994
+***************
+*** 75,78 ****
+  extern int vlink_max,   pattrib_max,   acl_max,      pfile_max;
+  extern int rreq_max,    ptext_max,     string_max,   token_max;
+  extern int pauth_max,   opt_max,       filter_max,   p_object_max;
+! extern int filelock_open, filelock_open_max;
+--- 75,79 ----
+  extern int vlink_max,   pattrib_max,   acl_max,      pfile_max;
+  extern int rreq_max,    ptext_max,     string_max,   token_max;
+  extern int pauth_max,   opt_max,       filter_max,   p_object_max;
+! extern int filelock_open, filelock_open_max, filelock_sepwaits;
+! extern int filelock_secwaits;
+***************
+*** 1065,1069 ****
+                     subthread_count + free_subthread_count, subthread_count, 
+                     subthread_max, free_subthread_count);
+  #endif
+! 	    replyf(req,"  Files: %d(%d)open\n",
+! 		   filelock_open,filelock_open_max);
+--- 1066,1071 ----
+                     subthread_count + free_subthread_count, subthread_count, 
+                     subthread_max, free_subthread_count);
+  #endif
+! 	    replyf(req,"  Files: %d(%d)open, %d waits, %d secs\n",
+! 		   filelock_open,filelock_open_max, filelock_sepwaits,
+! 		   filelock_secwaits);

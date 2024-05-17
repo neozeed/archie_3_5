@@ -1,0 +1,84 @@
+# There used to be separate makefiles, app/Makefile.pcompat and 
+# app/Makefile.nopcompat.   This is no longer the case; there's just one 
+# app/Makefile.  This makefile will not be invoked by the top-level makefile
+# unless the user wants the PCOMPAT library.
+
+SOURCEBASE=..
+include $(SOURCEBASE)/Makefile.config
+
+PROGS	= cat ls
+
+# Alternative programs. 
+# MORE is not part of this distribution.
+OTHERPROGS = more
+
+CFILES	= \
+	cat.c \
+	cc.c \
+	cp.c \
+	dd.c \
+	ed.c \
+	grep.c \
+	ld.c \
+	ls.c \
+	more.c \
+	nice.c \
+	od.c \
+	strings.c \
+	tail.c \
+	wc.c 
+
+OBJECTS	= \
+	cat.o \
+	cc.o \
+	cp.o \
+	dd.o \
+	ed.o \
+	grep.o \
+	ld.o \
+	ls.o \
+	more.o \
+	nice.o \
+	od.o \
+	strings.o \
+	tail.o \
+	wc.o 
+
+# no subdirectories of this one are used.
+SUBDIRS = 
+
+##
+## Now the rules.
+
+all:	${PROGS}
+
+install:
+	-for i in ${PROGS} ; do \
+X	    ${INSTALL} -c -m 755 -o ${OWNER} -g ${GROUP} $${i} ${P_BINARIES}/$${i}${GENERATIONSUFFIX} ;\
+	    ${GENERATION} ${P_BINARIES}/$${i} ;\
+	done 
+
+# dependencies of all and OTHERPROGS
+more: ${CMP_LIBS_DEPENDENCIES} more.o
+	${CC} ${CFLAGS} -o more more.o $(CMP_LIBS)  -lcurses -ltermcap
+
+
+${PROGS}: $(CMP_LIBS_DEPENDENCIES) 
+	${CC} ${CFLAGS} -o $@ $@.o $(CMP_LIBS) 
+
+
+cat:		cat.o
+cc:		cc.o
+cp:		cp.o
+dd:		dd.o
+ed:		ed.o
+grep:		grep.o
+ld:		ld.o
+ls:		ls.o
+nice:		nice.o
+od:		od.o
+strings:	strings.o
+tail:		tail.o
+wc:		wc.o
+
+# Dependencies

@@ -1,0 +1,15 @@
+#
+# anonftp
+#
+
+BIN_DIRS = \
+        parse    \
+        retrieve \
+        update
+
+DIRS = \
+        lib      \
+				$(BIN_DIRS)
+
+
+include $(ARCHIE_ROOT)/Makefile.multi

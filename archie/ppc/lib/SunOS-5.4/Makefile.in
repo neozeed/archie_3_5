@@ -1,0 +1,14 @@
+#
+# ppc/lib
+#
+
+#SYS_DEFS = -D_POSIX_SOURCE -DSOLARIS
+SYS_DEFS = -DSOLARIS
+
+include ../Makefile.pre
+
+RANLIB = :
+
+include ../Makefile.post
+
+# DO NOT DELETE THIS LINE -- make depend depends on it

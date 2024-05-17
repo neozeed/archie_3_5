@@ -1,0 +1,386 @@
+p__get_pauth(): Error in P_PASSWORD authentication: Cannot open psession file /home/staff/bajan/.psession_12
+ardp: udp/dirsrv unknown service - using 1525
+default udp port is 1525
+In ardp_send - sending to localhost
+Packet 1:
+VERSION\nVERSION 5 ggB(P53.3Mar94)\nAUTHENTICATE '' UNAUTHENTICATED bajan\nDIRECTORY ASCII '/pfs/pfsdat/local_vsystems/bunyip/VS-DESCRIPTION'\nLIST VERIFY COMPONENTS\n
+ardp: udp/dirsrv unknown service - using 1525
+default udp port is 1525
+Sending message (cid=17467) (seq=1) to 127.0.0.1(1525)...Sent.
+Received packet from 127.0.0.1
+Service asked us to wait 900 seconds
+Current queue position on server is 1
+Received packet from 127.0.0.1
+Service asked us to wait 0 seconds
+Ack requested
+Packet 1 of 1 (cid=17467)
+The complete response has been received.
+Acknowledging final packet to 127.0.0.1(1525)
+Sending message (ACK only) (cid=17467) (seq=0) to 127.0.0.1(1525)...Sent.
+Packets received...Packet 1:
+VERSION 5 P53.11May94\nNONE-FOUND\n
+p__get_pauth(): Error in P_PASSWORD authentication: Cannot open psession file /home/staff/bajan/.psession_12
+In ardp_send - sending to localhost
+Packet 1:
+VERSION\nVERSION 5 ggB(P53.3Mar94)\nAUTHENTICATE '' UNAUTHENTICATED bajan\nDIRECTORY ASCII '/pfs/pfsdat/local_vsystems/bunyip/VS-DESCRIPTION'\nLIST '' COMPONENTS\n
+Sending message (cid=17468) (seq=1) to 127.0.0.1(1525)...Sent.
+Received packet from 127.0.0.1
+Service asked us to wait 900 seconds
+Current queue position on server is 1
+Waiting for reply...Received packet from 127.0.0.1
+Service asked us to wait 0 seconds
+Ack requested
+Packet 1 of 1 (cid=17468)
+The complete response has been received.
+Acknowledging final packet to 127.0.0.1(1525)
+Sending message (ACK only) (cid=17468) (seq=0) to 127.0.0.1(1525)...Sent.
+Packets received...Packet 1:
+VERSION 5 P53.11May94\nLINK  L SYMBOLIC HOME VIRTUAL-SYSTEM #'/INET/EDU/ISI/bunyip' ASCII '/' 0\nLINK  L DIRECTORY ROOT INTERNET-D mocha-int.bunyip.com ASCII '/pfs/pfsdat/local_vsystems/bunyip' 0\n
+p__get_pauth(): Error in P_PASSWORD authentication: Cannot open psession file /home/staff/bajan/.psession_12
+In ardp_send - sending to mocha-int.bunyip.com
+Packet 1:
+VERSION\nVERSION 5 ggB(P53.3Mar94)\nAUTHENTICATE '' UNAUTHENTICATED bajan\nDIRECTORY ASCII '/pfs/pfsdat/local_vsystems/bunyip'\nLIST VERIFY COMPONENTS\n
+Sending message (cid=17469) (seq=1) to 192.197.208.1(1525)...Sent.
+Received packet from 192.197.208.1
+Service asked us to wait 900 seconds
+Current queue position on server is 1
+Received packet from 192.197.208.1
+Service asked us to wait 0 seconds
+Ack requested
+Packet 1 of 1 (cid=17469)
+The complete response has been received.
+Acknowledging final packet to 192.197.208.1(1525)
+Sending message (ACK only) (cid=17469) (seq=0) to 192.197.208.1(1525)...Sent.
+Packets received...Packet 1:
+VERSION 5 P53.11May94\nNONE-FOUND\n
+p__get_pauth(): Error in P_PASSWORD authentication: Cannot open psession file /home/staff/bajan/.psession_12
+In ardp_send - sending to mocha-int.bunyip.com
+Packet 1:
+VERSION\nVERSION 5 ggB(P53.3Mar94)\nAUTHENTICATE '' UNAUTHENTICATED bajan\nDIRECTORY ASCII '/pfs/pfsdat/local_vsystems/bunyip'\nLIST '' COMPONENTS MENU/debug\n
+Sending message (cid=17470) (seq=1) to 192.197.208.1(1525)...Sent.
+Received packet from 192.197.208.1
+Service asked us to wait 900 seconds
+Current queue position on server is 1
+Waiting for reply...Received packet from 192.197.208.1
+Service asked us to wait 0 seconds
+Ack requested
+Packet 1 of 1 (cid=17470)
+The complete response has been received.
+Acknowledging final packet to 192.197.208.1(1525)
+Sending message (ACK only) (cid=17470) (seq=0) to 192.197.208.1(1525)...Sent.
+Packets received...Packet 1:
+VERSION 5 P53.11May94\nLINK  L DIRECTORY MENU INTERNET-D mocha-int.bunyip.com ASCII '/pfs/info-tree' 0\nUNRESOLVED debug\n
+p__get_pauth(): Error in P_PASSWORD authentication: Cannot open psession file /home/staff/bajan/.psession_12
+In ardp_send - sending to mocha-int.bunyip.com
+Packet 1:
+VERSION\nVERSION 5 ggB(P53.3Mar94)\nAUTHENTICATE '' UNAUTHENTICATED bajan\nDIRECTORY ASCII '/pfs/info-tree'\nLIST '' COMPONENTS debug\n
+Sending message (cid=17471) (seq=1) to 192.197.208.1(1525)...Sent.
+Received packet from 192.197.208.1
+Service asked us to wait 900 seconds
+Current queue position on server is 1
+Waiting for reply...Received packet from 192.197.208.1
+Service asked us to wait 0 seconds
+Ack requested
+Packet 1 of 1 (cid=17471)
+The complete response has been received.
+Acknowledging final packet to 192.197.208.1(1525)
+Sending message (ACK only) (cid=17471) (seq=0) to 192.197.208.1(1525)...Sent.
+Packets received...Packet 1:
+VERSION 5 P53.11May94\nLINK  L DIRECTORY debug INTERNET-D MOCHA.BUNYIP.COM ASCII '/pfs/info-tree/debug' 0\n
+p__get_pauth(): Error in P_PASSWORD authentication: Cannot open psession file /home/staff/bajan/.psession_12
+In ardp_send - sending to MOCHA.BUNYIP.COM
+Packet 1:
+VERSION\nVERSION 5 ggB(P53.3Mar94)\nAUTHENTICATE '' UNAUTHENTICATED bajan\nDIRECTORY ASCII '/pfs/info-tree/debug'\nLIST VERIFY COMPONENTS\n
+Sending message (cid=17472) (seq=1) to 192.197.208.1(1525)...Sent.
+Received packet from 192.197.208.1
+Service asked us to wait 900 seconds
+Current queue position on server is 1
+Waiting for reply...Received packet from 192.197.208.1
+Service asked us to wait 0 seconds
+Ack requested
+Packet 1 of 1 (cid=17472)
+The complete response has been received.
+Acknowledging final packet to 192.197.208.1(1525)
+Sending message (ACK only) (cid=17472) (seq=0) to 192.197.208.1(1525)...Sent.
+Packets received...Packet 1:
+VERSION 5 P53.11May94\nNONE-FOUND\n
+weaseld(8691) [ 1 Jul 1994 05:45:27 GMT]: ready to accept connections.
+weaseld(8691) [ 1 Jul 1994 05:45:34 GMT]: connection from 192.197.208.1 on remote port 1355: access granted.
+weaseld(8691) [ 1 Jul 1994 05:45:34 GMT]: handle_request: request is `MOCHA.BUNYIP.COM:://pfs/info-tree/debug/routledge	alexander'.
+p__get_pauth(): Error in P_PASSWORD authentication: Cannot open psession file /home/staff/bajan/.psession_12
+In ardp_send - sending to MOCHA.BUNYIP.COM
+Packet 1:
+VERSION\nVERSION 5 ggB(P53.3Mar94)\nAUTHENTICATE '' UNAUTHENTICATED bajan\nDIRECTORY ASCII '/pfs/info-tree/debug'\nLIST ATTRIBUTES COMPONENTS routledge\n
+Sending message (cid=17473) (seq=1) to 192.197.208.1(1525)...Sent.
+Received packet from 192.197.208.1
+Service asked us to wait 900 seconds
+Current queue position on server is 1
+Waiting for reply...Received packet from 192.197.208.1
+Service asked us to wait 0 seconds
+Ack requested
+Packet 1 of 1 (cid=17473)
+The complete response has been received.
+Acknowledging final packet to 192.197.208.1(1525)
+Sending message (ACK only) (cid=17473) (seq=0) to 192.197.208.1(1525)...Sent.
+Packets received...Packet 1:
+VERSION 5 P53.11May94\nLINK  L DIRECTORY routledge INTERNET-D mocha-int.bunyip.com ASCII ARCHIE 0\nATTRIBUTE LINK APPLICATION MENU-ITEM-DESCRIPTION SEQUENCE routledge\nATTRIBUTE LINK APPLICATION OBJECT-INTERPRETATION SEQUENCE SEARCH\nATTRIBUTE LINK APPLICATION QUERY-METHOD SEQUENCE find(string',maxhits)' FIND(${maxhits}',${maxhits},0,routledge)' ${string} *\nATTRIBUTE LINK APPLICATION QUERY-ARGUMENT SEQUENCE maxhits Maximum' number of files to return' int %d range(1',100)' 100\nATTRIBUTE LINK APPLICATION QUERY-ARGUMENT SEQUENCE string Search' string mandatory' char* %50[^'/]'\n
+p__get_pauth(): Error in P_PASSWORD authentication: Cannot open psession file /home/staff/bajan/.psession_12
+In ardp_send - sending to mocha-int.bunyip.com
+Packet 1:
+VERSION\nVERSION 5 ggB(P53.3Mar94)\nAUTHENTICATE '' UNAUTHENTICATED bajan\nGET-OBJECT-INFO BUNYIP-POSE-AS ASCII ARCHIE 0\n
+Sending message (cid=17474) (seq=1) to 192.197.208.1(1525)...Sent.
+Received packet from 192.197.208.1
+Service asked us to wait 900 seconds
+Current queue position on server is 1
+Received packet from 192.197.208.1
+Service asked us to wait 180 seconds
+Waiting for reply...Received packet from 192.197.208.1
+Service asked us to wait 0 seconds
+Ack requested
+Packet 1 of 1 (cid=17474)
+The complete response has been received.
+Acknowledging final packet to 192.197.208.1(1525)
+Sending message (ACK only) (cid=17474) (seq=0) to 192.197.208.1(1525)...Sent.
+Packets received...Packet 1:
+VERSION 5 P53.11May94\nNONE-FOUND\n
+p__get_pauth(): Error in P_PASSWORD authentication: Cannot open psession file /home/staff/bajan/.psession_12
+In ardp_send - sending to mocha-int.bunyip.com
+Packet 1:
+VERSION\nVERSION 5 ggB(P53.3Mar94)\nAUTHENTICATE '' UNAUTHENTICATED bajan\nDIRECTORY ASCII ARCHIE\nLIST ATTRIBUTES COMPONENTS FIND(100',100,0,routledge)'/alexander/*\n
+Sending message (cid=17475) (seq=1) to 192.197.208.1(1525)...Sent.
+Received packet from 192.197.208.1
+Service asked us to wait 900 seconds
+Current queue position on server is 1
+Waiting for reply...Received packet from 192.197.208.1
+Service asked us to wait 180 seconds
+Waiting for reply...Received packet from 192.197.208.1
+Service asked us to wait 0 seconds
+Packet 1 of 0 (cid=17475)
+Waiting for reply...Received packet from 192.197.208.1
+Ack requested
+Packet 2 of 2 (cid=17475)
+Packets now received through 2
+The complete response has been received.
+Acknowledging final packet to 192.197.208.1(1525)
+Sending message (ACK only) (cid=17475) (seq=0) to 192.197.208.1(1525)...Sent.
+Packets received...Packet 1:
+VERSION 5 P53.11May94\nLINK  L OBJECT Hardback' ' INTERNET-D MOCHA.BUNYIP.COM ASCII ARCHIE'/ITEM/WAIS/(%01%0blocalhost:0%02A%2fpfs%2finfo-tree%2fwww.thomson%2fDATABASES%2froutledge%2fproducts%2froutledge%03h0 4092 %2fexport%2farchie%2fsrc%2f3.0%2farchie%2fpfs%2finfo-tree%2fwww.thomson%2fDATABASES%2froutledge%2fproducts%2fcatalog2.txt%04%0blocalhost:0%05A%2fpfs%2finfo-tree%2fwww.thomson%2fDATABASES%2froutledge%2fproducts%2froutledge%06h0 4092 %2fexport%2farchie%2fsrc%2f3.0%2farchie%2fpfs%2finfo-tree%2fwww.thomson%2fDATABASES%2froutledge%2fproducts%2fcatalog2.txt%07%01%00,4092,TEXT,routledge)' 0\nATTRIBUTE CACHED APPLICATION WAIS_DOC_LEN SEQUENCE 4092\nATTRIBUTE CACHED APPLICATION WAIS_DOC_LINES SEQUENCE 131\nATTRIBUTE CACHED APPLICATION WAIS_DOC_SCORE SEQUENCE 1000\nATTRIBUTE CACHED APPLICATION WAIS_DOC_VERSION SEQUENCE -1\nATTRIBUTE CACHED APPLICATION WAIS_DOC_BESTMATCH SEQUENCE 0\nATTRIBUTE CACHED APPLICATION WAIS_DOC_DATE SEQUENCE 2099534\nATTRIBUTE CACHED APPLICATION WAIS_DOC_SOURCE SEQUENCE '/pfs/info-tree/www.thomson/DATABASES/routledge/products/routledge'\nATTRIBUTE CACHED APPLICATION WAIS_DOC_TYPES SEQUENCE TEXT\nATTRIBUTE OBJECT INTRINSIC BUNYIP-HEADLINE SEQUENCE Title Author-Name Publisher-Organization-Name ISBN Binding-Format\nLINK
+Packet 2:
+  L OBJECT Paperback' ' INTERNET-D MOCHA.BUNYIP.COM ASCII ARCHIE'/ITEM/WAIS/(%01%0blocalhost:0%02A%2fpfs%2finfo-tree%2fwww.thomson%2fDATABASES%2froutledge%2fproducts%2froutledge%03o449738 453958 %2fexport%2farchie%2fsrc%2f3.0%2farchie%2fpfs%2finfo-tree%2fwww.thomson%2fDATABASES%2froutledge%2fproducts%2fcatalog2.txt%04%0blocalhost:0%05A%2fpfs%2finfo-tree%2fwww.thomson%2fDATABASES%2froutledge%2fproducts%2froutledge%06o449738 453958 %2fexport%2farchie%2fsrc%2f3.0%2farchie%2fpfs%2finfo-tree%2fwww.thomson%2fDATABASES%2froutledge%2fproducts%2fcatalog2.txt%07%01%00,4220,TEXT,routledge)' 0\nATTRIBUTE CACHED APPLICATION WAIS_DOC_LEN SEQUENCE 4220\nATTRIBUTE CACHED APPLICATION WAIS_DOC_LINES SEQUENCE 133\nATTRIBUTE CACHED APPLICATION WAIS_DOC_SCORE SEQUENCE 9\nATTRIBUTE CACHED APPLICATION WAIS_DOC_VERSION SEQUENCE -1\nATTRIBUTE CACHED APPLICATION WAIS_DOC_BESTMATCH SEQUENCE 0\nATTRIBUTE CACHED APPLICATION WAIS_DOC_DATE SEQUENCE 2100166\nATTRIBUTE CACHED APPLICATION WAIS_DOC_SOURCE SEQUENCE '/pfs/info-tree/www.thomson/DATABASES/routledge/products/routledge'\nATTRIBUTE CACHED APPLICATION WAIS_DOC_TYPES SEQUENCE TEXT\nATTRIBUTE OBJECT INTRINSIC BUNYIP-HEADLINE SEQUENCE Title Author-Name Publisher-Organization-Name ISBN Binding-Format\n
+0Hardback	MOCHA.BUNYIP.COM::/ARCHIE/ITEM/WAIS/(%01%0blocalhost:0%02A%2fpfs%2finfo-tree%2fwww.thomson%2fDATABASES%2froutledge%2fproducts%2froutledge%03h0 4092 %2fexport%2farchie%2fsrc%2f3.0%2farchie%2fpfs%2finfo-tree%2fwww.thomson%2fDATABASES%2froutledge%2fproducts%2fcatalog2.txt%04%0blocalhost:0%05A%2fpfs%2finfo-tree%2fwww.thomson%2fDATABASES%2froutledge%2fproducts%2froutledge%06h0 4092 %2fexport%2farchie%2fsrc%2f3.0%2farchie%2fpfs%2finfo-tree%2fwww.thomson%2fDATABASES%2froutledge%2fproducts%2fcatalog2.txt%07%01%00,4092,TEXT,routledge)	mocha-int.bunyip.com	6969
+p__get_pauth(): Error in P_PASSWORD authentication: Cannot open psession file /home/staff/bajan/.psession_12
+In ardp_send - sending to MOCHA.BUNYIP.COM
+Packet 1:
+VERSION\nVERSION 5 ggB(P53.3Mar94)\nAUTHENTICATE '' UNAUTHENTICATED bajan\nGET-OBJECT-INFO CONTENTS ASCII ARCHIE'/ITEM/WAIS/(%01%0blocalhost:0%02A%2fpfs%2finfo-tree%2fwww.thomson%2fDATABASES%2froutledge%2fproducts%2froutledge%03h0 4092 %2fexport%2farchie%2fsrc%2f3.0%2farchie%2fpfs%2finfo-tree%2fwww.thomson%2fDATABASES%2froutledge%2fproducts%2fcatalog2.txt%04%0blocalhost:0%05A%2fpfs%2finfo-tree%2fwww.thomson%2fDATABASES%2froutledge%2fproducts%2froutledge%06h0 4092 %2fexport%2farchie%2fsrc%2f3.0%2farchie%2fpfs%2finfo-tree%2fwww.thomson%2fDATABASES%2froutledge%2fproducts%2fcatalog2.txt%07%01%00,4092,TEXT,routledge)' 0\n
+Sending message (cid=17476) (seq=1) to 192.197.208.1(1525)...Sent.
+Waiting for reply...Received packet from 192.197.208.1
+Service asked us to wait 900 seconds
+Current queue position on server is 1
+Waiting for reply...Received packet from 192.197.208.1
+Service asked us to wait 180 seconds
+Waiting for reply...Received packet from 192.197.208.1
+Service asked us to wait 0 seconds
+Packet 1 of 0 (cid=17476)
+Waiting for reply...Received packet from 192.197.208.1
+Packet 2 of 0 (cid=17476)
+Packets now received through 2
+Waiting for reply...Received packet from 192.197.208.1
+Ack requested
+Packet 3 of 3 (cid=17476)
+Packets now received through 3
+The complete response has been received.
+Acknowledging final packet to 192.197.208.1(1525)
+Sending message (ACK only) (cid=17476) (seq=0) to 192.197.208.1(1525)...Sent.
+Packets received...Packet 1:
+VERSION 5 P53.11May94\nATTRIBUTE OBJECT INTRINSIC CONTENTS SEQUENCE TAGGED title Alexander' the Great: The Invisible Enemy'\nATTRIBUTE OBJECT INTRINSIC CONTENTS SEQUENCE TAGGED short-title Alexander' the Great'\nATTRIBUTE OBJECT INTRINSIC CONTENTS SEQUENCE TAGGED sub-title A' Biography'\nATTRIBUTE OBJECT INTRINSIC CONTENTS SEQUENCE TAGGED short-blurb `O'''Brien has combined faultless scholarship with poetic vision to penetrate the events of Alexander''s extraordinary life and reveal the tragic pattern obscured by these tumultous events. This is not only biography; it is art.'' F Salvidio'\nATTRIBUTE OBJECT INTRINSIC CONTENTS SEQUENCE TAGGED long-blurb Alexander' and Dionysus:The Invisible Enemy differs from other biographies of Alexander in its assessment of the role of alcohol in his life. O''Brien uses the the figure of Dionysus as a symbol of the destructive effects of alchohol on Alexander''s psyche. The deity serves as an agent through whom a cluster of ambivalent considerations is explored: the heroic and the Dionysiac, the rational and the irrational, male and female, sanity and madness. Alexander''s story unfolds as a tragedy in the Aristotelian sense of the word. Alexander is treated from birth to death as a total personality.
+Packet 2:
+ His culture, his gods, his parents, his aspirations, his exploits, his fears, his insecurities, his sexuality, his drinking, and the psychology of alcoholism are examined from an interdisciplinary perspective. The book utilises recent discoveries in archaeology and incorporates new interpretations from anthropology, psychology, mythology, philosphy and literature. The historical context provides a structure for these diverese insights. Key passages in the narratvie are illuminated by telling quotations from Homer and Euripides, the authors known to have constituted Alexander''s favourite reading. John Maxwell O''Brien is thus also able to delineate broadly the thought processes of Greek antiquity.'\nATTRIBUTE OBJECT INTRINSIC CONTENTS SEQUENCE TAGGED version 1\nATTRIBUTE OBJECT INTRINSIC CONTENTS SEQUENCE TAGGED original-publication-date 20'/08/92'\nATTRIBUTE OBJECT INTRINSIC CONTENTS SEQUENCE TAGGED new-publication-date 01'/09/94 Publication City: London'\nATTRIBUTE OBJECT INTRINSIC CONTENTS SEQUENCE TAGGED isbn 0415072549\nATTRIBUTE OBJECT INTRINSIC CONTENTS SEQUENCE TAGGED language English\nATTRIBUTE OBJECT INTRINSIC CONTENTS SEQUENCE TAGGED readership '/OMARK'\nATTRIBUTE OBJECT INTRINSIC CONTENTS SEQUENCE TAGGED subject-code-routled
+Packet 3:
+ge 03042\nATTRIBUTE OBJECT INTRINSIC CONTENTS SEQUENCE TAGGED author-name John' Maxwell O''Brien,'\nATTRIBUTE OBJECT INTRINSIC CONTENTS SEQUENCE TAGGED publisher-organization-name Routledge\nATTRIBUTE OBJECT INTRINSIC CONTENTS SEQUENCE TAGGED trim 234x156\nATTRIBUTE OBJECT INTRINSIC CONTENTS SEQUENCE TAGGED pages 360\nATTRIBUTE OBJECT INTRINSIC CONTENTS SEQUENCE TAGGED illustrations-bw 7' maps and tables'\nATTRIBUTE OBJECT INTRINSIC CONTENTS SEQUENCE TAGGED binding-format Hardback\nATTRIBUTE OBJECT INTRINSIC CONTENTS SEQUENCE TAGGED document-toc '/OCONT'\nATTRIBUTE OBJECT INTRINSIC CONTENTS SEQUENCE TAGGED subject-main 03042\nATTRIBUTE OBJECT INTRINSIC CONTENTS SEQUENCE TAGGED subject-secondary 01040\nATTRIBUTE OBJECT INTRINSIC CONTENTS SEQUENCE TAGGED endorsement '''O''Brien''s biography of Alexander is meticulous, thorough, and expressed with great care and grace.'' -  Robert Emmet Meagher, author of Mortal Vision: The Wisdom of Euripides.'\nATTRIBUTE OBJECT INTRINSIC ACCESS-METHOD SEQUENCE PROSPERO-CONTENTS '' '' '' ''\n
+0Paperback	MOCHA.BUNYIP.COM::/ARCHIE/ITEM/WAIS/(%01%0blocalhost:0%02A%2fpfs%2finfo-tree%2fwww.thomson%2fDATABASES%2froutledge%2fproducts%2froutledge%03o449738 453958 %2fexport%2farchie%2fsrc%2f3.0%2farchie%2fpfs%2finfo-tree%2fwww.thomson%2fDATABASES%2froutledge%2fproducts%2fcatalog2.txt%04%0blocalhost:0%05A%2fpfs%2finfo-tree%2fwww.thomson%2fDATABASES%2froutledge%2fproducts%2froutledge%06o449738 453958 %2fexport%2farchie%2fsrc%2f3.0%2farchie%2fpfs%2finfo-tree%2fwww.thomson%2fDATABASES%2froutledge%2fproducts%2fcatalog2.txt%07%01%00,4220,TEXT,routledge)	mocha-int.bunyip.com	6969
+p__get_pauth(): Error in P_PASSWORD authentication: Cannot open psession file /home/staff/bajan/.psession_12
+In ardp_send - sending to MOCHA.BUNYIP.COM
+Packet 1:
+VERSION\nVERSION 5 ggB(P53.3Mar94)\nAUTHENTICATE '' UNAUTHENTICATED bajan\nGET-OBJECT-INFO CONTENTS ASCII ARCHIE'/ITEM/WAIS/(%01%0blocalhost:0%02A%2fpfs%2finfo-tree%2fwww.thomson%2fDATABASES%2froutledge%2fproducts%2froutledge%03o449738 453958 %2fexport%2farchie%2fsrc%2f3.0%2farchie%2fpfs%2finfo-tree%2fwww.thomson%2fDATABASES%2froutledge%2fproducts%2fcatalog2.txt%04%0blocalhost:0%05A%2fpfs%2finfo-tree%2fwww.thomson%2fDATABASES%2froutledge%2fproducts%2froutledge%06o449738 453958 %2fexport%2farchie%2fsrc%2f3.0%2farchie%2fpfs%2finfo-tree%2fwww.thomson%2fDATABASES%2froutledge%2fproducts%2fcatalog2.txt%07%01%00,4220,TEXT,routledge)' 0\n
+Sending message (cid=17477) (seq=1) to 192.197.208.1(1525)...Sent.
+Received packet from 192.197.208.1
+Service asked us to wait 900 seconds
+Current queue position on server is 1
+Waiting for reply...Received packet from 192.197.208.1
+Service asked us to wait 180 seconds
+Waiting for reply...Received packet from 192.197.208.1
+Service asked us to wait 0 seconds
+Packet 1 of 0 (cid=17477)
+Waiting for reply...Received packet from 192.197.208.1
+Packet 2 of 0 (cid=17477)
+Packets now received through 2
+Waiting for reply...Received packet from 192.197.208.1
+Packet 3 of 0 (cid=17477)
+Packets now received through 3
+Waiting for reply...Received packet from 192.197.208.1
+Ack requested
+Packet 4 of 4 (cid=17477)
+Packets now received through 4
+The complete response has been received.
+Acknowledging final packet to 192.197.208.1(1525)
+Sending message (ACK only) (cid=17477) (seq=0) to 192.197.208.1(1525)...Sent.
+Packets received...Packet 1:
+VERSION 5 P53.11May94\nATTRIBUTE OBJECT INTRINSIC CONTENTS SEQUENCE TAGGED title Alexander' the Great: The Invisible Enemy'\nATTRIBUTE OBJECT INTRINSIC CONTENTS SEQUENCE TAGGED short-title Alexander' the Great'\nATTRIBUTE OBJECT INTRINSIC CONTENTS SEQUENCE TAGGED sub-title A' Biography'\nATTRIBUTE OBJECT INTRINSIC CONTENTS SEQUENCE TAGGED short-blurb `O'''Brien has combined faultless scholarship with poetic vision to penetrate the events of Alexander''s extraordinary life and reveal the tragic pattern obscured by these tumultous events. This is not only biography; it is art.'' F Salvidio'\nATTRIBUTE OBJECT INTRINSIC CONTENTS SEQUENCE TAGGED long-blurb Alexander' and Dionysus:The Invisible Enemy differs from other biographies of Alexander in its assessment of the role of alcohol in his life. O''Brien uses the figure of Dionysus as a symbol of the destructive effects of alchohol on Alexander''s psyche. The deity serves as an agent through whom a cluster of ambivalent considerations is explored: the heroic and the Dionysiac, the rational and the irrational, male and female, sanity and madness. Alexander''s story unfolds as a tragedy in the Aristotelian sense of the word. Alexander is treated from birth to death as a total personality. His
+Packet 2:
+ culture, his gods, his parents, his aspirations, his exploits, his fears, his insecurities, his sexuality, his drinking, and the psychology of alcoholism are examined from an interdisciplinary perspective. The book utilises recent discoveries in archaeology and incorporates new interpretations from anthropology, psychology, mythology, philosphy and literature. The historical context provides a structure for these diverese insights. Key passages in the narratvie are illuminated by telling quotations from Homer and Euripides, the authors known to have constituted Alexander''s favourite reading. John Maxwell O''Brien is thus also able to delineate broadly the thought processes of Greek antiquity.'\nATTRIBUTE OBJECT INTRINSIC CONTENTS SEQUENCE TAGGED version 1\nATTRIBUTE OBJECT INTRINSIC CONTENTS SEQUENCE TAGGED publication-status NYP\nATTRIBUTE OBJECT INTRINSIC CONTENTS SEQUENCE TAGGED new-publication-date 01'/09/94 Publication City: London'\nATTRIBUTE OBJECT INTRINSIC CONTENTS SEQUENCE TAGGED isbn 0415106176\nATTRIBUTE OBJECT INTRINSIC CONTENTS SEQUENCE TAGGED language English\nATTRIBUTE OBJECT INTRINSIC CONTENTS SEQUENCE TAGGED readership '/OMARK'\nATTRIBUTE OBJECT INTRINSIC CONTENTS SEQUENCE TAGGED subject-code-routledge 03042\nATTRIBUTE
+Packet 3:
+ OBJECT INTRINSIC CONTENTS SEQUENCE TAGGED author-name John' Maxwell O''Brien, Queens College of the City University of New York'\nATTRIBUTE OBJECT INTRINSIC CONTENTS SEQUENCE TAGGED publisher-organization-name Routledge\nATTRIBUTE OBJECT INTRINSIC CONTENTS SEQUENCE TAGGED trim 234x156\nATTRIBUTE OBJECT INTRINSIC CONTENTS SEQUENCE TAGGED pages 358\nATTRIBUTE OBJECT INTRINSIC CONTENTS SEQUENCE TAGGED illustrations-bw 7' maps and tables'\nATTRIBUTE OBJECT INTRINSIC CONTENTS SEQUENCE TAGGED binding-format Paperback\nATTRIBUTE OBJECT INTRINSIC CONTENTS SEQUENCE TAGGED document-toc '/OCONT'\nATTRIBUTE OBJECT INTRINSIC CONTENTS SEQUENCE TAGGED subject-main 03042\nATTRIBUTE OBJECT INTRINSIC CONTENTS SEQUENCE TAGGED subject-secondary 01040\nATTRIBUTE OBJECT INTRINSIC CONTENTS SEQUENCE TAGGED reviewer-name Paul' A. Gilster, The News and Observer'\nATTRIBUTE OBJECT INTRINSIC CONTENTS SEQUENCE TAGGED reviewer-quote `What' happened to Alexander? O''Brien''s answer is mesmerising... he brings to the tale a sense of fatalism that Euripides would understand.'''\nATTRIBUTE OBJECT INTRINSIC CONTENTS SEQUENCE TAGGED endorsement `a' minutely researched book ... lucid and compelling'' - The Independent on Sunday'\nATTRIBUTE OBJECT INTRINSIC ACCESS-METHOD SEQUENC
+Packet 4:
+E PROSPERO-CONTENTS '' '' '' ''\n
+p__get_pauth(): Error in P_PASSWORD authentication: Cannot open psession file /home/staff/bajan/.psession_12
+In ardp_send - sending to mocha-int.bunyip.com
+Packet 1:
+VERSION\nVERSION 5 ggB(P53.3Mar94)\nAUTHENTICATE '' UNAUTHENTICATED bajan\nGET-OBJECT-INFO BUNYIP-POSE-AS ASCII ARCHIE 0\n
+Sending message (cid=17478) (seq=1) to 192.197.208.1(1525)...Sent.
+Received packet from 192.197.208.1
+Service asked us to wait 900 seconds
+Current queue position on server is 1
+Received packet from 192.197.208.1
+Service asked us to wait 180 seconds
+Waiting for reply...Received packet from 192.197.208.1
+Service asked us to wait 0 seconds
+Packet 1 of 0 (cid=17478)
+Waiting for reply...Received packet from 192.197.208.1
+Packet 2 of 0 (cid=17478)
+Packets now received through 2
+Waiting for reply...Received packet from 192.197.208.1
+Packet 3 of 0 (cid=17478)
+Packets now received through 3
+Waiting for reply...Received packet from 192.197.208.1
+Ack requested
+Packet 4 of 4 (cid=17478)
+Packets now received through 4
+The complete response has been received.
+Acknowledging final packet to 192.197.208.1(1525)
+Sending message (ACK only) (cid=17478) (seq=0) to 192.197.208.1(1525)...Sent.
+Packets received...Packet 1:
+VERSION 5 P53.11May94\nATTRIBUTE OBJECT INTRINSIC CONTENTS SEQUENCE TAGGED title Alexander' the Great: The Invisible Enemy'\nATTRIBUTE OBJECT INTRINSIC CONTENTS SEQUENCE TAGGED short-title Alexander' the Great'\nATTRIBUTE OBJECT INTRINSIC CONTENTS SEQUENCE TAGGED sub-title A' Biography'\nATTRIBUTE OBJECT INTRINSIC CONTENTS SEQUENCE TAGGED short-blurb `O'''Brien has combined faultless scholarship with poetic vision to penetrate the events of Alexander''s extraordinary life and reveal the tragic pattern obscured by these tumultous events. This is not only biography; it is art.'' F Salvidio'\nATTRIBUTE OBJECT INTRINSIC CONTENTS SEQUENCE TAGGED long-blurb Alexander' and Dionysus:The Invisible Enemy differs from other biographies of Alexander in its assessment of the role of alcohol in his life. O''Brien uses the figure of Dionysus as a symbol of the destructive effects of alchohol on Alexander''s psyche. The deity serves as an agent through whom a cluster of ambivalent considerations is explored: the heroic and the Dionysiac, the rational and the irrational, male and female, sanity and madness. Alexander''s story unfolds as a tragedy in the Aristotelian sense of the word. Alexander is treated from birth to death as a total personality. His
+Packet 2:
+ culture, his gods, his parents, his aspirations, his exploits, his fears, his insecurities, his sexuality, his drinking, and the psychology of alcoholism are examined from an interdisciplinary perspective. The book utilises recent discoveries in archaeology and incorporates new interpretations from anthropology, psychology, mythology, philosphy and literature. The historical context provides a structure for these diverese insights. Key passages in the narratvie are illuminated by telling quotations from Homer and Euripides, the authors known to have constituted Alexander''s favourite reading. John Maxwell O''Brien is thus also able to delineate broadly the thought processes of Greek antiquity.'\nATTRIBUTE OBJECT INTRINSIC CONTENTS SEQUENCE TAGGED version 1\nATTRIBUTE OBJECT INTRINSIC CONTENTS SEQUENCE TAGGED publication-status NYP\nATTRIBUTE OBJECT INTRINSIC CONTENTS SEQUENCE TAGGED new-publication-date 01'/09/94 Publication City: London'\nATTRIBUTE OBJECT INTRINSIC CONTENTS SEQUENCE TAGGED isbn 0415106176\nATTRIBUTE OBJECT INTRINSIC CONTENTS SEQUENCE TAGGED language English\nATTRIBUTE OBJECT INTRINSIC CONTENTS SEQUENCE TAGGED readership '/OMARK'\nATTRIBUTE OBJECT INTRINSIC CONTENTS SEQUENCE TAGGED subject-code-routledge 03042\nATTRIBUTE
+Packet 3:
+ OBJECT INTRINSIC CONTENTS SEQUENCE TAGGED author-name John' Maxwell O''Brien, Queens College of the City University of New York'\nATTRIBUTE OBJECT INTRINSIC CONTENTS SEQUENCE TAGGED publisher-organization-name Routledge\nATTRIBUTE OBJECT INTRINSIC CONTENTS SEQUENCE TAGGED trim 234x156\nATTRIBUTE OBJECT INTRINSIC CONTENTS SEQUENCE TAGGED pages 358\nATTRIBUTE OBJECT INTRINSIC CONTENTS SEQUENCE TAGGED illustrations-bw 7' maps and tables'\nATTRIBUTE OBJECT INTRINSIC CONTENTS SEQUENCE TAGGED binding-format Paperback\nATTRIBUTE OBJECT INTRINSIC CONTENTS SEQUENCE TAGGED document-toc '/OCONT'\nATTRIBUTE OBJECT INTRINSIC CONTENTS SEQUENCE TAGGED subject-main 03042\nATTRIBUTE OBJECT INTRINSIC CONTENTS SEQUENCE TAGGED subject-secondary 01040\nATTRIBUTE OBJECT INTRINSIC CONTENTS SEQUENCE TAGGED reviewer-name Paul' A. Gilster, The News and Observer'\nATTRIBUTE OBJECT INTRINSIC CONTENTS SEQUENCE TAGGED reviewer-quote `What' happened to Alexander? O''Brien''s answer is mesmerising... he brings to the tale a sense of fatalism that Euripides would understand.'''\nATTRIBUTE OBJECT INTRINSIC CONTENTS SEQUENCE TAGGED endorsement `a' minutely researched book ... lucid and compelling'' - The Independent on Sunday'\nATTRIBUTE OBJECT INTRINSIC ACCESS-METHOD SEQUENC
+Packet 4:
+E PROSPERO-CONTENTS '' '' '' ''\n
+.
+weaseld(8691) [ 1 Jul 1994 05:45:44 GMT]: handle_request: request succeeded.
+weaseld(8691) [ 1 Jul 1994 05:45:44 GMT]: handle_transaction: handle_request() finished.
+weaseld(8691) [ 1 Jul 1994 06:06:58 GMT]: connection from 192.197.208.1 on remote port 1439: access granted.
+weaseld(8691) [ 1 Jul 1994 06:06:58 GMT]: handle_request: request is `MOCHA.BUNYIP.COM:://pfs/info-tree/debug/routledge	alexander'.
+p__get_pauth(): Error in P_PASSWORD authentication: Cannot open psession file /home/staff/bajan/.psession_12
+In ardp_send - sending to MOCHA.BUNYIP.COM
+Packet 1:
+VERSION\nVERSION 5 ggB(P53.3Mar94)\nAUTHENTICATE '' UNAUTHENTICATED bajan\nDIRECTORY ASCII '/pfs/info-tree/debug'\nLIST ATTRIBUTES COMPONENTS routledge\n
+Sending message (cid=17479) (seq=1) to 192.197.208.1(1525)...Sent.
+Waiting for reply...Received packet from 192.197.208.1
+Service asked us to wait 900 seconds
+Current queue position on server is 1
+Waiting for reply...Received packet from 192.197.208.1
+Service asked us to wait 0 seconds
+Ack requested
+Packet 1 of 1 (cid=17479)
+The complete response has been received.
+Acknowledging final packet to 192.197.208.1(1525)
+Sending message (ACK only) (cid=17479) (seq=0) to 192.197.208.1(1525)...Sent.
+Packets received...Packet 1:
+VERSION 5 P53.11May94\nLINK  L DIRECTORY routledge INTERNET-D mocha-int.bunyip.com ASCII ARCHIE 0\nATTRIBUTE LINK APPLICATION MENU-ITEM-DESCRIPTION SEQUENCE routledge\nATTRIBUTE LINK APPLICATION OBJECT-INTERPRETATION SEQUENCE SEARCH\nATTRIBUTE LINK APPLICATION QUERY-METHOD SEQUENCE find(string',maxhits)' FIND(${maxhits}',${maxhits},0,routledge)' ${string} *\nATTRIBUTE LINK APPLICATION QUERY-ARGUMENT SEQUENCE maxhits Maximum' number of files to return' int %d range(1',100)' 100\nATTRIBUTE LINK APPLICATION QUERY-ARGUMENT SEQUENCE string Search' string mandatory' char* %50[^'/]'\n
+p__get_pauth(): Error in P_PASSWORD authentication: Cannot open psession file /home/staff/bajan/.psession_12
+In ardp_send - sending to mocha-int.bunyip.com
+Packet 1:
+VERSION\nVERSION 5 ggB(P53.3Mar94)\nAUTHENTICATE '' UNAUTHENTICATED bajan\nGET-OBJECT-INFO BUNYIP-POSE-AS ASCII ARCHIE 0\n
+Sending message (cid=17480) (seq=1) to 192.197.208.1(1525)...Sent.
+Received packet from 192.197.208.1
+Service asked us to wait 900 seconds
+Current queue position on server is 1
+Waiting for reply...Received packet from 192.197.208.1
+Service asked us to wait 180 seconds
+Waiting for reply...Received packet from 192.197.208.1
+Service asked us to wait 0 seconds
+Packet 1 of 0 (cid=17480)
+Waiting for reply...Received packet from 192.197.208.1
+Packet 2 of 0 (cid=17480)
+Packets now received through 2
+Waiting for reply...Received packet from 192.197.208.1
+Packet 3 of 0 (cid=17480)
+Packets now received through 3
+Waiting for reply...Received packet from 192.197.208.1
+Ack requested
+Packet 4 of 4 (cid=17480)
+Packets now received through 4
+The complete response has been received.
+Acknowledging final packet to 192.197.208.1(1525)
+Sending message (ACK only) (cid=17480) (seq=0) to 192.197.208.1(1525)...Sent.
+Packets received...Packet 1:
+VERSION 5 P53.11May94\nATTRIBUTE OBJECT INTRINSIC CONTENTS SEQUENCE TAGGED title Alexander' the Great: The Invisible Enemy'\nATTRIBUTE OBJECT INTRINSIC CONTENTS SEQUENCE TAGGED short-title Alexander' the Great'\nATTRIBUTE OBJECT INTRINSIC CONTENTS SEQUENCE TAGGED sub-title A' Biography'\nATTRIBUTE OBJECT INTRINSIC CONTENTS SEQUENCE TAGGED short-blurb `O'''Brien has combined faultless scholarship with poetic vision to penetrate the events of Alexander''s extraordinary life and reveal the tragic pattern obscured by these tumultous events. This is not only biography; it is art.'' F Salvidio'\nATTRIBUTE OBJECT INTRINSIC CONTENTS SEQUENCE TAGGED long-blurb Alexander' and Dionysus:The Invisible Enemy differs from other biographies of Alexander in its assessment of the role of alcohol in his life. O''Brien uses the figure of Dionysus as a symbol of the destructive effects of alchohol on Alexander''s psyche. The deity serves as an agent through whom a cluster of ambivalent considerations is explored: the heroic and the Dionysiac, the rational and the irrational, male and female, sanity and madness. Alexander''s story unfolds as a tragedy in the Aristotelian sense of the word. Alexander is treated from birth to death as a total personality. His
+Packet 2:
+ culture, his gods, his parents, his aspirations, his exploits, his fears, his insecurities, his sexuality, his drinking, and the psychology of alcoholism are examined from an interdisciplinary perspective. The book utilises recent discoveries in archaeology and incorporates new interpretations from anthropology, psychology, mythology, philosphy and literature. The historical context provides a structure for these diverese insights. Key passages in the narratvie are illuminated by telling quotations from Homer and Euripides, the authors known to have constituted Alexander''s favourite reading. John Maxwell O''Brien is thus also able to delineate broadly the thought processes of Greek antiquity.'\nATTRIBUTE OBJECT INTRINSIC CONTENTS SEQUENCE TAGGED version 1\nATTRIBUTE OBJECT INTRINSIC CONTENTS SEQUENCE TAGGED publication-status NYP\nATTRIBUTE OBJECT INTRINSIC CONTENTS SEQUENCE TAGGED new-publication-date 01'/09/94 Publication City: London'\nATTRIBUTE OBJECT INTRINSIC CONTENTS SEQUENCE TAGGED isbn 0415106176\nATTRIBUTE OBJECT INTRINSIC CONTENTS SEQUENCE TAGGED language English\nATTRIBUTE OBJECT INTRINSIC CONTENTS SEQUENCE TAGGED readership '/OMARK'\nATTRIBUTE OBJECT INTRINSIC CONTENTS SEQUENCE TAGGED subject-code-routledge 03042\nATTRIBUTE
+Packet 3:
+ OBJECT INTRINSIC CONTENTS SEQUENCE TAGGED author-name John' Maxwell O''Brien, Queens College of the City University of New York'\nATTRIBUTE OBJECT INTRINSIC CONTENTS SEQUENCE TAGGED publisher-organization-name Routledge\nATTRIBUTE OBJECT INTRINSIC CONTENTS SEQUENCE TAGGED trim 234x156\nATTRIBUTE OBJECT INTRINSIC CONTENTS SEQUENCE TAGGED pages 358\nATTRIBUTE OBJECT INTRINSIC CONTENTS SEQUENCE TAGGED illustrations-bw 7' maps and tables'\nATTRIBUTE OBJECT INTRINSIC CONTENTS SEQUENCE TAGGED binding-format Paperback\nATTRIBUTE OBJECT INTRINSIC CONTENTS SEQUENCE TAGGED document-toc '/OCONT'\nATTRIBUTE OBJECT INTRINSIC CONTENTS SEQUENCE TAGGED subject-main 03042\nATTRIBUTE OBJECT INTRINSIC CONTENTS SEQUENCE TAGGED subject-secondary 01040\nATTRIBUTE OBJECT INTRINSIC CONTENTS SEQUENCE TAGGED reviewer-name Paul' A. Gilster, The News and Observer'\nATTRIBUTE OBJECT INTRINSIC CONTENTS SEQUENCE TAGGED reviewer-quote `What' happened to Alexander? O''Brien''s answer is mesmerising... he brings to the tale a sense of fatalism that Euripides would understand.'''\nATTRIBUTE OBJECT INTRINSIC CONTENTS SEQUENCE TAGGED endorsement `a' minutely researched book ... lucid and compelling'' - The Independent on Sunday'\nATTRIBUTE OBJECT INTRINSIC ACCESS-METHOD SEQUENC
+Packet 4:
+E PROSPERO-CONTENTS '' '' '' ''\n
+p__get_pauth(): Error in P_PASSWORD authentication: Cannot open psession file /home/staff/bajan/.psession_12
+In ardp_send - sending to mocha-int.bunyip.com
+Packet 1:
+VERSION\nVERSION 5 ggB(P53.3Mar94)\nAUTHENTICATE '' UNAUTHENTICATED bajan\nDIRECTORY ASCII ARCHIE\nLIST ATTRIBUTES COMPONENTS FIND(100',100,0,routledge)'/alexander/*\n
+Sending message (cid=17481) (seq=1) to 192.197.208.1(1525)...Sent.
+Received packet from 192.197.208.1
+Service asked us to wait 900 seconds
+Current queue position on server is 1
+Received packet from 192.197.208.1
+Service asked us to wait 180 seconds
+Waiting for reply...Received packet from 192.197.208.1
+Service asked us to wait 0 seconds
+Packet 1 of 0 (cid=17481)
+Waiting for reply...Received packet from 192.197.208.1
+Ack requested
+Packet 2 of 2 (cid=17481)
+Packets now received through 2
+The complete response has been received.
+Acknowledging final packet to 192.197.208.1(1525)
+Sending message (ACK only) (cid=17481) (seq=0) to 192.197.208.1(1525)...Sent.
+Packets received...Packet 1:
+VERSION 5 P53.11May94\nLINK  L OBJECT Hardback' ' INTERNET-D MOCHA.BUNYIP.COM ASCII ARCHIE'/ITEM/WAIS/(%01%0blocalhost:0%02A%2fpfs%2finfo-tree%2fwww.thomson%2fDATABASES%2froutledge%2fproducts%2froutledge%03h0 4092 %2fexport%2farchie%2fsrc%2f3.0%2farchie%2fpfs%2finfo-tree%2fwww.thomson%2fDATABASES%2froutledge%2fproducts%2fcatalog2.txt%04%0blocalhost:0%05A%2fpfs%2finfo-tree%2fwww.thomson%2fDATABASES%2froutledge%2fproducts%2froutledge%06h0 4092 %2fexport%2farchie%2fsrc%2f3.0%2farchie%2fpfs%2finfo-tree%2fwww.thomson%2fDATABASES%2froutledge%2fproducts%2fcatalog2.txt%07%01%00,4092,TEXT,routledge)' 0\nATTRIBUTE CACHED APPLICATION WAIS_DOC_LEN SEQUENCE 4092\nATTRIBUTE CACHED APPLICATION WAIS_DOC_LINES SEQUENCE 131\nATTRIBUTE CACHED APPLICATION WAIS_DOC_SCORE SEQUENCE 1000\nATTRIBUTE CACHED APPLICATION WAIS_DOC_VERSION SEQUENCE -1\nATTRIBUTE CACHED APPLICATION WAIS_DOC_BESTMATCH SEQUENCE 0\nATTRIBUTE CACHED APPLICATION WAIS_DOC_DATE SEQUENCE 2099534\nATTRIBUTE CACHED APPLICATION WAIS_DOC_SOURCE SEQUENCE '/pfs/info-tree/www.thomson/DATABASES/routledge/products/routledge'\nATTRIBUTE CACHED APPLICATION WAIS_DOC_TYPES SEQUENCE TEXT\nATTRIBUTE OBJECT INTRINSIC BUNYIP-HEADLINE SEQUENCE Title Author-Name Publisher-Organization-Name ISBN Binding-Format\nLINK
+Packet 2:
+  L OBJECT Paperback' ' INTERNET-D MOCHA.BUNYIP.COM ASCII ARCHIE'/ITEM/WAIS/(%01%0blocalhost:0%02A%2fpfs%2finfo-tree%2fwww.thomson%2fDATABASES%2froutledge%2fproducts%2froutledge%03o449738 453958 %2fexport%2farchie%2fsrc%2f3.0%2farchie%2fpfs%2finfo-tree%2fwww.thomson%2fDATABASES%2froutledge%2fproducts%2fcatalog2.txt%04%0blocalhost:0%05A%2fpfs%2finfo-tree%2fwww.thomson%2fDATABASES%2froutledge%2fproducts%2froutledge%06o449738 453958 %2fexport%2farchie%2fsrc%2f3.0%2farchie%2fpfs%2finfo-tree%2fwww.thomson%2fDATABASES%2froutledge%2fproducts%2fcatalog2.txt%07%01%00,4220,TEXT,routledge)' 0\nATTRIBUTE CACHED APPLICATION WAIS_DOC_LEN SEQUENCE 4220\nATTRIBUTE CACHED APPLICATION WAIS_DOC_LINES SEQUENCE 133\nATTRIBUTE CACHED APPLICATION WAIS_DOC_SCORE SEQUENCE 9\nATTRIBUTE CACHED APPLICATION WAIS_DOC_VERSION SEQUENCE -1\nATTRIBUTE CACHED APPLICATION WAIS_DOC_BESTMATCH SEQUENCE 0\nATTRIBUTE CACHED APPLICATION WAIS_DOC_DATE SEQUENCE 2100166\nATTRIBUTE CACHED APPLICATION WAIS_DOC_SOURCE SEQUENCE '/pfs/info-tree/www.thomson/DATABASES/routledge/products/routledge'\nATTRIBUTE CACHED APPLICATION WAIS_DOC_TYPES SEQUENCE TEXT\nATTRIBUTE OBJECT INTRINSIC BUNYIP-HEADLINE SEQUENCE Title Author-Name Publisher-Organization-Name ISBN Binding-Format\n
+3WAIS file -- can't do this yet.
+p__get_pauth(): Error in P_PASSWORD authentication: Cannot open psession file /home/staff/bajan/.psession_12
+In ardp_send - sending to mocha-int.bunyip.com
+Packet 1:
+VERSION\nVERSION 5 ggB(P53.3Mar94)\nAUTHENTICATE '' UNAUTHENTICATED bajan\nGET-OBJECT-INFO BUNYIP-POSE-AS ASCII ARCHIE 0\n
+Sending message (cid=17482) (seq=1) to 192.197.208.1(1525)...Sent.
+Received packet from 192.197.208.1
+Service asked us to wait 900 seconds
+Current queue position on server is 1
+Received packet from 192.197.208.1
+Service asked us to wait 180 seconds
+Waiting for reply...Received packet from 192.197.208.1
+Service asked us to wait 0 seconds
+Packet 1 of 0 (cid=17482)
+Waiting for reply...Received packet from 192.197.208.1
+Packet 2 of 0 (cid=17482)
+Packets now received through 2
+Waiting for reply...Received packet from 192.197.208.1
+Packet 3 of 0 (cid=17482)
+Packets now received through 3
+Waiting for reply...Received packet from 192.197.208.1
+Ack requested
+Packet 4 of 4 (cid=17482)
+Packets now received through 4
+The complete response has been received.
+Acknowledging final packet to 192.197.208.1(1525)
+Sending message (ACK only) (cid=17482) (seq=0) to 192.197.208.1(1525)...Sent.
+Packets received...Packet 1:
+VERSION 5 P53.11May94\nATTRIBUTE OBJECT INTRINSIC CONTENTS SEQUENCE TAGGED title Alexander' the Great: The Invisible Enemy'\nATTRIBUTE OBJECT INTRINSIC CONTENTS SEQUENCE TAGGED short-title Alexander' the Great'\nATTRIBUTE OBJECT INTRINSIC CONTENTS SEQUENCE TAGGED sub-title A' Biography'\nATTRIBUTE OBJECT INTRINSIC CONTENTS SEQUENCE TAGGED short-blurb `O'''Brien has combined faultless scholarship with poetic vision to penetrate the events of Alexander''s extraordinary life and reveal the tragic pattern obscured by these tumultous events. This is not only biography; it is art.'' F Salvidio'\nATTRIBUTE OBJECT INTRINSIC CONTENTS SEQUENCE TAGGED long-blurb Alexander' and Dionysus:The Invisible Enemy differs from other biographies of Alexander in its assessment of the role of alcohol in his life. O''Brien uses the figure of Dionysus as a symbol of the destructive effects of alchohol on Alexander''s psyche. The deity serves as an agent through whom a cluster of ambivalent considerations is explored: the heroic and the Dionysiac, the rational and the irrational, male and female, sanity and madness. Alexander''s story unfolds as a tragedy in the Aristotelian sense of the word. Alexander is treated from birth to death as a total personality. His
+Packet 2:
+ culture, his gods, his parents, his aspirations, his exploits, his fears, his insecurities, his sexuality, his drinking, and the psychology of alcoholism are examined from an interdisciplinary perspective. The book utilises recent discoveries in archaeology and incorporates new interpretations from anthropology, psychology, mythology, philosphy and literature. The historical context provides a structure for these diverese insights. Key passages in the narratvie are illuminated by telling quotations from Homer and Euripides, the authors known to have constituted Alexander''s favourite reading. John Maxwell O''Brien is thus also able to delineate broadly the thought processes of Greek antiquity.'\nATTRIBUTE OBJECT INTRINSIC CONTENTS SEQUENCE TAGGED version 1\nATTRIBUTE OBJECT INTRINSIC CONTENTS SEQUENCE TAGGED publication-status NYP\nATTRIBUTE OBJECT INTRINSIC CONTENTS SEQUENCE TAGGED new-publication-date 01'/09/94 Publication City: London'\nATTRIBUTE OBJECT INTRINSIC CONTENTS SEQUENCE TAGGED isbn 0415106176\nATTRIBUTE OBJECT INTRINSIC CONTENTS SEQUENCE TAGGED language English\nATTRIBUTE OBJECT INTRINSIC CONTENTS SEQUENCE TAGGED readership '/OMARK'\nATTRIBUTE OBJECT INTRINSIC CONTENTS SEQUENCE TAGGED subject-code-routledge 03042\nATTRIBUTE
+Packet 3:
+ OBJECT INTRINSIC CONTENTS SEQUENCE TAGGED author-name John' Maxwell O''Brien, Queens College of the City University of New York'\nATTRIBUTE OBJECT INTRINSIC CONTENTS SEQUENCE TAGGED publisher-organization-name Routledge\nATTRIBUTE OBJECT INTRINSIC CONTENTS SEQUENCE TAGGED trim 234x156\nATTRIBUTE OBJECT INTRINSIC CONTENTS SEQUENCE TAGGED pages 358\nATTRIBUTE OBJECT INTRINSIC CONTENTS SEQUENCE TAGGED illustrations-bw 7' maps and tables'\nATTRIBUTE OBJECT INTRINSIC CONTENTS SEQUENCE TAGGED binding-format Paperback\nATTRIBUTE OBJECT INTRINSIC CONTENTS SEQUENCE TAGGED document-toc '/OCONT'\nATTRIBUTE OBJECT INTRINSIC CONTENTS SEQUENCE TAGGED subject-main 03042\nATTRIBUTE OBJECT INTRINSIC CONTENTS SEQUENCE TAGGED subject-secondary 01040\nATTRIBUTE OBJECT INTRINSIC CONTENTS SEQUENCE TAGGED reviewer-name Paul' A. Gilster, The News and Observer'\nATTRIBUTE OBJECT INTRINSIC CONTENTS SEQUENCE TAGGED reviewer-quote `What' happened to Alexander? O''Brien''s answer is mesmerising... he brings to the tale a sense of fatalism that Euripides would understand.'''\nATTRIBUTE OBJECT INTRINSIC CONTENTS SEQUENCE TAGGED endorsement `a' minutely researched book ... lucid and compelling'' - The Independent on Sunday'\nATTRIBUTE OBJECT INTRINSIC ACCESS-METHOD SEQUENC
+Packet 4:
+E PROSPERO-CONTENTS '' '' '' ''\n
+.
+weaseld(8691) [ 1 Jul 1994 06:07:07 GMT]: handle_request: request succeeded.
+weaseld(8691) [ 1 Jul 1994 06:07:07 GMT]: handle_transaction: handle_request() finished.

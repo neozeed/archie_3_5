@@ -1,0 +1,183 @@
+/*
+ * This file is copyright Bunyip Information Systems Inc., 1993. This file
+ * may not be reproduced, copied or transmitted by any means mechanical or
+ * electronic without the express written consent of Bunyip Information
+ * Systems Inc.
+ */
+
+
+#ifndef _HOST_DB_H
+#define _HOST_DB_H
+#include "ansi_compat.h"
+
+#include "typedef.h"
+#include "hinfo.h"
+#include "header.h"
+#include "archie_dns.h"
+#include "archie_inet.h"
+#include "databases.h"
+#include "domain.h"
+
+#ifndef DEFAULT_HOST_DB_DIR
+#define DEFAULT_HOST_DB_DIR	"./host"
+#endif
+
+#define	DEFAULT_NO_HOSTS	1000
+#define	DEFAULT_ADD_HOSTS	500
+
+#define	H_HOST_CHECK		0x1
+#define	H_SET_HOST_CHECK(x)	((x) |= H_HOST_CHECK)
+#define H_UNSET_HOST_CHECK(x)	((x) &= ~H_HOST_CHECK)
+#define H_IS_HOST_CHECK(x)	((x) & H_HOST_CHECK)
+
+#define	H_HOSTNAME_MODIFY	0x2
+#define	H_SET_HOSTNAME_MODIFY(x)	((x) |= H_HOSTNAME_MODIFY)
+#define H_UNSET_HOSTNAME_MODIFY(x)	((x) &= ~H_HOSTNAME_MODIFY)
+#define H_IS_HOSTNAME_MODIFY(x)	((x) & H_HOSTNAME_MODIFY)
+
+#define	H_HOSTADDR_MODIFY	0x4
+#define	H_SET_HOSTADDR_MODIFY(x)	((x) |= H_HOSTADDR_MODIFY)
+#define H_UNSET_HOSTADDR_MODIFY(x)	((x) &= ~H_HOSTADDR_MODIFY)
+#define H_IS_HOSTADDR_MODIFY(x)	((x) & H_HOSTADDR_MODIFY)
+
+typedef enum{HOST_OK = 0,
+    HOST_UNKNOWN = 0x1,			/* Can't find host in DNS */
+    HOST_ERROR = 0x2,		        /* Generic error */
+    HOST_PADDR_MISMATCH = 0x4,		/* Given primary address doesn't match DNS record */
+    HOST_CNAME_MISMATCH = 0x8,		/* Given CNAME doesn't match primary hostname */
+    HOST_RENAME_FAIL = 0x10,		/* Renaming host failed */
+    HOST_RENAME_INS_FAIL = 0x20,	/* Insertion of renamed host failed */
+    HOST_RENAME_DEL_FAIL = 0x40,	/* Deletion of old hostname failed */
+    HOST_ALREADY_EXISTS = 0x80,		/* "new" host already exists in database */
+    HOST_CNAME_UNKNOWN = 0x100,		/* Can't find CNAME record in DNS */
+    HOST_DB_ERROR = 0x200,		/* Generic database error */
+    HOST_ACCESS_EXISTS = 0x400,		/* Given "new" access already exists */
+    HOST_ACCESS_NOT_GIVEN = 0x800,	/* No access method given */
+    HOST_ACCESS_INS_FAIL = 0x1000,	/* Insertion of access method failed */
+    HOST_STORED_OTHERWISE = 0x2000,	/* Given host stored under a different name */
+    HOST_UNFOUND = 0x4000,		/* Can't find host in database */
+    HOST_PADDR_EXISTS = 0x8000,		/* Given "new" address already exists */
+    HOST_UPDATE_FAIL = 0x10000,	        /* Update of main host record failed */
+    HOST_ACCESS_UPDATE_FAIL = 0x20000,	/* Update of auxiliary host record failed */
+    HOST_PADDR_FAIL = 0x40000,
+    HOST_NAME_NOT_PRIMARY = 0x80000,	/* Given name not primary */
+    HOST_DOESNT_EXIST = 0x100000,       /* Host which should be in database isn't */
+    HOST_INS_FAIL = 0x200000,		/* failure to insert into database */
+    HOST_ACTIVE = 0x400000,		/* host record already active */
+    HOST_MALLOC_ERROR = 0x1000000,      /* malloc error in a host routine */
+    HOST_PTR_NULL = 0x2000000,		/* NULL pointer to routine */
+    HOST_IGNORE = 0x4000000
+
+}host_status_t;
+
+
+
+
+typedef struct{
+   hostname_t		primary_hostname;	/* Primary DNS hostname of site	*/
+   ip_addr_t		primary_ipaddr;		/* Primary IP address of site	*/
+   os_type_t		os_type;		/* OS operating at site		*/
+   timezone_t		timezone;		/* Timezone in which site resides	*/
+   access_methods_t	access_methods;		/* Access methods used at site	*/
+   flags_t		flags;			/* Miscellaneous info about site	*/
+} hostdb_t;
+
+
+/* Flags by bit number for hostdb
+
+   1) Site runs Prospero
+*/  
+
+#define HDB_SET_PROSPERO_SITE(x)	((x) |= 0x01)
+#define	HDB_UNSET_PROSPERO_SITE(x)	((x) &= ~0x01)
+#define	HDB_IS_PROSPERO_SITE(x)		((x) & 0x01)
+					
+
+typedef struct {
+   access_methods_t	access_methods;
+   index_t hostaux_index;
+} hostaux_index_t;
+
+typedef struct{
+   gen_prog_t		generated_by;	/* System generating header	*/
+   hostname_t		source_archie_hostname; /* archie host which generated data	*/
+   hostname_t		preferred_hostname;	/* Preferred hostname of site	*/
+   access_comm_t	access_command;	/* Codename for access script	*/
+   date_time_t		retrieve_time;	/* Time of retrieval (GMT) of data	*/
+   date_time_t		parse_time;	/* Time of processing (GMT) of data	*/
+   date_time_t		update_time;	/* Time of update (GMT) of data	*/
+   index_t		no_recs;	/* Number of records in data if applicable	*/
+   index_t		site_no_recs;	/* Number of records in sitefile if applicable	*/
+   current_status_t	current_status;	/* Current disposition of site	*/
+   index_t		fail_count;	/* Number of successive failures to update site */
+   flags_t		flags;		/* Miscellaneous info about site */
+   hostaux_index_t *origin;
+   comment_t		comment;
+} hostdb_aux_t;
+
+
+
+/* Flags by bit number for hostdb_aux
+
+   1) Force update on current entry
+
+*/
+
+#define HADB_SET_FORCE_UPDATE(x)	((x) |= 0x01)
+#define	HADB_UNSET_FORCE_UPDATE(x)	((x) &= ~0x01)
+#define	HADB_IS_FORCE_UPDATE(x)		((x) & 0x01)
+					
+typedef struct{
+   ip_addr_t	primary_ipaddr;
+   hostname_t	primary_hostname;
+} hostbyaddr_t;
+
+
+
+extern	status_t	open_host_dbs PROTO((file_info_t *, file_info_t *, file_info_t *, file_info_t *, int));
+extern	char*		set_host_db_dir PROTO((char *));
+extern	char*		get_host_db_dir PROTO((void));
+extern	char*		host_db_filename PROTO((char *));
+extern	void		modify_hostname PROTO((AR_DNS *,file_info_t *,file_info_t *, header_t *, host_status_t *, hostdb_t *));
+extern	void		modify_hostaddr PROTO((AR_DNS *,file_info_t *,file_info_t *,host_status_t *,hostdb_t *));
+extern	host_status_t	create_hostdb_ent PROTO((file_info_t *, file_info_t *, file_info_t *,header_t *,int,int));
+extern	hostdb_t*	search_in_preferred PROTO((hostname_t, file_info_t *, file_info_t *));
+extern	status_t	make_header_hostdb_entry PROTO((header_t *, hostdb_t *, int));
+extern	void		make_header_hostaux_entry PROTO((header_t *, hostdb_aux_t *, int));
+extern	status_t	hostaux_db_activate PROTO((header_t *, file_info_t *));
+extern	status_t	compile_database_list PROTO((char *, database_name_t *, int *));
+extern	host_status_t	check_new_hentry PROTO((file_info_t *,file_info_t *, hostdb_t *,file_info_t *, hostdb_aux_t *, int, int));
+extern	char*		get_host_error PROTO((host_status_t));
+extern	void		make_hostdb_from_header PROTO((header_t *,hostdb_t *,int));
+extern	host_status_t	check_old_hentry PROTO((file_info_t *,file_info_t *, hostdb_t *,file_info_t *, hostdb_aux_t *, int, int));
+extern	char*	        get_preferred_name PROTO((ip_addr_t, hostname_t, file_info_t *, file_info_t *));
+extern	status_t	get_hostnames PROTO((file_info_t *,hostname_t **,int *, domain_t *, int));
+extern	status_t	hostdb_cmp PROTO((hostdb_t *,hostdb_t *, int));
+extern	status_t	hostaux_cmp PROTO((hostdb_aux_t *,hostdb_aux_t *, int));
+extern	host_status_t   update_hostdb PROTO((file_info_t *, file_info_t *, hostdb_t *, int));
+extern	host_status_t   update_hostaux PROTO((file_info_t *, hostname_t, hostdb_aux_t *, int));
+extern	void		close_host_dbs PROTO((file_info_t *,file_info_t *,file_info_t *,file_info_t *));
+extern	void		make_hostaux_from_header PROTO((header_t *,hostdb_aux_t *,int));
+extern	status_t	get_domain_list PROTO((domain_struct *,int,file_info_t*));
+extern	status_t	get_hostaux_ent PROTO((char *, char *, index_t *, char *, access_comm_t, hostdb_aux_t *, file_info_t *));
+extern	status_t	get_hostaux_entry PROTO((char *, char *, index_t, hostdb_aux_t *, file_info_t *));
+extern	status_t	delete_hostaux_entry PROTO((char *, hostdb_aux_t *, file_info_t *));
+extern	status_t	delete_hostaux_ent PROTO((char *, char *,  file_info_t *));
+extern	int		find_in_databases PROTO((char *, domain_t *, int count));
+extern  status_t	delete_from_hostdb PROTO((char *, char *, index_t, file_info_t *));
+
+extern	host_status_t	do_hostdb_update PROTO((file_info_t *, file_info_t *, file_info_t *,header_t *,char *, int, int));
+extern	status_t	activate_site PROTO((header_t *, char *, file_info_t *));
+extern	host_status_t	handle_paddr_mismatch PROTO((char *, access_comm_t, char *, hostdb_t *, file_info_t *, file_info_t *));
+extern	host_status_t	handle_unknown_host PROTO((char *, char *, hostdb_t *, hostdb_aux_t *, file_info_t *, file_info_t *,file_info_t *));
+extern void find_hostaux_last PROTO((char *, char *, index_t *, file_info_t *));
+extern void clean_hostaux PROTO((hostdb_aux_t *));
+extern void copy_hostaux PROTO((hostdb_aux_t *, hostdb_aux_t *));
+extern status_t  get_index_from_port PROTO((hostname_t,  char *, int , index_t *,  file_info_t * ));
+extern status_t inactivate_if_found PROTO((hostname_t, char *, hostname_t, access_comm_t, file_info_t*));
+
+#endif
+
+
+
+

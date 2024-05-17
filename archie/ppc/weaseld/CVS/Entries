@@ -1,0 +1,17 @@
+/Makefile.in/2.0/Tue Aug 20 22:53:05 1996//
+/Makefile.post/2.1/Mon Sep 23 02:26:29 1996//
+/Makefile.pre/2.0/Tue Aug 20 22:53:06 1996//
+/_prog.c/2.0/Tue Aug 20 22:53:07 1996//
+/aprint.h/2.0/Tue Aug 20 22:53:08 1996//
+/contents.c/2.0/Tue Aug 20 22:53:09 1996//
+/contents.h/2.0/Tue Aug 20 22:53:10 1996//
+/gs.tcl/2.0/Tue Aug 20 22:53:11 1996//
+/print_anon.c/2.0/Tue Aug 20 22:53:11 1996//
+/print_gopher.c/2.0/Tue Aug 20 22:53:12 1996//
+/print_sites.c/2.0/Tue Aug 20 22:53:13 1996//
+/print_wais.c/2.0/Tue Aug 20 22:53:14 1996//
+/url.c/2.0/Tue Aug 20 22:53:15 1996//
+/url.h/2.0/Tue Aug 20 22:53:16 1996//
+D/AIX-2////
+D/SunOS-4.1.4////
+D/SunOS-5.4////

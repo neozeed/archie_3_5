@@ -1,0 +1,31 @@
+diff -b -r -c -N 10Mar94.all/lib/ardp/hostname2adr.c 10Mar94+/lib/ardp/hostname2adr.c
+*** 10Mar94.all/lib/ardp/hostname2adr.c	Tue Apr 26 16:33:30 1994
+--- 10Mar94+/lib/ardp/hostname2adr.c	Wed Apr 27 01:07:43 1994
+***************
+*** 98,104 ****
+  {
+        DNSCACHE    dc, nextdc;
+         if (alldnscache_count > DNSCACHE_MAX) {
+! 	 p_th_mutex_lock(p_th_mutexALLDNSCACHE);
+  	 for (dc = alldnscaches; dc ; dc = nextdc) {
+  	   nextdc = dc->next;
+  	   if (!(--dc->usecount)) {
+--- 98,105 ----
+  {
+    DNSCACHE    dc, nextdc;
+    if (alldnscache_count > DNSCACHE_MAX) {
+!     if (! p_th_mutex_trylock(p_th_mutexALLDNSCACHE)) {
+!       /* Since this is only optimisation, skip if its locked already */
+  	 for (dc = alldnscaches; dc ; dc = nextdc) {
+  	   nextdc = dc->next;
+  	   if (!(--dc->usecount)) {
+***************
+*** 109,114 ****
+--- 110,116 ----
+  	 }
+  	 p_th_mutex_unlock(p_th_mutexALLDNSCACHE);
+         }
++   }
+  }
+  
+  int

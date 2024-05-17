@@ -1,0 +1,141 @@
+#
+# Patrie module.
+#
+
+MOD_CFLAGS = -ansi -pedantic -pipe
+MOD_CFLAGS = -pipe
+#MOD_DEBUG  = -g3
+MOD_OPT    = -O3
+MOD_WARN   = -Wall -Wtraditional -Wshadow -Wpointer-arith -Wcast-align \
+             -Wstrict-prototypes -Wnested-externs -Winline
+
+
+include $(ARCHIE_ROOT)/Makefile.pre
+
+
+INCS = \
+        Test.h                 \
+        bits.h                 \
+        case.h                 \
+        defs.h                 \
+        init.h                 \
+        int_stack.h            \
+        levels.h               \
+        page.h                 \
+        patrie.h               \
+        ptr_stack.h            \
+        search.h               \
+        sort.h                 \
+        state.h                \
+        timing.h               \
+        trailer.h              \
+        utils.h
+
+SRCS = \
+        DiffSort.c             \
+        ExSort.c               \
+        RandSearch.c           \
+        RandText.c             \
+        Sort2Infix.c           \
+        Test.c                 \
+        Test_bits.c            \
+        Test_bs.c              \
+        Test_copybits.c        \
+        Test_fast_ustrcmp.c    \
+        Test_fast_ustrncmp.c   \
+        Test_page.c            \
+        Test_page2.c           \
+        Test_ptr_stack.c       \
+        Test_search.c          \
+        Test_sort.c            \
+        Test_sort2infix.c      \
+        Test_state.c           \
+        Test_stats_infix.c     \
+        Test_strcmp.c          \
+        Test_tolower.c         \
+        bits.c                 \
+        build.c                \
+        case.c                 \
+        init.c                 \
+        int_stack.c            \
+        levels.c               \
+        page.c                 \
+        ptr_stack.c            \
+        search.c               \
+        sort.c                 \
+        state.c                \
+        text.c                 \
+        timing.c               \
+        trailer.c              \
+        utils.c
+
+OBJS = \
+        DiffSort.o             \
+        ExSort.o               \
+        RandSearch.o           \
+        RandText.o             \
+        Sort2Infix.o           \
+        Test.o                 \
+        Test_bits.o            \
+        Test_bs.c              \
+        Test_copybits.o        \
+        Test_fast_ustrcmp.o    \
+        Test_fast_ustrncmp.o   \
+        Test_page.o            \
+        Test_page2.o           \
+        Test_ptr_stack.o       \
+        Test_search.o          \
+        Test_sort.o            \
+        Test_state.o           \
+        Test_stats_infix.o     \
+        Test_strcmp.o          \
+        Test_tolower.o         \
+        bits.o                 \
+        build.o                \
+        case.o                 \
+        init.o                 \
+        int_stack.o            \
+        levels.o               \
+        page.o                 \
+        ptr_stack.o            \
+        search.o               \
+        sort.o                 \
+        state.o                \
+        text.o                 \
+        timing.o               \
+        trailer.o              \
+        utils.o
+
+EXES = \
+        DiffSort              \
+        ExSort                \
+        RandSearch            \
+        RandText              \
+        Sort2Infix            \
+        Test_bits             \
+        Test_bs               \
+        Test_copybits         \
+        Test_fast_ustrcmp     \
+        Test_fast_ustrncmp    \
+        Test_page             \
+        Test_page2            \
+        Test_ptr_stack        \
+        Test_search           \
+        Test_sort             \
+        Test_state            \
+        Test_stats_infix      \
+        Test_strcmp           \
+        Test_tolower
+
+XTRA = \
+        =search.c             \
+        CheckPaged.c          \
+        LevelDump.c           \
+        Levels.c              \
+        O_build.tcl           \
+        O_search.tcl          \
+        Test_check_paged.c    \
+        Test_complete_build
+
+
+DIST_FILES = $(INCS) $(SRCS) $(XTRA) Makefile.in TODO

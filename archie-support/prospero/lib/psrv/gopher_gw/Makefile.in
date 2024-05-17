@@ -1,0 +1,47 @@
+SOURCEBASE = ../../..
+include $(SOURCEBASE)/Makefile.config
+
+CFILES = \
+	glalloc.c \
+	goph_gw_dsdb.c \
+	goph_gw_mutex.c 
+
+OBJECTS = \
+	glalloc.o \
+	goph_gw_dsdb.o \
+	goph_gw_mutex.o 
+
+OTHERTARGETS = ${GOPHER_GW_LIB}
+
+all:	${GOPHER_GW_LIB}
+
+${GOPHER_GW_LIB}: ${OBJECTS} 
+	rm -f ${GOPHER_GW_LIB}
+	ar r${AR_FLAGS} ${GOPHER_GW_LIB} ${OBJECTS}
+	$(RANLIB) ${GOPHER_GW_LIB}
+
+# Dependencies
+glalloc.o : ../../../include/pfs.h \
+  ../../../include/pfs_utils.h ../../../include/ardp.h \
+  ../../../include/pfs_threads.h \
+  ../../../include/list_macros.h \
+  ../../../include/../lib/ardp/flocks.h ../../../include/implicit_fixes.h \
+  ../../../include/pmachine.h \
+  ../../../include/psrv.h ../../../include/pparse.h \
+  gopher.h ../../../include/mitra_macros.h 
+goph_gw_dsdb.o : \
+  ../../../include/pmachine.h \
+  ../../../include/pserver.h \
+  ../../../include/ardp.h \
+  ../../../include/pfs_threads.h ../../../include/pfs_utils.h \
+  ../../../include/list_macros.h \
+  ../../../include/../lib/ardp/flocks.h ../../../include/pfs.h \
+  ../../../include/implicit_fixes.h \
+  ../../../include/psrv.h ../../../include/pparse.h \
+  ../../../include/perrno.h ../../../include/plog.h gopher.h 
+goph_gw_mutex.o : gopher.h \
+  ../../../include/pfs_threads.h \
+  ../../../include/pfs_utils.h ../../../include/pfs.h ../../../include/ardp.h \
+  ../../../include/list_macros.h \
+  ../../../include/../lib/ardp/flocks.h ../../../include/implicit_fixes.h \
+  ../../../include/pmachine.h 

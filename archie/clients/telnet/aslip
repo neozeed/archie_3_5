@@ -1,0 +1,12 @@
+#!/bin/csh
+set DBIN=~archie/bin
+set T=telnet-client
+set tc=$DBIN/$T
+set otc=$DBIN/$T-
+set ntc=$DBIN/$T+
+
+if ( -f $T ) then
+  cp $tc $ntc && cp $T $ntc && rm -f $otc && ln $tc $otc && mv $ntc $tc
+else
+  echo "Error: $T not in current directory"
+endif

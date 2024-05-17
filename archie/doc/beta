@@ -1,0 +1,86 @@
+
+
+
+                        Archie 3.5 Beta
+                        ---------------
+
+
+
+New in this release:
+--------------------
+
+
+- Lock files are now created in ~archie/db/locks
+
+- the ``-t'' switch on arcontrol creates the new files  and work files
+  in the specified temp directory and not in ~archie/db/tmp
+
+- New module (webindex)  with the databse in ~archie/db/webindex_db
+
+- New database structure and search engine
+
+  The files Stridx.* in db/anonftp_db or in db/webindex_db 
+  correspond to the new search engine.
+  
+  The site files have now a new internal structure and have their
+  filenames in the format ip_addr:port
+  For anonftp, the port is always 21 whereas for webindex
+  the ports may be different.
+
+  In order to speed the searches, an index of the searchable strings
+  is used. This index is not built every time a `arcontrol -u' is run.
+  A separate program db_build is used for this.
+
+- Webindex
+
+  Archie still works on a site by site basis. New sites/urls found
+  along the way are stored in the ~archie/db/webindex_db/exturls_db.*
+  database. The program `extern_urls' can be used to add sites to
+  the hostdb database so that Archie can index them.
+  
+- cgi-bin scripts for accessing the Archie database through
+  the Web.
+
+- A much better domain filter  for anonftp than before !!
+
+  The file ~archie/etc/domain.order contains the order of the domains
+
+  domains list on the same line are equivalent.
+  domain lines are ordered as they appear .. i.e. domains in line i
+  appear before in line j  <==>  i < j
+
+  e.g.
+       com:edu
+       fr:de
+
+  .com and .edu sites will appear before .fr and .de sites in the
+  results.
+
+
+
+Currently working on:
+---------------------
+
+- Rewrite of the cgi-bin front-end to be more flexible.
+
+- Archie Help page
+
+- Regular Expressions with the new search engine.
+
+- New set of manpages and documentation.
+
+
+Currently testing:
+------------------
+
+- dirsv with the new database technology.
+
+
+Known Problems:
+---------------
+
+- arexchange of webindex will not work 100%
+  it will not transfer .excerpt files... we still need to figure out
+  how much infromation is gathered first by the indexers...
+
+

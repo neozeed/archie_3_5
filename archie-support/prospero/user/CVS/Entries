@@ -1,0 +1,25 @@
+/.cvsignore/1.1.1.1/Thu Mar 18 16:50:58 1999//
+/FILES/1.1.1.1/Thu Mar 18 16:50:58 1999//
+/Makefile.in/1.1.1.1/Thu Mar 18 16:50:58 1999//
+/als.c/1.1.1.1/Thu Mar 18 16:50:58 1999//
+/aq_query.c/1.1.1.1/Thu Mar 18 16:50:58 1999//
+/archie.c/1.1.1.1/Thu Mar 18 16:50:58 1999//
+/gen_vfsetup.c/1.1.1.1/Thu Mar 18 16:50:58 1999//
+/gmon.out/1.1.1.1/Thu Mar 18 16:50:58 1999//
+/list_acl.c/1.1.1.1/Thu Mar 18 16:50:58 1999//
+/newvs.c/1.1.1.1/Thu Mar 18 16:50:58 1999//
+/p__vcd.c/1.1.1.1/Thu Mar 18 16:50:59 1999//
+/p__vfsetup.c/1.1.1.1/Thu Mar 18 16:50:59 1999//
+/padmin.c/1.1.1.1/Thu Mar 18 16:50:59 1999//
+/pfs.c/1.1.1.1/Thu Mar 18 16:50:59 1999//
+/psession.c/1.1.1.1/Thu Mar 18 16:50:59 1999//
+/pstatus.c/1.1.1.1/Thu Mar 18 16:50:59 1999//
+/set_acl.c/1.1.1.1/Thu Mar 18 16:50:59 1999//
+/set_atr.c/1.1.1.1/Thu Mar 18 16:50:59 1999//
+/vget.c/1.1.1.1/Thu Mar 18 16:50:59 1999//
+/vln.c/1.1.1.1/Thu Mar 18 16:50:59 1999//
+/vls.c/1.1.1.1/Thu Mar 18 16:50:59 1999//
+/vmkdir.c/1.1.1.1/Thu Mar 18 16:50:59 1999//
+/vrm.c/1.1.1.1/Thu Mar 18 16:50:59 1999//
+D/menu////
+D/vcache////

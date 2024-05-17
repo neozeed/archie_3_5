@@ -1,0 +1,979 @@
+diff -b -r -c -N 10Mar94.all/include/pfs.h 10Mar94+/include/pfs.h
+*** 10Mar94.all/include/pfs.h	Tue Apr 26 15:36:21 1994
+--- 10Mar94+/include/pfs.h	Mon Apr 18 21:40:49 1994
+***************
+*** 1052,1058 ****
+--- 1052,1061 ----
+  extern int lookup_precedence_by_precedencename(const char t_precedence[]);
+  extern char *lookup_precedencename_by_precedence(int precedence);
+  extern void p__set_username(char *un);
++ #include <sys/socket.h>
+  extern int quick_connect(int s, struct sockaddr *name, int namelen, int timeout);
++ extern int quick_fgetc(FILE *stream, int timeout);
++ extern int quick_read(int fd, char *nptr, int nbytes, int timeout);
+  extern char *p_timetoasn_stcopyr(time_t ourtime, char *target);
+  extern int vcache2(char *host, char *remote, char *local, char *method,
+  		   int argc, char *argv[]);
+diff -b -r -c -N 10Mar94.all/include/vcache.h 10Mar94+/include/vcache.h
+*** 10Mar94.all/include/vcache.h	Tue Apr 26 15:36:22 1994
+--- 10Mar94+/include/vcache.h	Mon Apr 18 21:30:57 1994
+***************
+*** 1,5 ****
+  /* Internal commands used in user/vcache */
+  void setpeer(char *hostn);
+  void set_type(char *t);
+! int recvrequest(char *cmd, char *local, char *remote, char *mode);
+  
+--- 1,10 ----
+  /* Internal commands used in user/vcache */
+  void setpeer(char *hostn);
+  void set_type(char *t);
+! int recvrequest(char *cmd, char *local, char *remote, char *amode);
+! int ruserpass(char *host, char **aname, char **apass, char **aacct);
+! void lostpeer(void);
+! int login(char *host);
+! /* Dont define command - it should use vargs, but doesnt */
+! void pswitch(int flag);
+  
+diff -b -r -c -N 10Mar94.all/lib/pcompat/scandir.c 10Mar94+/lib/pcompat/scandir.c
+*** 10Mar94.all/lib/pcompat/scandir.c	Tue Apr 26 15:37:29 1994
+--- 10Mar94+/lib/pcompat/scandir.c	Fri Apr 15 19:48:00 1994
+***************
+*** 40,45 ****
+--- 40,46 ----
+  #include <dirent.h>
+  #endif
+  
++ #include <pfs_threads.h>	/* For PFS_THREADS */
+  /*
+   * The DIRSIZ macro gives the minimum record length which will hold
+   * the directory entry.  This requires the amount of space in struct dirent
+diff -b -r -c -N 10Mar94.all/lib/pfs/socket.c 10Mar94+/lib/pfs/socket.c
+*** 10Mar94.all/lib/pfs/socket.c	Tue Apr 26 15:36:32 1994
+--- 10Mar94+/lib/pfs/socket.c	Tue Apr 19 00:49:21 1994
+***************
+*** 22,31 ****
+  #include <pfs_threads.h>
+  #include <sockettime.h>
+  
+- /* How long do we want to wait before returning an error */
+- #define CONNECT_TIMEOUT	5
+- #define READ_TIMEOUT	5
+- 
+  #ifdef TIMEOUT_APPROACH
+  EXTERN_TYPEP_DEF(jmp_buf, Jmpenv);
+  #define Jmpenv p_th_arJmpenv[p__th_self_num()]
+--- 22,27 ----
+***************
+*** 53,58 ****
+--- 49,64 ----
+  
+  #endif /*TIMEOUT_APPROACH*/
+  
++ #ifdef SELECT_APPROACH
++ int
++ wait_till_stream_readable(FILE *str, int timeout)
++ {
++   if (str->_cnt > 0) return 1;
++   return (wait_till_readable(fileno(str),timeout));
++ }
++ 
++ #endif /*SELECT_APPROACH*/
++ 
+  /* This is adapted from interruptable_connect in gopher */
+  int
+  quick_connect(int s, struct sockaddr *name, int namelen, int timeout)
+***************
+*** 130,136 ****
+       	}
+  #endif
+  #ifdef SELECT_APPROACH
+! 	switch (wait_till_readable(fileno(stream),timeout)) {
+  	     case -1:      p_err_string = qsprintf_stcopyr(p_err_string,
+  		      "INTERNAL: read select failed: %s", unixerrstr());
+  	              return NULL;
+--- 136,142 ----
+       	}
+  #endif
+  #ifdef SELECT_APPROACH
+! 	switch (wait_till_stream_readable(stream,timeout)) {
+  	     case -1:      p_err_string = qsprintf_stcopyr(p_err_string,
+  		      "INTERNAL: read select failed: %s", unixerrstr());
+  	              return NULL;
+***************
+*** 147,153 ****
+  	/* fgets can retunr an incomplete line, since it is non-blocking */
+  	if (retval) {
+  	  int buflen =  strlen(s);
+! 	  if (s[buflen -1 ] != '\n') {
+  	    retval = quick_fgets(s+buflen, n-buflen, stream, timeout);
+  	  }
+  	}
+--- 153,159 ----
+  	/* fgets can retunr an incomplete line, since it is non-blocking */
+  	if (retval) {
+  	  int buflen =  strlen(s);
+! 	  if ((s[buflen -1 ] != '\n') && (n-1 > buflen)) {
+  	    retval = quick_fgets(s+buflen, n-buflen, stream, timeout);
+  	  }
+  	}
+***************
+*** 158,160 ****
+--- 164,223 ----
+  #endif
+  	return retval;
+  }
++ 
++ #if 0
++ 
++ int
++ quick_fgetc(FILE *stream, int timeout)
++ {
++ 	int retval;
++ 
++ #ifdef TIMEOUT_APPROACH
++ 	syscall_oldalarmtime = alarm(timeout);
++         if ((syscall_oldintr = signal(SIGALRM, alarmJmp)) == SIG_ERR)
++             perror("signal died:\n"), exit(-1);
++      	if (setjmp(Jmpenv)) {
++ 		/* Note alarmJmp will reprime alarm*/
++ 		errno = ETIMEDOUT;
++ 		return(EOF);
++      	}
++ #endif
++ #ifdef SELECT_APPROACH
++ 	switch (wait_till_stream_readable(stream,timeout)) {
++ 	     case -1:      p_err_string = qsprintf_stcopyr(p_err_string,
++ 	         "INTERNAL: quick_fgetc: select failed: %s", unixerrstr());
++ 	       return EOF;
++ 	     case 0:       p_err_string = qsprintf_stcopyr(p_err_string,
++ 		      "waited more than %d secs for a response", timeout);
++ 	       errno = ETIMEDOUT;
++ 	              return EOF;
++ 	     }
++ 	     /* Default is going to be 1 - which is success */
++ 
++ #endif /*SELECT_APPROACH*/
++ 	retval = getc(stream);
++ 	    
++ #ifdef TIMEOUT_APPROACH
++ 	reprimeAlarm(syscall_oldalarmtime,syscall_oldintr);
++ #endif
++ 	return retval;
++ 
++ 
++ }
++ #endif
++ 
++ int quick_fgetc (FILE *stream, int timeout) 
++ {
++   char     c[2];
++   char    *retval;
++ 
++   if (!(retval = quick_fgets(c, 2, stream, timeout))) {
++     /* errno set in quick_fgets */
++     return EOF;
++   }
++   return c[0];
++ }
++ 
++ 
++     
++ 
+diff -b -r -c -N 10Mar94.all/lib/psrv/wais_gw/irfileio.c 10Mar94+/lib/psrv/wais_gw/irfileio.c
+*** 10Mar94.all/lib/psrv/wais_gw/irfileio.c	Fri Mar 11 05:31:38 1994
+--- 10Mar94+/lib/psrv/wais_gw/irfileio.c	Mon Apr 18 14:53:21 1994
+***************
+*** 215,221 ****
+  #define S      (4L)
+  #define QUOTE  (5L)
+  
+! 
+  boolean ReadStartOfList(file)
+  FILE* file;
+  {
+--- 214,220 ----
+  #define S      (4L)
+  #define QUOTE  (5L)
+  
+! #if !defined(IN_RMG)
+  boolean ReadStartOfList(file)
+  FILE* file;
+  {
+***************
+*** 242,248 ****
+  }
+  
+  
+- 
+  boolean ReadEndOfList(file)
+  FILE* file;
+  {
+--- 241,246 ----
+***************
+*** 255,260 ****
+--- 253,259 ----
+        return(FALSE);
+    }
+  }
++ #endif /*!IN_RMG*/
+  
+  #define STRING_ESC '\\'
+  
+***************
+*** 487,493 ****
+      
+    }
+  }
+! 
+  long ReadEndOfListOrStruct(file)
+  FILE* file;
+  {
+--- 486,492 ----
+      
+    }
+  }
+! #if !defined(IN_RMG)
+  long ReadEndOfListOrStruct(file)
+  FILE* file;
+  {
+***************
+*** 502,508 ****
+        return(FALSE);
+    }
+  }
+! 
+  
+  long ReadString(string,file,string_size)
+  char* string;
+--- 501,507 ----
+        return(FALSE);
+    }
+  }
+! #endif
+  
+  long ReadString(string,file,string_size)
+  char* string;
+***************
+*** 544,550 ****
+  	}
+  }
+  
+- 
+  long ReadStartOfStruct(name,file)
+  char* name;
+  FILE* file;
+--- 543,548 ----
+***************
+*** 586,592 ****
+    }
+  }
+  
+- 
+  long CheckStartOfStruct(name,file)
+  char* name;
+  FILE* file;
+--- 584,589 ----
+***************
+*** 603,608 ****
+--- 600,606 ----
+      return(FALSE);
+  }
+  
++ #if !defined(IN_RMG)
+  
+  long ReadAny(destination,file)
+  any* destination;
+***************
+*** 656,662 ****
+  	return(retval);
+  }
+  
+- 
+  long Read8BitArray(destination,file,length)
+  char* destination;
+  FILE* file;
+--- 654,659 ----
+***************
+*** 771,773 ****
+--- 768,771 ----
+  
+    return(true);
+  }
++ #endif
+diff -b -r -c -N 10Mar94.all/lib/psrv/wais_gw/irfileio.h 10Mar94+/lib/psrv/wais_gw/irfileio.h
+*** 10Mar94.all/lib/psrv/wais_gw/irfileio.h	Fri Mar 11 05:31:38 1994
+--- 10Mar94+/lib/psrv/wais_gw/irfileio.h	Mon Apr 18 14:56:58 1994
+***************
+*** 22,34 ****
+  long ReadString(char* string, FILE* file, long string_size);
+  long CheckStartOfStruct(char* name, FILE* file);
+  long ReadAny(any* destination, FILE* file);
+! long ReadTM(struct tm* time, FILE* file);
+! long Read8BitArray(char* destination, FILE* file, long length);
+  long ReadEndOfListOrStruct(FILE* file);
+  long ReadStartOfStruct(char* name, FILE* file);
+  boolean ReadStartOfList(FILE* file);
+  boolean ReadEndOfList(FILE* file);
+! boolean	readAbsoluteTime(struct tm* time,FILE* file);
+  long WriteStartOfStruct(char* name, FILE* file);
+  long WriteEndOfStruct(FILE* file);
+  long WriteSymbol(char* name, FILE* file);
+--- 22,34 ----
+  long ReadString(char* string, FILE* file, long string_size);
+  long CheckStartOfStruct(char* name, FILE* file);
+  long ReadAny(any* destination, FILE* file);
+! long ReadTM(struct tm* atime, FILE* file);
+! long Read8BitArray(char* destination, FILE* file, long len);
+  long ReadEndOfListOrStruct(FILE* file);
+  long ReadStartOfStruct(char* name, FILE* file);
+  boolean ReadStartOfList(FILE* file);
+  boolean ReadEndOfList(FILE* file);
+! boolean	readAbsoluteTime(struct tm* atime,FILE* file);
+  long WriteStartOfStruct(char* name, FILE* file);
+  long WriteEndOfStruct(FILE* file);
+  long WriteSymbol(char* name, FILE* file);
+***************
+*** 37,46 ****
+  long WriteLong(long number, FILE* file);
+  long WriteDouble(double number, FILE* file);
+  long WriteAny(any* value, FILE* file);
+! long Write8BitArray(long length, char* array, FILE* file);
+! long WriteTM(struct tm* time, FILE* file);
+  long WriteStartOfList(FILE* file);
+  long WriteEndOfList(FILE* file);
+! boolean	writeAbsoluteTime(struct tm* time,FILE* file); 
+  
+  #endif 
+--- 37,46 ----
+  long WriteLong(long number, FILE* file);
+  long WriteDouble(double number, FILE* file);
+  long WriteAny(any* value, FILE* file);
+! long Write8BitArray(long len, char* array, FILE* file);
+! long WriteTM(struct tm* atime, FILE* file);
+  long WriteStartOfList(FILE* file);
+  long WriteEndOfList(FILE* file);
+! boolean	writeAbsoluteTime(struct tm* atime,FILE* file); 
+  
+  #endif 
+diff -b -r -c -N 10Mar94.all/user/vcache/cmds.c 10Mar94+/user/vcache/cmds.c
+*** 10Mar94.all/user/vcache/cmds.c	Tue Apr 26 15:37:23 1994
+--- 10Mar94+/user/vcache/cmds.c	Mon Apr 18 21:18:42 1994
+***************
+*** 38,44 ****
+  #include <pmachine.h>		/* after netdb.h */
+  #include <perrno.h>
+  #include "vcache_macros.h"
+! 
+  extern	char *home;
+  extern	short gflag;
+  extern	char *getenv();
+--- 38,44 ----
+  #include <pmachine.h>		/* after netdb.h */
+  #include <perrno.h>
+  #include "vcache_macros.h"
+! #include <vcache.h>
+  extern	char *home;
+  extern	short gflag;
+  extern	char *getenv();
+***************
+*** 46,51 ****
+--- 46,53 ----
+  extern	char *rindex();
+  char *mname;
+  jmp_buf jabort;
++ /* Forward declerations */
++ static void disconnect(void);
+  
+  /*
+   * Connect to peer server and
+***************
+*** 143,149 ****
+  /*
+   * Terminate session, but don't exit.
+   */
+! void
+  disconnect()
+  {
+  	extern FILE *cout;
+--- 145,151 ----
+  /*
+   * Terminate session, but don't exit.
+   */
+! static void
+  disconnect()
+  {
+  	extern FILE *cout;
+diff -b -r -c -N 10Mar94.all/user/vcache/ftp.c 10Mar94+/user/vcache/ftp.c
+*** 10Mar94.all/user/vcache/ftp.c	Tue Apr 26 15:37:39 1994
+--- 10Mar94+/user/vcache/ftp.c	Tue Apr 19 01:02:11 1994
+***************
+*** 44,52 ****
+  #include <pmachine.h>
+  #include <perrno.h>
+  #include "vcache_macros.h"
+! 
+  #include <pfs.h>		/* For quick_connect */
+  #include <implicit_fixes.h>
+  
+  #ifdef SOLARIS
+  /* Should be defined in stdio.h */
+--- 44,53 ----
+  #include <pmachine.h>
+  #include <perrno.h>
+  #include "vcache_macros.h"
+! #include <vcache.h>
+  #include <pfs.h>		/* For quick_connect */
+  #include <implicit_fixes.h>
++ #include <sockettime.h>
+  
+  #ifdef SOLARIS
+  /* Should be defined in stdio.h */
+***************
+*** 56,61 ****
+--- 57,66 ----
+  #define F_OPEN_TIMEOUT 5
+  #endif
+  
++ #ifndef F_READ_TIMEOUT
++ #define F_READ_TIMEOUT 60
++ #endif
++ 
+  struct	sockaddr_in hisctladdr;
+  struct	sockaddr_in data_addr;
+  int	data = -1;
+***************
+*** 81,95 ****
+  static void tvsub(struct timeval *tdiff, struct timeval *t1, 
+  		  struct timeval *t0);
+  static void proxtrans(	char *cmd, char *local, char  *remote);
+  
+  /* Returns hostname, or if fails then returns 0 and closes socket */
+  char *
+! hookup(host, port)
+! 	char *host;
+! 	int port;
+  {
+- 	register struct hostent *hp = 0;
+  	int s,len;
+  	static char hostnamebuf[80];
+  
+  	bzero((char *)&hisctladdr, sizeof (hisctladdr));
+--- 86,101 ----
+  static void tvsub(struct timeval *tdiff, struct timeval *t1, 
+  		  struct timeval *t0);
+  static void proxtrans(	char *cmd, char *local, char  *remote);
++ static int getreply(int expecteof);
++ static int initconn();
+  
+  /* Returns hostname, or if fails then returns 0 and closes socket */
+  char *
+! hookup(char *host, int port)
+  {
+    int s,len;
++ #ifndef SELECT_APPROACH
++ 	register struct hostent *hp = 0;
+  	static char hostnamebuf[80];
+  
+  	bzero((char *)&hisctladdr, sizeof (hisctladdr));
+***************
+*** 146,151 ****
+--- 152,164 ----
+  		code = -1;
+  		goto bad;
+  	}
++ #else
++ 	if ((s = quick_open_tcp_stream(host,port,F_OPEN_TIMEOUT)) < 0) {
++ 	  ERRSYS("ftp: socket:%s %s");
++ 	  code = -1;
++ 	  return 0;
++ 	}
++ #endif /*SELECT_APPROACH*/
+  	len = sizeof (myctladdr);
+  	if (getsockname(s, (char *)&myctladdr, &len) < 0) {
+  		ERRSYS("ftp: getsockname:%s %s");
+***************
+*** 181,198 ****
+  		}
+  #endif SO_OOBINLINE
+  
+  	return (hostname);
+  bad:
+  	(void) close(s);
+  	return ((char *)0);
+  }
+  
+  int
+! login(host)
+! 	char *host;
+  {
+  	char tmp[80];
+! 	char *user, *pass, *acct, *getlogin(), *getpass();
+  	int n, aflag = 0;
+  
+  	char *myhstnm, username[120], password[120], account[120];
+--- 194,214 ----
+  		}
+  #endif SO_OOBINLINE
+  
++ #ifdef SELECT_APPROACH
++   return(host);
++ #else
+  	return (hostname);
++ #endif /*SELECT_APPROACH*/
+  bad:
+  	(void) close(s);
+  	return ((char *)0);
+  }
+  
+  int
+! login(char *host)
+  {
+  	char tmp[80];
+! 	char *user, *pass, *l_acct, *getlogin(), *getpass();
+  	int n, aflag = 0;
+  
+  	char *myhstnm, username[120], password[120], account[120];
+***************
+*** 201,207 ****
+  	assert(P_IS_THIS_THREAD_MASTER()); /* getpwuid MT-Unsafe */
+  	DISABLE_PFS(whoiampw = getpwuid(getuid()));
+  
+! 	user = pass = acct = 0;
+  	if (anonlogin) {
+  		user = "anonymous";
+  
+--- 217,223 ----
+  	assert(P_IS_THIS_THREAD_MASTER()); /* getpwuid MT-Unsafe */
+  	DISABLE_PFS(whoiampw = getpwuid(getuid()));
+  
+! 	user = pass = l_acct = 0;
+  	if (anonlogin) {
+  		user = "anonymous";
+  
+***************
+*** 221,227 ****
+  			if (whoiampw != NULL)
+  				myname = whoiampw->pw_name;
+  		}
+! 		DISABLE_PFS(code = ruserpass(host, &user, &pass, &acct));
+  		if (user) {
+  		    strncpy(username, user, sizeof(username)-1);
+  		    free(user);
+--- 237,243 ----
+  			if (whoiampw != NULL)
+  				myname = whoiampw->pw_name;
+  		}
+! 		DISABLE_PFS(code = ruserpass(host, &user, &pass, &l_acct));
+  		if (user) {
+  		    strncpy(username, user, sizeof(username)-1);
+  		    free(user);
+***************
+*** 231,243 ****
+  		    strncpy(password, pass, sizeof(password)-1);
+  		    free(pass);
+  		}
+! 		if (acct) {
+! 		    strncpy(account, acct, sizeof(account)-1);
+! 		    free(acct);
+! 		    acct = account;
+  		}
+  		if (code < 0) {
+! 		    user = pass = acct = NULL;
+  		}
+  		if (user) myname = user;	/* Use name found in .netrc */
+  		if (myname) {
+--- 247,259 ----
+  		    strncpy(password, pass, sizeof(password)-1);
+  		    free(pass);
+  		}
+! 		if (l_acct) {
+! 		    strncpy(account, l_acct, sizeof(account)-1);
+! 		    free(l_acct);
+! 		    l_acct = account;
+  		}
+  		if (code < 0) {
+! 		    user = pass = l_acct = NULL;
+  		}
+  		if (user) myname = user;	/* Use name found in .netrc */
+  		if (myname) {
+***************
+*** 262,276 ****
+  	}
+  	if (n == CONTINUE) {
+  		aflag++;
+! 		acct = getpass("Account:");
+! 		n = command("ACCT %s", acct);
+  	}
+  	if (n != COMPLETE) {
+  		ERR("Login failed.");
+  		return (0);
+  	}
+! 	if (!aflag && acct != NULL)
+! 		(void) command("ACCT %s", acct);
+  	if (proxy)
+  		return(1);
+  #ifdef UNDEFINED
+--- 278,292 ----
+  	}
+  	if (n == CONTINUE) {
+  		aflag++;
+! 		l_acct = getpass("Account:");
+! 		n = command("ACCT %s", l_acct);
+  	}
+  	if (n != COMPLETE) {
+  		ERR("Login failed.");
+  		return (0);
+  	}
+! 	if (!aflag && l_acct != NULL)
+! 		(void) command("ACCT %s", l_acct);
+  	if (proxy)
+  		return(1);
+  #ifdef UNDEFINED
+***************
+*** 333,339 ****
+  
+  #include <ctype.h>
+  
+! int
+  getreply(int expecteof)
+  {
+  	register int c, firstchar;
+--- 349,355 ----
+  
+  #include <ctype.h>
+  
+! static int
+  getreply(int expecteof)
+  {
+  	register int c, firstchar;
+***************
+*** 350,360 ****
+  	for (;;) {
+  		dig = firstchar = code = 0;
+  		cp = reply_string;
+! 		while ((c = getc(cin)) != '\n') {
+  			if (verbose) 
+  				fputc(c,stderr);
+  			if (c == IAC) {     /* handle telnet commands */
+! 				switch (c = getc(cin)) {
+  				case WILL:
+  				case WONT:
+  					c = getc(cin);
+--- 366,376 ----
+  	for (;;) {
+  		dig = firstchar = code = 0;
+  		cp = reply_string;
+! 		while ((c = quick_fgetc(cin,F_READ_TIMEOUT)) != '\n') {
+  			if (verbose) 
+  				fputc(c,stderr);
+  			if (c == IAC) {     /* handle telnet commands */
+! 				switch (c = quick_fgetc(cin,F_READ_TIMEOUT)) {
+  				case WILL:
+  				case WONT:
+  					c = getc(cin);
+***************
+*** 367,373 ****
+  					fprintf(cout, "%c%c%c",IAC,WONT,c);
+  					(void) fflush(cout);
+  					break;
+! 				default:
+  					break;
+  				}
+  				continue;
+--- 383,389 ----
+  					fprintf(cout, "%c%c%c",IAC,WONT,c);
+  					(void) fflush(cout);
+  					break;
+! 				default:   /* Including EOF */
+  					break;
+  				}
+  				continue;
+***************
+*** 380,386 ****
+--- 396,407 ----
+  					return (0);
+  				}
+  				lostpeer();
++ 				if (errno == ETIMEDOUT) {
++ 			  /* Unfortunately haveto return error this way*/
++ 				  ERR("421 Service timed out");
++ 				} else {
+  				  ERR("421 Service not available, remote server has closed connection");
++ 				}
+  				code = 421;
+  				return(4);
+  			}
+***************
+*** 464,470 ****
+                                     old formula VLINKS uses #defines. */
+  #endif
+  int
+! recvrequest(char *cmd, char *local, char *remote, char *mode)
+  {
+  	FILE *fout, *din = 0, *mypopen();
+  	int (*closefunc)(), mypclose(), fclose();
+--- 485,491 ----
+                                     old formula VLINKS uses #defines. */
+  #endif
+  int
+! recvrequest(char *cmd, char *local, char *remote, char *rr_mode)
+  {
+  	FILE *fout, *din = 0, *mypopen();
+  	int (*closefunc)(), mypclose(), fclose();
+***************
+*** 618,624 ****
+  		closefunc = mypclose;
+  	}
+  	else {
+! 		fout = fopen(local, mode);
+  		if (fout == NULL) {
+  			ERRSYS("%s%s: %s",localerrst);
+  			goto abort;
+--- 639,645 ----
+  		closefunc = mypclose;
+  	}
+  	else {
+! 		fout = fopen(local, rr_mode);
+  		if (fout == NULL) {
+  			ERRSYS("%s%s: %s",localerrst);
+  			goto abort;
+***************
+*** 631,637 ****
+  	case TYPE_I:
+  	case TYPE_L:
+  		errno = d = 0;
+! 		while ((c = read(fileno(din), buf, sizeof (buf))) > 0) {
+  			if ((d = write(fileno(fout), buf, c)) < 0)
+  				break;
+  			bytes += c;
+--- 652,658 ----
+  	case TYPE_I:
+  	case TYPE_L:
+  		errno = d = 0;
+! 		while ((c = quick_read(fileno(din), buf, sizeof (buf),F_READ_TIMEOUT)) > 0) {
+  			if ((d = write(fileno(fout), buf, c)) < 0)
+  				break;
+  			bytes += c;
+***************
+*** 651,657 ****
+  		break;
+  
+  	case TYPE_A:
+! 		while ((c = getc(din)) != EOF) {
+  			while (c == '\r') {
+  				while (hash && (bytes >= hashbytes)) {
+  					(void) putchar('#');
+--- 672,678 ----
+  		break;
+  
+  	case TYPE_A:
+! 		while ((c = quick_fgetc(din,F_READ_TIMEOUT)) != EOF) {
+  			while (c == '\r') {
+  				while (hash && (bytes >= hashbytes)) {
+  					(void) putchar('#');
+***************
+*** 659,665 ****
+  					hashbytes += sizeof (buf);
+  				}
+  				bytes++;
+! 				if ((c = getc(din)) != '\n' || tcrflag) {
+  					if (ferror (fout))
+  						break;
+  					(void) putc ('\r', fout);
+--- 680,687 ----
+  					hashbytes += sizeof (buf);
+  				}
+  				bytes++;
+! 				if ((c = quick_fgetc(din, F_READ_TIMEOUT)) 
+! 				    != '\n' || tcrflag) {
+  					if (ferror (fout))
+  						break;
+  					(void) putc ('\r', fout);
+***************
+*** 764,770 ****
+  		lostpeer();
+  	}
+  	if (din && FD_ISSET(fileno(din), &mask)) {
+! 		while ((c = read(fileno(din), buf, sizeof (buf))) > 0)
+  			;
+  	}
+  	if ((c = getreply(0)) == ERROR && code == 552) { /* needed for nic style abort */
+--- 786,792 ----
+  		lostpeer();
+  	}
+  	if (din && FD_ISSET(fileno(din), &mask)) {
+! 		while ((c = quick_read(fileno(din), buf, sizeof (buf),F_READ_TIMEOUT)) > 0)
+  			;
+  	}
+  	if ((c = getreply(0)) == ERROR && code == 552) { /* needed for nic style abort */
+***************
+*** 798,804 ****
+  int sendport = -1;
+  
+  /* Returns: 1 failure to socket  !! Can leave socket open on failure */
+! int
+  initconn()
+  {
+  	register char *p, *a;
+--- 820,826 ----
+  int sendport = -1;
+  
+  /* Returns: 1 failure to socket  !! Can leave socket open on failure */
+! static int
+  initconn()
+  {
+  	register char *p, *a;
+***************
+*** 863,870 ****
+  }
+  
+  FILE *
+! dataconn(mode)
+! 	char *mode;
+  {
+  	struct sockaddr_in from;
+  	int s, fromlen = sizeof (from);
+--- 885,891 ----
+  }
+  
+  FILE *
+! dataconn(char *dc_mode)
+  {
+  	struct sockaddr_in from;
+  	int s, fromlen = sizeof (from);
+***************
+*** 877,883 ****
+  	}
+  	(void) close(data);
+  	data = s;
+! 	return (fdopen(data, mode));
+  }
+  
+  void
+--- 898,904 ----
+  	}
+  	(void) close(data);
+  	data = s;
+! 	return (fdopen(data, dc_mode));
+  }
+  
+  void
+***************
+*** 923,930 ****
+  }
+  
+  void
+! pswitch(flag)
+! 	int flag;
+  {
+  	extern int proxy, abrtflag;
+  	SIGNAL_RET_TYPE (*oldintr)();
+--- 944,950 ----
+  }
+  
+  void
+! pswitch(int flag)
+  {
+  	extern int proxy, abrtflag;
+  	SIGNAL_RET_TYPE (*oldintr)();
+diff -b -r -c -N 10Mar94.all/user/vcache/ruserpass.c 10Mar94+/user/vcache/ruserpass.c
+*** 10Mar94.all/user/vcache/ruserpass.c	Fri Mar 11 05:31:24 1994
+--- 10Mar94+/user/vcache/ruserpass.c	Mon Apr 18 21:18:44 1994
+***************
+*** 79,86 ****
+  };
+  
+  int
+! ruserpass(host, aname, apass, aacct)
+! 	char *host, **aname, **apass, **aacct;
+  {
+  	char *hdir, buf[BUFSIZ], *tmp;
+  	char myname[MAXHOSTNAMELEN], *mydomain;
+--- 79,85 ----
+  };
+  
+  int
+! ruserpass(char *host, char **aname, char **apass, char **aacct)
+  {
+  	char *hdir, buf[BUFSIZ], *tmp;
+  	char myname[MAXHOSTNAMELEN], *mydomain;
+diff -b -r -c -N 10Mar94.all/user/vcache/vcache.c 10Mar94+/user/vcache/vcache.c
+*** 10Mar94.all/user/vcache/vcache.c	Tue Apr 26 15:37:39 1994
+--- 10Mar94+/user/vcache/vcache.c	Mon Apr 25 19:47:25 1994
+***************
+*** 213,230 ****
+      }
+  }
+  
+- /* Return PFAILURE or PSUCCESS.  Displays a message if cache_verbose is set. */
+- /* This function deliberately leaks memory.  That's ok, since VCACHE will exit
+-    quickly, so it would be a waste of time to explicitly free the memory. */
+  static int
+  prospero_contents_get(VLINK vl, char *local)
+  {
+!     PATTRIB at;
+      FILE *local_file = NULL;    /* file pointer for local destination */ 
+      int retval = PSUCCESS;      /* return from function */
+      int need_newline = 0;       /* set to 1 if data didn't end with a newline
+                                     */ 
+- 
+      /* Seek multiple instances of the attribute.  */
+      
+      for (at = pget_at(vl,"CONTENTS"); at; at = at->next) {
+--- 213,226 ----
+      }
+  }
+  
+  static int
+  prospero_contents_get(VLINK vl, char *local)
+  {
+!     PATTRIB at = NULL;
+      FILE *local_file = NULL;    /* file pointer for local destination */ 
+      int retval = PSUCCESS;      /* return from function */
+      int need_newline = 0;       /* set to 1 if data didn't end with a newline
+                                     */ 
+      /* Seek multiple instances of the attribute.  */
+      
+      for (at = pget_at(vl,"CONTENTS"); at; at = at->next) {
+***************
+*** 240,246 ****
+                  if (local_file == NULL) {
+                      ERRSYS ( "vcache: Couldn't create the local file %s: %s", 
+                                  local);
+!                     return PFAILURE;
+                  }
+              }
+          }
+--- 236,242 ----
+                  if (local_file == NULL) {
+                      ERRSYS ( "vcache: Couldn't create the local file %s: %s", 
+                                  local);
+!                     RETURN(PFAILURE);
+                  }
+              }
+          }
+***************
+*** 264,272 ****
+      }
+      if (!local_file) {
+          ERR("vcache: Couldn't get remote object's CONTENTS attribute.%s");
+!         return PFAILURE;
+      }
+      if (ferror(local_file)) retval = PFAILURE;
+!     return retval;
+  }
+  
+--- 260,271 ----
+      }
+      if (!local_file) {
+          ERR("vcache: Couldn't get remote object's CONTENTS attribute.%s");
+!         RETURN(PFAILURE);
+      }
+      if (ferror(local_file)) retval = PFAILURE;
+!   cleanup:
+!     if (local_file) { if (fclose(local_file)) { retval = PFAILURE; } }
+!     if (at) atfree(at);
+!     return(retval);
+  }
+  

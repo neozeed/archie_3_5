@@ -1,0 +1,31 @@
+/.cvsignore/1.1.1.1/Thu Mar 18 16:50:44 1999//
+/FILES/1.1.1.1/Thu Mar 18 16:50:44 1999//
+/Makefile.in/1.1.1.1/Thu Mar 18 16:50:44 1999//
+/ad2l_atr.c/1.1.1.1/Thu Mar 18 16:50:44 1999//
+/at_delete.c/1.1.1.1/Thu Mar 18 16:50:44 1999//
+/change_acl.c/1.1.1.1/Thu Mar 18 16:50:45 1999//
+/check_acl.c/1.1.1.1/Thu Mar 18 16:50:45 1999//
+/check_nfs.c/1.1.1.1/Thu Mar 18 16:50:45 1999//
+/chk_krb_auth.c/1.1.1.1/Thu Mar 18 16:50:45 1999//
+/chk_localpth.c/1.1.1.1/Thu Mar 18 16:50:45 1999//
+/dsdir.c/1.1.1.1/Thu Mar 18 16:50:45 1999//
+/dsrfinfo.c/1.1.1.1/Thu Mar 18 16:50:45 1999//
+/dsrobject.c/1.1.1.1/Thu Mar 18 16:50:45 1999//
+/dsrobject_v6.c/1.1.1.1/Thu Mar 18 16:50:45 1999//
+/dswfinfo.c/1.1.1.1/Thu Mar 18 16:50:46 1999//
+/dswobject.c/1.1.1.1/Thu Mar 18 16:50:46 1999//
+/error_reply.c/1.1.1.1/Thu Mar 18 16:50:46 1999//
+/magic.c/1.1.1.1/Thu Mar 18 16:50:46 1999//
+/named_acl.c/1.1.1.1/Thu Mar 18 16:50:46 1999//
+/optparse.c/1.1.1.1/Thu Mar 18 16:50:46 1999//
+/plog.c/1.1.1.1/Thu Mar 18 16:50:46 1999//
+/ppasswd.c/1.1.1.1/Thu Mar 18 16:50:47 1999//
+/psrv_mutexes.c/1.1.1.1/Thu Mar 18 16:50:47 1999//
+/replyf.c/1.1.1.1/Thu Mar 18 16:50:47 1999//
+/retrieve_fp.c/1.1.1.1/Thu Mar 18 16:50:47 1999//
+/srv_qoprintf.c/1.1.1.1/Thu Mar 18 16:50:47 1999//
+/stat_object.c/1.1.1.1/Thu Mar 18 16:50:47 1999//
+D/archie2////
+D/archie3////
+D/gopher_gw////
+D/wais_gw////

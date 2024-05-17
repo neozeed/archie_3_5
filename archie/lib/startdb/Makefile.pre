@@ -1,0 +1,39 @@
+#
+# Host DB module.
+#
+
+#MOD_CFLAGS = -ansi -pedantic -pipe
+MOD_DEBUG  = -g3  
+MOD_WARN   = -Wall -Wtraditional -Wshadow -Wpointer-arith -Wcast-align \
+             -Wstrict-prototypes -Wnested-externs
+
+MOD_INCS = -I$(ARCHIE_ROOT)/include -I$(WEBINDEX_MODULE)/lib -I.
+MOD_LIBS = -L$(HOSTDB_MODULE) -lhostdb -L$(LIBARCHIE_MODULE) -llibarchie
+
+
+include $(ARCHIE_ROOT)/Makefile.pre
+
+
+INCS = \
+				lang_startdb.h \
+				start_db.h
+
+SRCS = \
+				domain.c				\
+				host_table.c		\
+				lang_startdb.c	\
+				reorder.c \
+				start_db.c
+
+OBJS = \
+				domain.o				\
+				host_table.o		\
+				lang_startdb.o	\
+				reorder.o \
+				start_db.o
+
+
+
+
+EXES = \
+	libstartdb.a

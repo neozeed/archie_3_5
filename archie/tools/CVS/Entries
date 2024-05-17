@@ -1,0 +1,29 @@
+/Makefile.post/2.5/Tue Apr  7 23:14:53 1998//
+/Makefile.pre/2.4/Tue Apr  7 23:18:36 1998//
+/ardomain.c/2.2/Tue Jan 28 16:15:06 1997//
+/convert_hostdb.c/2.0/Tue Aug 20 22:53:22 1996//
+/db_build.c/2.0/Tue Aug 20 22:53:23 1996//
+/db_check.c/2.1/Fri Sep 13 03:11:59 1996//
+/db_dump.c/2.0/Tue Aug 20 22:53:25 1996//
+/db_reorder.c/2.1/Tue Oct 15 03:03:26 1996//
+/db_siteidx.c/2.0/Tue Aug 20 22:53:26 1996//
+/db_stats.c/2.1/Sun Jan 19 20:10:55 1997//
+/dbspecs.c/2.0/Tue Aug 20 22:53:28 1996//
+/dump_hostdb.c/2.1/Thu Nov 28 19:54:10 1996//
+/fix_start_db.c/2.2/Sun Jan 19 20:24:35 1997//
+/host_manage.c/2.4/Thu Nov 14 18:39:05 1996//
+/host_manage.h/2.0/Tue Aug 20 22:53:31 1996//
+/lang_tools.c/2.0/Tue Aug 20 22:53:32 1996//
+/lang_tools.h/2.0/Tue Aug 20 22:53:33 1996//
+/listd.h/2.0/Tue Aug 20 22:53:34 1996//
+/old_host_db.h/2.0/Tue Aug 20 22:53:35 1996//
+/old_hostdb.c/2.0/Tue Aug 20 22:53:36 1996//
+/old_hostdb.h/2.0/Tue Aug 20 22:53:37 1996//
+/restore_hostdb.c/2.2/Sun Jan 19 20:25:24 1997//
+/screen.c/2.2/Thu Nov 14 18:39:07 1996//
+/screen.h/2.1/Fri Sep 13 03:13:09 1996//
+/utils.c/2.0/Tue Aug 20 22:53:39 1996//
+/utils.h/2.0/Tue Aug 20 22:53:40 1996//
+D/AIX-2////
+D/SunOS-4.1.4////
+D/SunOS-5.4////

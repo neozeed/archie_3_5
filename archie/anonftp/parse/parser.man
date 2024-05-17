@@ -1,0 +1,95 @@
+.TH PARSER 1 "4 August 1992"
+.SH NAME
+parser \- generate input to the insertion routine from recursive listings
+
+.SH SYNOPSIS
+\fIsys_type\fB_parser
+[
+.B \-h
+] [
+.B \-i
+.I input\-file
+] [
+.B \-o
+.I output\-file
+] [
+.B \-p
+.I prep\-dir
+] [
+.B \-r
+.I root\-dir
+]
+
+.SH DESCRIPTION
+.LP
+\fIsys_type\fB_parser\fR describes a family of parsers, currenly with members
+.B unix_parser
+and
+.BR vms_parser .
+
+.PP
+\fIsys_type\fB_parser\fR
+reads a recursive directory listing obtained under the \fIsys_type\fR operating
+system.
+Its output is intended to be the input to the program which inserts site
+listings into the archie(TM) database.
+
+.SH OPTIONS
+.LP
+.TP 5n
+.B  \-h
+No headers.
+The listing is not expected to have a special header (normally used by all
+programs in the database insertion pipeline), nor will it generate one on
+output.  This option can be used for debugging or to test raw (unprocessed) listings.
+.TP 5n
+.B  \-i
+Input.
+The next argument is the name of the file containing the recursive listing. If
+unspecified,
+.I stdin
+is assumed.
+.TP 5n
+.B  \-o
+Output.
+The next argument is the name of the file to which the output will be written.
+If unspecified,
+.I stdout
+is assumed.
+.TP 5n
+.B  \-p
+Prepended directory.
+Currently, this is used only by the UNIX parser.  The next argument is
+prepended to the start of all \fIdirectory definitions\fR.  For
+example, an argument of `.' can be used to turn the \fIdirectory
+definition\fR `bin:' into `./bin:', which is more easily digested by the parser.
+.TP 5n
+.B  \-r
+Root directory.
+This is currently only used by the UNIX parser.  The next argument is the name
+the root directory from which the listing is assumed to be taken.  This option
+is often, but not always, used in conjunction with the
+.B \-p
+option, and is typically the same string, but with the trailing `/' replaced
+with a `:'.  For example, together these arguments might be `-r .: -p .'.
+.TP 5n
+.B  \-v
+Verbose.
+Unless this option is given,
+\fIsys_type\fB_parser\fR will emit no warnings or error messages.  The only
+indication that something has gone wrong will be the return code, and the
+truncated (but valid) output.
+
+.SH SEE ALSO
+.BR foo (5),
+
+.SH BUGS
+Lots, probably.
+
+.SH AUTHOR
+The archie Group
+.br
+Bunyip Information Systems
+.br
+.br
+Montr\o"\'e"al, Qu\o"\'e"bec, Canada

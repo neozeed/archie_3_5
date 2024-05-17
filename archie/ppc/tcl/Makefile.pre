@@ -1,0 +1,65 @@
+#
+# ppc/tcl
+#
+
+PDIR  = $(PROSPERO_ROOT)
+MDIR  = $(PDIR)/user/menu
+
+#
+# Some convenience macros.
+#
+#PPC   = $(PPC_MODULE)/lib/$(SYSTYPE)/libppc.a
+MLIB  = $(MDIR)/libmenu.a
+PSRV  = $(PDIR)/lib/psrv/libpsrv.a
+VCCH  = $(PDIR)/user/vcache/libpvcache.a
+PFS   = $(PDIR)/lib/pfs/libpfs.a
+FILT  = $(PDIR)/lib/filters/libfilter.a
+ARDP  = $(PDIR)/lib/ardp/libardp.a
+ARCH_ = $(LIBPARCHIE_MODULE)/$(SYSTYPE)/libparchie.a
+PSAR  = $(LIBPSARCHIE_MODULE)/$(SYSTYPE)/libpsarchie.a
+#SDB   = $(STARTDB_MODULE)/$(SYSTYPE)/libstartdb.a
+#HDB   = $(HOSTDB_MODULE)/$(SYSTYPE)/libhostdb.a
+TCL   = /usr/local/lib/libtcl.a
+
+
+LIBS = \
+        $(PPC)   \
+        $(MLIB)  \
+        $(PSRV)  \
+        $(VCCH)  \
+        $(PFS)   \
+        $(FILT)  \
+        $(ARDP)  \
+        $(ARCH_) \
+        $(PSAR)  \
+        $(SDB)   \
+        $(HDB)
+
+#MOD_DEFS   = -DDEBUG -DNO_TCL
+MOD_DEBUG  = -g3
+MOD_INCS   = -I$(PPC_MODULE)/lib -I$(PDIR)/include -I$(MDIR) \
+             -I$(ARCHIE_ROOT)/include -I/usr/local/include
+MOD_WARN   = -Wall -Wtraditional -Wshadow -Wpointer-arith -Wcast-align \
+             -Wnested-externs
+MOD_LIBS   = $(LIBS)
+
+
+include $(ARCHIE_ROOT)/Makefile.pre
+
+
+INCS = \
+       dpInt.h \
+       prsp.h \
+       prsp_vlink.h
+
+SRCS = \
+       prsp.c \
+       prsp_vlink.c \
+       tclAppInit.c \
+       tkAppInit.c \
+       tkMain.c
+
+OBJS = \
+       prsp.o \
+       prsp_vlink.o \
+       tclAppInit.o

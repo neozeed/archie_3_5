@@ -1,0 +1,63 @@
+#
+# ppc/ferretd
+#
+
+#
+# Put this first to override the FORCE target in the included make file.
+#
+all: $(EXES)  ferretd.1	
+
+
+include $(ARCHIE_ROOT)/Makefile.post
+
+
+#
+# Some convenience macros.
+#
+PPC   = $(PPC_MODULE)/lib/$(SYSTYPE)/libppc.a
+MLIB  = $(MDIR)/libmenu.a
+PSRV  = $(PDIR)/lib/psrv/libpsrv.a
+VCCH  = $(PDIR)/user/vcache/libpvcache.a
+PFS   = $(PDIR)/lib/pfs/libpfs.a
+FILT  = $(PDIR)/lib/filters/libfilter.a
+ARDP  = $(PDIR)/lib/ardp/libardp.a
+ARCH_ = $(LIBPARCHIE_MODULE)/$(SYSTYPE)/libparchie.a
+PSAR  = $(LIBPSARCHIE_MODULE)/$(SYSTYPE)/libpsarchie.a
+SDB   = $(STARTDB_MODULE)/$(SYSTYPE)/libstartdb.a
+HDB   = $(HOSTDB_MODULE)/$(SYSTYPE)/libhostdb.a
+
+LIBS = \
+        $(PPC)   \
+        $(MLIB)  \
+        $(PSRV)  \
+        $(VCCH)  \
+        $(PFS)   \
+        $(FILT)  \
+        $(ARDP)  \
+        $(ARCH_) \
+        $(PSAR)  \
+        $(SDB)   \
+        $(HDB)
+
+ferretd: $(OBJS) $(PPC_MODULE)/lib/$(SYSTYPE)/main.o $(LIBS)
+	$(CC) -o $@ $(CFLAGS) $(PPC_MODULE)/lib/$(SYSTYPE)/main.o \
+    $(OBJS) $(LIBS) $(MOD_LIBS) $(SYS_LIBS) -lm
+
+$(PPC_MODULE)/lib/$(SYSTYPE)/main.o $(PPC): FORCE
+	cd $(PPC_MODULE)/lib/$(SYSTYPE) && $(MAKE) main.o libppc.a
+
+#
+# Overkill, but good enough for now.
+#
+#$(MLIB) $(PSRV) $(VCCH) $(PFS) $(FILT) $(ARDP): FORCE
+#	cd $(PROSPERO_ROOT) && $(MAKE)
+
+ferretd.1: $(PPC_MODULE)/lib/ppc.man
+	sed -e 's/__PROTO__/WWW/g' -e 's/__PORT__/80/' \
+				-e 's/__SERVER__/ferretd/g' -e 's/__USERVER__/FERRETD/g' \
+				< $(PPC_MODULE)/lib/ppc.man > ferretd.1
+
+$(PPC_MODULE)/lib/ppc.man:
+
+clean:
+	rm -f *.o ferretd TAGS core ferretd.1

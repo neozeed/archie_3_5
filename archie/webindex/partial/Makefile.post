@@ -1,0 +1,24 @@
+#
+# webindex/partial module.
+#
+
+#
+# Put this first to override the FORCE target in the included make file.
+#
+all: $(EXES)
+
+
+include $(ARCHIE_ROOT)/Makefile.post
+
+
+partial_webindex: \
+                   $(LIBARCHIE_MODULE)/$(SYSTYPE)/libarchie.a \
+                   $(STRIDX_MODULE)/$(SYSTYPE)/libarchstridx.a \
+                   $(HOSTDB_MODULE)/$(SYSTYPE)/libhostdb.a \
+                   $(PATRIE_MODULE)/$(SYSTYPE)/libpatrie.a \
+                   $(WEBINDEX_MODULE)/lib/$(SYSTYPE)/libwebindex.a \
+                   $(OBJS)
+	$(CC) $(CFLAGS) -o $@ $(OBJS) $(MOD_LIBS) $(SYS_LIBS)
+
+clean:
+	rm -f *.o $(EXES) core

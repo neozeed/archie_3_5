@@ -1,0 +1,89 @@
+#
+# The makefile you're looking at contains rules that operate on the
+# tree as a whole.  Therefore, it doesn't need to be included in any
+# other make files.
+#
+
+help:
+	@echo ""
+	@echo "Possible targets are:  all  all_clean  all_depend  all_newsys all_dist"
+	@echo ""
+
+include $(ARCHIE_ROOT)/Makefile.pre
+
+# Distribution directory
+DISTDIR = /archie/dist
+
+# Redefine CC so make depend will work at this level, too.
+CC = :
+
+# Toast VPATH to avoid confusing `make dist' under GNU make.
+VPATH =
+
+#
+# Recursively build each Archie module.
+#
+all:
+	for dir in $(SING_LEVEL_MODULES) ; do \
+		(cd $$dir/$(SYSTYPE) && $(MAKE) ) ; \
+	done
+	for dir in $(MULTI_LEVEL_MODULES) ; do \
+		(cd $$dir && $(MAKE) ) ; \
+	done
+
+#
+# Recursively clean each Archie module.
+#
+all_clean:
+	for dir in $(SING_LEVEL_MODULES) ; do \
+		(cd $$dir/$(SYSTYPE) && $(MAKE) clean) ; \
+	done
+	for dir in $(MULTI_LEVEL_MODULES) ; do \
+		(cd $$dir && $(MAKE) clean) ; \
+	done
+	for dir in $(GEN_MODULES) ; do \
+		(cd $$dir && $(MAKE) clean) ; \
+	done
+
+#
+# Recursively `depend' each module.
+#
+all_depend:
+	set -u ; find $(ARCHIE_ROOT) -name Makefile.in -print | sed 's/\(.*\)\.in/cp \1.in \1/' | sh
+	for dir in $(SING_LEVEL_MODULES) ; do \
+		(cd $$dir/$(SYSTYPE) && $(MAKE) depend) ; \
+	done
+	for dir in $(MULTI_LEVEL_MODULES) ; do \
+		(cd $$dir && $(MAKE) depend) ; \
+	done
+	for dir in $(GEN_MODULES) ; do \
+		(cd $$dir && $(MAKE) depend) ; \
+	done
+
+
+all_newsys:
+	for dir in $(SING_LEVEL_MODULES) ; do \
+		(cd $$dir && $(MAKE) -f $(ARCHIE_ROOT)/Makefile.in newsys) ; \
+	done
+	for dir in $(MULTI_LEVEL_MODULES) ; do \
+		(cd $$dir && $(MAKE) -f Makefile.in indirect_newsys) ; \
+	done
+
+
+
+#
+# Recursively create distribution for each module.
+#
+all_dist:
+	for dir in $(BIN_SING_LEVEL_MODULES) ; do \
+		(cd $$dir/$(SYSTYPE) && $(MAKE) dist) ; \
+	done
+	for dir in $(MULTI_LEVEL_MODULES) ; do \
+		(cd $$dir && $(MAKE) all_dist) ; \
+	done
+
+
+
+include $(ARCHIE_ROOT)/Makefile.post
+
+# DO NOT DELETE THIS LINE -- make depend depends on it

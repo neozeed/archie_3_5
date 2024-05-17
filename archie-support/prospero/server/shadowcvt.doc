@@ -1,0 +1,71 @@
+shadowcvt will convert directory service information that is version 1
+dirsrv format to version 5 dirsrv format.
+
+To use this program correctly, you need to understand a bit about how
+version 1 directory service information was stored.
+
+The SHADOW directory is P_SITE_DIRECTORY/P_SHADOW (or in P_FSHADOW)
+(these are constants defined in "include/psite.h").
+
+It contains a copy of the directory hierarchy for all directory
+service information stored by the server that's not just taken
+directly from the filesystem.
+
+It contains two types of files.  One type is in dsdir format, and
+contains contents listings for directories.  The last component of
+these files is always ".directory#contents".  The other type is in
+dsfile format.  It contains attribute information for objects, including
+forwarding pointers and attribute information for directories.
+dsfile format was never written by the servers.  
+
+To do the conversion:
+
+Cd to the 'server' directory in the prospero distribution and type
+'make shadowcvt'.  This will compile the executable program shadowcvt.
+Now make it accessible to your shell under the name 'shadowcvt'.  In my
+environment, I would do this by typing:
+                alias shadowcvt $cwd/shadowcvt  
+
+
+Run:
+        cd P_FSHADOW
+        find . -type f -print > /tmp/shadow.files
+        
+        grep -v /.directory#contents$ /tmp/shadow.files
+
+Any files that appear as a result of the grep operation are NOT
+dsdir format files.  They are presumably dsfile format.  You will have
+to manually convert them.  Note that you will only have these files if
+you manually created them in the first place, so you're presumably
+already a Prospero wizard, and shouldn't have any problems dealing
+with them.
+
+
+To do the conversion itself:
+        cd P_SITE_DIRECTORY
+
+        grep /.directory#contents$ /tmp/shadow.files \
+                | shadowcvt P_FSHADOW P_FSHADOW.v5
+
+
+If any of the .directory#contents files were malformed, you will get
+error messages.    You shouldn't get any error messages. 
+You will also get error messages if you made any EXTERNAL links to
+files using access-methods other than Anonymous FTP.  Such links will
+be skipped, as will any line of the .directory#contents files that
+yield error messages, and you'll have to manually convert them, but
+the rest ofn the file will be converted.
+
+Rename your shadow directory from P_FSHADOW to something else, like
+P_FSHADOW.v1.   As soon as you do this renaming, prospero requests
+arriving to the old server will start to fail, so work quickly until
+you reach the end of these instructions.  Rename the new shadow
+directory from P_FSHADOW.v5 to P_FSHADOW. 
+
+Leave P_FSHADOW.v1 around as a backup for a while in case you need to
+revert to Version 1 of the server. 
+
+Manually kill the old (version 1) server.  Now start and run the
+version 5 server with "pstart".  It is backwards compatible with
+version 1 clients, so everything should work immediately.
+

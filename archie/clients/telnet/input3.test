@@ -1,0 +1,14 @@
+set status
+set max_split_size 30000
+set maxhits 15
+
+domains
+mail wheelan
+whatis xnlock
+set search subcase
+find etc
+show
+
+set server archie.uqam.ca
+whatis xnlock
+set search sub

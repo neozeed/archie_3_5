@@ -1,0 +1,211 @@
+.\" Copyright (c) 1994, 1996 Bunyip Information Systems Inc.
+.\" All rights reserved.  
+.\"	
+.\" Archie 3.5
+.\" August 1996
+.\"	
+.\"	@(#)ardomains.n	
+.\"
+.TH ARDOMAINS N "August 1996"
+
+.SH NAME
+.B ardomains 
+\- maintain the Archie system psuedo-domains database
+.SH SYNOPSIS
+.B ardomains 
+[ 
+.B \-M 
+.I <dir> 
+] [ 
+.B \-h 
+.I <dir> 
+] [
+.B \-d
+] [ 
+.B \-f 
+.I <dom file> 
+]
+.SH DESCRIPTION
+.PP
+.B ardomains 
+takes a correctly formatted file and enters it into the Archie
+pseudo-domains database.
+.SH OPTIONS
+.TP
+.BI \-M " <dir>"
+The name of the master Archie database directory. If not
+given, the program tries to look in the directory
+.B ~archie/db 
+and, failing that, defaults to 
+.BR ./db .
+.TP
+.BI \-h " <dir>"
+The name of the Archie host database directory. If not
+supplied the program will default first to
+.B ~archie/db/host_db 
+and failing that, to 
+.BR ./host_db .
+.TP
+.B \-d
+Dump the current domain database to stdout in a format suitable for 
+reloading into the compiled format.
+.TP
+.BI -f " <dom file>"
+Use the file 
+.I <dom file> 
+instead of the default, which is
+.BR ~archie/etc/ardomains.cf .
+.PP 
+.SH Pseudo-Domains & File Format
+.RS
+.PP
+The Archie system has the concept of
+.IR pseudo-domains .
+This is primarily for the convenience of being able to specify ``domains''
+like `.usa', rather than specifying `.gov' & `.com' & `.edu' & `.us', etc. By
+default, (unless overridden by the
+.B \-m 
+option) the files
+.BI ~archie/host_db/domain-db. { dir , pag } 
+contain this database. The format of the input for this program is 
+a file (by default
+.B ~archie/etc/ardomains.cf
+) containing lines of the form:
+.IP 
+.I <pseudo domain> <psuedo domain>
+[[
+.B :
+[
+.I <pseudo domain> 
+| 
+.I <domain>
+]]...] [
+.I <description>
+]
+.PP
+The definition of the domain may be followed by a description. This
+description is incorporated into the database where it is available to
+other components of the system.
+.PP
+Any line in the file may be continued on the following line by making the
+backslash (`\e') the last character on the line.
+
+Comments may be included in the file. They are started by `#' and end at the
+next newline.
+
+For example:
+.RS
+.TP 
+.PD .1v
+\fCeurope	de:ie:pt:es:uk:at:fr:.il\\
+.IP
+	:be:nl:ch
+.TP 
+scan 	no:fi:dk:se Scandinavia
+.TP 
+noram 	edu:com:gov:us:ca North America
+.LP
+world	europe:scan:noram:asia
+.TP 
+.PD 1v
+asia 	kr:hk:sg:jp:cn:my:tw:in #Subset of asia\fP
+.RE
+.PP
+This means that the pseudo-domain `europe' is composed of the DNS domain names
+of the countries of europe. Similarly `world' is composed of the
+psuedo-domains `europe', `scan' (Scandinavia), `noram' (North America) and
+`asia'.
+.PP
+When trying to determine if a site is a member of a list of given domains
+and pseudo-domains, the Archie system first resolves each pseudo-domain
+into its base constituents by walking the domain tree:
+.IP
+`world' would be `europe:scan:noram:asia'
+.IP
+`noram' would be `edu:com:gov:us:ca'
+.PP
+The system would then search to see if any of these are in turn
+psuedo-domains. This process can be nested to (currently) 20 levels. If an
+entry cannot be resolved into subcomponents, it is taken as is. Thus for
+example, the pseudo-domain `uquebec' could be arbitrarily defined as
+.IP
+uquebec	mcgill.ca:uqam.ca:concordia.ca:crim.ca
+.PP
+defining the various domains within the psuedo-domain of universities in
+Quebec. Since the `mcgill.ca' domain cannot be further resolved by the
+system, it is taken to be a base component. 
+.PP
+This technique gives both the Archie administrators and users the ability
+to use a form of shorthand when specifying domains.
+.PP
+Note that on final resolution the base names must match a real DNS domain
+to be meaningful (or it will never match in the comparison).  The system
+makes no attempt to verify the authenticity of the base domains: they are
+just used for comparisons with other names which they may or may not
+match.
+.PP
+Any pseudo domain used must be defined before being used in the
+definition of another psuedo-domain.
+.PP
+Loops in the domain database are detected when this program is run.
+For example domain A is composed of domains B & C. Domains B & C may not
+be composed of any domains which directly or indirectly contain domain A.
+.TP
+Note:
+The `.il' entry differs from the rest in the above example by having a
+preceding period (`.'). This is so that sites in Israel (`.il') do not match
+US military sites (`.mil') since the comparison is done right to left. There
+are only a few cases in which this is important since only the US and Canada
+allow entries in DNS which do not end in the unique ISO country code.
+.PP
+.B ardomains 
+is designed so that the Archie system is never without a domains database even
+during update of that database. This is done by manipulating the links to old
+and new copies of the database.
+.SH FILES
+The default input file (if the
+.B \-f
+option is not specified) is
+.BR ~archie/etc/ardomains.cf .
+.LP
+The active domain files are by default (when not overridden by the
+.BR \-M " or " \-h
+options) in the directory
+.BR ~archie/db/host_db\fP .
+The 
+.BR ndbm (3)
+system is used for the psuedo-domain architecture and are composed of
+`.dir' and `.pag' files. The active domain files are
+.BR domain-db .
+These are links to
+.BR domain-db-new .
+The files
+.B domain-db-old
+are used as backups in the relinking process.
+.SH NOTES
+The domain database files \fIcannot\fP be copied by standard means such
+as
+.BR cp (1),
+.BR tar (1),
+etc.  See
+.BR ndbm (3)
+for an explanation.  The only safe way to copy the files is to use
+.BR dump (8),
+and 
+.BR restore (8).
+.SH DIAGNOSTICS
+When loops are detected, an error message is printed specifying the offending
+domain and the program exits, restoring the previous domain database in the
+process.
+.LP
+Syntax errors are usually detected and flagged with the same result.
+.SH "SEE ALSO"
+.BR ndbm (3),
+Archie system documentation.
+.SH AUTHOR
+Bunyip Information Systems
+.br
+Montr\o"\'e"al, Qu\o"\'e"bec, Canada
+.sp
+Archie is a registered trademark of Bunyip Information Systems Inc., Canada,
+1990.

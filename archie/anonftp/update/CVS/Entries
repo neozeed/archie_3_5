@@ -1,0 +1,21 @@
+/Makefile.post/2.1/Mon Sep 23 02:26:18 1996//
+/Makefile.pre/2.3/Tue Apr  7 22:54:21 1998//
+/check_anonftp.c/2.0/Tue Aug 20 22:43:00 1996//
+/check_anonftp.h/2.0/Tue Aug 20 22:43:01 1996//
+/delete_anonftp.c/2.3/Tue Dec 10 23:13:56 1996//
+/delete_anonftp.h/2.0/Tue Aug 20 22:43:03 1996//
+/insert_anonftp.c/2.8/Thu Dec  5 15:23:44 1996//
+/insert_anonftp.h/2.0/Tue Aug 20 22:43:05 1996//
+/interact_anonftp.c/2.0/Tue Aug 20 22:43:05 1996//
+/interact_anonftp.h/2.0/Tue Aug 20 22:43:06 1996//
+/lang_anonftp.c/2.0/Tue Aug 20 22:43:07 1996//
+/lang_anonftp.h/2.0/Tue Aug 20 22:43:08 1996//
+/net_anonftp.c/2.3/Mon Apr 13 15:13:39 1998//
+/net_anonftp.h/2.0/Tue Aug 20 22:43:10 1996//
+/setup_delete.c/2.0/Tue Aug 20 22:43:11 1996//
+/setup_insert.c/2.0/Tue Aug 20 22:43:11 1996//
+/update_anonftp.c/2.1/Thu Aug 22 21:09:34 1996//
+/update_anonftp.h/2.0/Tue Aug 20 22:43:13 1996//
+D/AIX-2////
+D/SunOS-4.1.4////
+D/SunOS-5.4////

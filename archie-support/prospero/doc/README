@@ -1,0 +1,43 @@
+First, please note that the documentation files in this directory do not 
+fully reflect Prospero version 5.  Due to the demand for Prospero
+version 5, we have decided to ship this Alpha release before we fully
+update the documentation.
+
+getting-started.txt:  How to get started using prospero.  
+
+ARCHIE.README: Description of how to compile the ARCHIE client and how
+to use ARCHIE through Prospero.
+
+man/archie.man:  Manual page for the Archie client we provide.
+
+.virt-sys:  A .virt-sys file you can put in your home directory to use
+the guest virtual system at PROSPERO.ISI.EDU
+
+customize.insts:  Instructions for customizing your virtual system.
+
+manual.tex, manual.PS:  The Prospero user's manual.  This hasn't been
+updated much since version 4.
+
+library.tex, library.PS: Prospero library manual.  This documents some
+of the calls to the Prospero PFS and PCOMPAT libraries.  It's out of
+date and sketchy. 
+
+protocol.tex, protocol.PS: Describes version 5 of the Prospero
+protocol.  This is almost completely up to date.
+
+We provide the LaTeX source for the three manuals, as well as
+Postscript output files that you can just dump on your laser printer. 
+
+The following files are auxiliary LaTeX files you'll need if you're
+running LaTeX.  They're included or otherwise used by the .tex files:
+
+           rkrcite.sty, fullpage.sty
+
+README-prospero-documents: contains a bibliography of prospero documents.
+
+The subdirectory 'working-notes' contains some working notes on
+concepts we firmed up while developing the menu browser.  These will
+eventually make their way into more formal reference documents;
+however, we felt it would be better to release them now in this state
+rather than hoard them until they are in final form.
+

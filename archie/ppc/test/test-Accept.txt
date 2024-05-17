@@ -1,0 +1,12 @@
+GET / HTTP/1.0
+Accept: foo/bar
+Accept: foo/bar,baz/zot,gak/zork
+Accept:   	foo/bar,baz/zot,gak/zork  	  
+Accept: foo/bar , baz/zot , gak/zork
+Accept: foo/bar,baz/zot , gak/zork
+Accept: foo/bar;z=1.0,baz/zot;xxx=10.0,gak/zork;a=9.103
+Accept: foo/bar  ;  z=1.0,baz/zot	;	xxx=10.0,gak/zork 	; 	a=9.103
+Accept:   foo/bar;z=1.0  ,  baz/zot,gak/zork;a=9.103
+Accept:
+Accept:
+Accept: ,,,;,

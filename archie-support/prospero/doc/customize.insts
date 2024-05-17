@@ -1,0 +1,34 @@
+Customization instructions
+
+Connect to the lowest directory in the path that is already
+customized.  One way to check whether a directory is customized is to
+use the vwp command while connected to the directory.  If one of the
+components in the physical name for the directory includes the the
+name of your virtual system it is probably a customized view.  Let
+'thisdir' be the name of the current directory and 'subdir' the name
+of the subdirectory that is to be customized.  Do a vls -u to find out
+the name of the union link for the uncustomized version of the current
+directory.  The subdirectory to be customized should not show up in
+this list*.  For the purpose of this example, pretend that the union
+linked directory is named 'usprot'.  Execute the following commands:
+
+vmkdir subdir
+vcd -u usprot
+vln -u subdir ../thisdir/subdir/usprot
+
+That should do it.  Do a vcd ../thisdir/subdir followed by a vls -u
+and a vls to make sure things worked.  You can now use vln to add
+links to your customized copy of the current directory.  Use vln's
+"-c" (customize) option to make sure that vln does not think that the
+uncustomized target of the link is the directory in which the new link
+is to be added.
+
+If you are trying to customize a directory deep in the hierarchy, each
+directory in the path from the root must be customized though it is
+expected that those in the higher levels of the hierarchy might have
+already been taken care of (when you customized other directories
+sharing a common prefix).
+
+* : The subdirectory to be customized would be in the union
+    linked directory, if you see the subdirectory in the current directory
+    when you do the vls -u, then a different procedure must be followed.

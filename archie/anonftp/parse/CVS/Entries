@@ -1,0 +1,47 @@
+/Makefile.post/2.2/Fri Oct 18 14:30:35 1996//
+/Makefile.pre/2.3/Fri Oct 18 14:30:37 1996//
+/db2v.c/2.0/Tue Aug 20 22:42:10 1996//
+/db2v.h/2.0/Tue Aug 20 22:42:12 1996//
+/info_cell.c/2.0/Tue Aug 20 22:42:13 1996//
+/info_cell.h/2.0/Tue Aug 20 22:42:14 1996//
+/input.c/2.0/Tue Aug 20 22:42:15 1996//
+/input.h/2.0/Tue Aug 20 22:42:16 1996//
+/lang_anonftp.c/2.0/Tue Aug 20 22:42:16 1996//
+/lang_anonftp.h/2.0/Tue Aug 20 22:42:17 1996//
+/lang_parsers.c/2.1/Thu Nov 14 18:17:13 1996//
+/lang_parsers.h/2.0/Tue Aug 20 22:42:19 1996//
+/line_type.h/2.1/Thu Oct 22 20:16:30 1998//
+/mem_debug.c/2.1/Tue Sep 24 19:28:41 1996//
+/mem_debug.h/2.0/Tue Aug 20 22:42:21 1996//
+/novell.c/2.0/Tue Aug 20 22:42:22 1996//
+/novell2.c/2.0/Tue Aug 20 22:42:23 1996//
+/output.c/2.0/Tue Aug 20 22:42:24 1996//
+/output.h/2.0/Tue Aug 20 22:42:24 1996//
+/pars_ent_holder.h/2.0/Tue Aug 20 22:42:25 1996//
+/parse.c/2.3/Mon Apr 13 15:08:38 1998//
+/parse.h/2.0/Tue Aug 20 22:42:27 1996//
+/parse_anonftp.c/2.0/Tue Aug 20 22:42:27 1996//
+/parser.man/2.0/Tue Aug 20 22:42:28 1996//
+/queue.c/2.0/Tue Aug 20 22:42:29 1996//
+/queue.h/2.0/Tue Aug 20 22:42:30 1996//
+/queue_def.h/2.0/Tue Aug 20 22:42:31 1996//
+/stack.c/2.1/Wed Nov  6 16:42:52 1996//
+/stack.h/2.0/Tue Aug 20 22:42:32 1996//
+/storage.c/2.1/Mon Apr 13 15:09:41 1998//
+/storage.h/2.0/Tue Aug 20 22:42:34 1996//
+/str.c/2.0/Tue Aug 20 22:42:35 1996//
+/str.h/2.0/Tue Aug 20 22:42:35 1996//
+/test-queue.c/2.0/Tue Aug 20 22:42:36 1996//
+/test-vms_parser.c/2.0/Tue Aug 20 22:42:37 1996//
+/unix.c/2.1/Thu Oct 22 20:18:09 1998//
+/unix2.c/2.0/Tue Aug 20 22:42:38 1996//
+/unix2.h/2.0/Tue Aug 20 22:42:39 1996//
+/unix_filter/2.0/Tue Aug 20 22:42:40 1996//
+/utils.c/2.0/Tue Aug 20 22:42:41 1996//
+/utils.h/2.0/Tue Aug 20 22:42:42 1996//
+/vms.c/2.0/Tue Aug 20 22:42:42 1996//
+/vms2.c/2.0/Tue Aug 20 22:42:43 1996//
+/vms2.h/2.0/Tue Aug 20 22:42:44 1996//
+D/AIX-2////
+D/SunOS-4.1.4////
+D/SunOS-5.4////

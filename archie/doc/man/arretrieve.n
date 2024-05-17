@@ -1,0 +1,216 @@
+.\" Copyright (c) 1993, 1994, 1996 Bunyip Information Systems Inc.
+.\" All rights reserved.  
+.\"	
+.\" Archie 3.5
+.\" August 1996
+.\"	
+.\"	@(#)arretrieve.n
+.\"
+.TH ARRETRIEVE N "August 1996"
+.SH NAME
+.B arretrieve
+\- local Archie retrieval client
+.SH SYNOPSIS
+.B arretrieve
+[ 
+.BI \-M " <dir>"
+] [ 
+.BI \-h " <dir>"
+] [ 
+.BI \-C " <config>"
+] [ 
+.BI \-f " <force hosts>"
+] [
+.BI \-F " <remote server>"
+] [
+.BI \-d " <catalog list>"
+] [
+.BI \-T " <timeout>"
+] [
+.B \-j 
+] [ 
+.B \-v
+] [
+.B \-l 
+] [ 
+.BI \-L " <logfile>"
+] 
+.SH DESCRIPTION
+.PP
+This program is normally invoked by the 
+.BR cron (8) 
+process and obtains a set of headers (See the Archie documention on `archie
+headers'), from the \fIlocal\fP arserver program, corresponding to those sites
+requiring update. Each header matching the critera specified by this program
+(the `client') is placed in a separate file, where it is then used as the
+first step of the Archie update cycle.
+.RE
+.SH OPTIONS
+.RS
+.TP 
+.BI \-M " <dir>"
+The name of the master Archie database directory. If not given, the program
+tries to look in the directory
+.B ~archie/db 
+and, failing that, defaults to 
+.BR ./db .
+.TP 
+.BI \-h " <dir>"
+The name of the Archie host database directory. If not supplied the program
+will default first to
+.B ~archie/db/host_db 
+and failing that, to 
+.BR ./host_db .
+.TP 
+.BI \-C " <config>"
+Use the file 
+.I <config> 
+as the configuration file. See below.
+.TP
+.BI \-f " <force hosts>"
+.I <force hosts>
+is a colon separated list of hosts to be retrieved. This overrides the default
+requests which would normally be obtained from the configuration file and
+retrieves the hosts even if they are not scheduled for retrieval. Note that
+the hosts information will not be retrieved if the server process at the other
+end of the connection determines that the associated records are currently
+inactive. All the servers listed in the configuration file are contacted for
+the specified
+.I <force hosts>
+(unless overridden by the
+.B \-F
+option). The catalogs retrieved are those specified in the configuration file.
+.TP
+.B \-F " <remote server>"
+.I <remote server>
+is the name of an Archie server in the configuration file from which the
+program should retrieve the information requested. No other servers are
+contacted and if the given server is not listed in the configuration file no
+action is taken.
+.TP
+.BI \-d " <catalog list>"
+Only exchange those catalogs in the colon separated
+.IR <catalog list> .
+If none of the catalogs in the list are present in the configuration file
+entry for any given server then no transfers are performed with that server.
+.TP
+.B \-j
+The program does not perform the actual data retrieve, but prints the data
+provided by the remote server process if the data retrieve were to be carried
+out.
+.TP
+.BI \-T " <timeout>"
+If during the data retrieve the connection is idle for
+.I <timeout>
+minutes, abort the process. The timeout is set, by default, to 10 minutes.
+.TP
+.B \-v
+Verbose mode. All output is written to the current log file.
+.TP 
+.B \-l
+Write any user output to the default log file
+.BR ~archie/logs/archie.log .
+If desired, this can be overridden with the 
+.B \-L 
+option. Errors will, by default, be written to
+.IR stderr .
+.TP 
+.BI \-L " <logfile>"
+The name of the file to be used for logging information.  Note that debugging
+information is also written to the log file. This implies the
+.B \-l 
+option, as well.
+.RE
+.RE
+.SH CONFIGURATION
+.PP
+The program reads a configuration file which is, by default,
+.B ~archie/etc/arretrieve.cf 
+(unless overridden by the 
+.B \-C 
+option). This file has the same format as the 
+.B arupdate.cf 
+file and very similar semantics to those used by arexchange program.  (See
+.BR arexchange (n).)
+.PP
+This file has lines of the following format:
+.IP 
+.IR "<archie host> <config> " [, " <config> " ...]
+.PP
+where
+.I <archie host> 
+is the Fully Qualified Domain Name of the host from which the data for the
+start of the Update Cycle is to be obtained.  Normally, this would be the
+local Archie server. If the arserver program is running on the same host,
+.I <archie host>
+may be specified as `localhost'. The asterisk character (`*') may be used to
+signify the fact that \fIany\fP remote Archie host may connect to the local
+Archie host, although this would be very unusual.
+.PP
+The backslash character (`\\') is used as a line continuation marker.  Each
+.I <config> 
+consists of the following fields.
+.IP
+.I <db list> <domain list> <maxno> <perms> <freq> <date> <fail>
+.PP
+.TP
+.I <db list>
+A colon separated list of Archie catalogs to query the server about. An
+asterisk (`*') specifies that the server is to be queried about
+.I all
+catalogs.
+.TP
+.I <domain list>
+The colon separated list of domains to query the server about.
+.TP
+.I <max no>
+The maximum number of sites (headers) to accept from the server at any one
+time. If 0 is specified, the all available sites in need of update in the
+Archie catalog will be downloaded.
+.TP
+.I <perms>
+The character `w' here indicates the client should query the server about the
+information on this line. If this character is `r' the current line is
+ignored.
+.TP
+.I <freq>
+A number specifying the minimum number of minutes that are to elapse before
+contacting the server with this query again. It may have the modifiers `h' or
+`d',
+.I immediately
+following the number, specifying that the value is in units of hours or days
+respectively.
+.TP
+.I <date>
+Date in YYYYMMDDHHMMSS format. This specifies the last time that the client
+performed a query.
+.TP
+.I <fail>
+The number of consecutive attempts to contact this server which have failed.
+.PP
+Note that this program will normally not be configured to contact any Archie
+.B arserver
+program other than the local one, since retrieval of the raw data will, under
+normal circumstances, be handled by the Archie host responsible for that data
+site.
+.RE
+
+.SH FILES
+~archie/etc/arretrieve.cf
+.br
+~archie/db/host_db/*
+
+.SH SEE ALSO
+.PP 
+.BR cron (8), 
+.BR arserver (n),
+.BR arexchange (n),
+Archie system documentation
+
+.SH AUTHOR
+Bunyip Information Systems.
+.br
+Montr\o"\'e"al, Qu\o"\'e"bec, Canada
+.sp
+Archie is a registered trademark of Bunyip Information Systems Inc., Canada,
+1990.

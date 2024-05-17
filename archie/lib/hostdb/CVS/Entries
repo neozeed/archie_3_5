@@ -1,0 +1,14 @@
+/Makefile.post/2.0/Tue Aug 20 22:48:12 1996//
+/Makefile.pre/2.0/Tue Aug 20 22:48:13 1996//
+/databases.c/2.0/Tue Aug 20 22:48:14 1996//
+/domain.c/2.0/Tue Aug 20 22:48:15 1996//
+/holder.c/2.0/Tue Aug 20 22:48:15 1996//
+/host_db.c/2.2/Thu Nov 14 19:03:06 1996//
+/host_info.c/2.1/Tue Oct  8 18:12:42 1996//
+/host_inter.c/2.3/Tue Apr  7 23:12:25 1998//
+/lang_hostdb.c/2.0/Tue Aug 20 22:48:19 1996//
+/lang_hostdb.h/2.0/Tue Aug 20 22:48:20 1996//
+/ops.c/2.1/Thu Nov 14 19:07:04 1996//
+D/AIX-2////
+D/SunOS-4.1.4////
+D/SunOS-5.4////

@@ -1,0 +1,20 @@
+#
+# Host DB module.
+#
+
+#
+# Put this first to override the FORCE target in the included make file.
+#
+all: libhostdb.a
+
+
+include $(ARCHIE_ROOT)/Makefile.post
+
+
+libhostdb.a: $(OBJS)
+	$(AR) r $@ $?
+	$(RANLIB) $@
+
+clean:
+	rm -f *.o  libhostdb.a core
+

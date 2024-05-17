@@ -1,0 +1,69 @@
+#
+# archstridx module.
+#
+
+MOD_CFLAGS = -ansi -pedantic -pipe
+MOD_DEBUG  = -g3 
+MOD_OPT    = -O3
+MOD_DEFS   = -D__USE_FIXED_PROTOTYPES__
+MOD_INCS   = -I$(PATRIE_MODULE)
+MOD_LIBS   = -L$(PATRIE_MODULE)/$(SYSTYPE) -lpatrie
+MOD_WARN   = -Wall -Wtraditional -Wshadow -Wpointer-arith -Wcast-align \
+             -Wstrict-prototypes -Wnested-externs
+
+
+include $(ARCHIE_ROOT)/Makefile.pre
+
+
+INCS = \
+        all.h                \
+        archstridx.h         \
+        lock.h               \
+        newstr.h             \
+        re.h                 \
+        utils.h
+
+SRCS = \
+        Test_archstridx.c    \
+        Test_exists.c        \
+        Test_lock.c          \
+        Test_regex.c         \
+        Test_regexp.c        \
+        Test_state.c         \
+        Test_strsrch.c       \
+        api.c                \
+        lock.c               \
+        newstr.c             \
+        re.c                 \
+        strsrch.c            \
+        utils.c
+
+OBJS = \
+        Test_archstridx.o    \
+        Test_exists.o        \
+        Test_lock.o          \
+        Test_regex.o         \
+        Test_regexp.o        \
+        Test_state.o         \
+        Test_strsrch.o       \
+        api.o                \
+        lock.o               \
+        newstr.o             \
+        re.o                 \
+        strsrch.o            \
+        utils.o
+
+EXES = \
+        Test_archstridx      \
+        Test_exists          \
+        Test_lock            \
+        Test_regex.bsd       \
+        Test_regex.rx        \
+        Test_regexp          \
+        Test_state           \
+        Test_strsrch
+
+XTRA = \
+        Test_exists.sh
+
+DIST_FILES = $(INCS) $(SRCS) Makefile.in

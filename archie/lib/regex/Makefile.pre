@@ -1,0 +1,31 @@
+#
+# Anonftp/lib  module.
+#
+
+#MOD_CFLAGS = -traditional -pipe
+MOD_DEBUG  = -g3
+MOD_WARN   = -Wall  -Wshadow -Wpointer-arith -Wcast-align \
+             -Wnested-externs
+
+MOD_INCS =  -I.
+
+include $(ARCHIE_ROOT)/Makefile.pre
+
+
+INCS = \
+	regexp.h    regmagic.h  timer.t.h
+
+SRCS = \
+	regexp.c\
+	regsub.c\
+	regerror.c
+
+OBJS = \
+	regexp.o\
+	regsub.o\
+	regerror.o
+
+EXES = \
+	libregex.a
+
+

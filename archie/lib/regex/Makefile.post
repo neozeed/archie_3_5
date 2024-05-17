@@ -1,0 +1,15 @@
+#
+#  module.
+#
+
+all: $(EXES)
+
+include $(ARCHIE_ROOT)/Makefile.post
+
+libregex.a:  $(OBJS)
+	$(AR) r $@ $?
+	$(RANLIB) $@
+
+
+clean:
+	rm -f *.o $(EXES) libanonftp.a core

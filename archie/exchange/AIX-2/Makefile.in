@@ -1,0 +1,12 @@
+#
+# Use GNU's fixed header files.
+#
+SYS_DEFS   = -DAIX
+SENT_FLAGS = -ffixed-%g2 -ffixed-%g3 -ffixed-%g4
+SYS_LIBS = -L${BERKDB_ROOT}/${SYSTYPE} -ldb
+
+include ../Makefile.pre
+
+include ../Makefile.post
+
+# DO NOT DELETE THIS LINE -- make depend depends on it

@@ -1,0 +1,334 @@
+% If you somehow got this file without fullpage.sty,  delete
+% ``fullpage'' from the list of style options.  It just pulls out the
+% margins a bit.
+\documentstyle[11pt,twoside,fullpage]{article}
+% New commands
+%-------------
+% Intro copied from prospero-protocol-v5.txt
+
+% for meta-symbols
+\newcommand{\meta}[1]{{\bf \mbox{\(<\)#1\(>\)}}}
+% for literal tokens.
+\newcommand{\lit}[1]{{\tt \mbox{#1}}}
+%for attributes
+\newcommand{\atr}[1]{\mbox{\sc #1}}
+% for identifying text
+\newcommand{\text}[1]{{\em #1}\/}
+
+% Start and end of One or More
+\newcommand{\ooms}{\([\,\)}
+\newcommand{\oome}{\(\,]^+\)}
+% start and end of zero or more
+\newcommand{\zoms}{\([\,\)}
+\newcommand{\zome}{\(\,]^*\)}
+% Start and end of zero or one
+\newcommand{\zoos}{\([\,\)}
+\newcommand{\zooe}{\(\,]\)}
+% start an OR
+\newcommand{\ors}{{\bf (\,}}
+\newcommand{\ore}{{\bf \,) }}
+\newcommand{\metaor}{{\em \,or\, }}
+\newcommand{\hexnum}[1]{\(\mbox{#1}_{16}\)}
+\newcommand{\unix}{{\sc unix}}
+\newenvironment{command}{\begin{verse}\sloppy}{\end{verse}}
+\newcommand{\commandsize}{\large}
+
+%\newtheorem{example}{Example}
+% Uncomment this for almost-double spacing
+%\renewcommand{\baselinestretch}{1.7}
+%\newcommand{\hozline}{\rule{\textwidth}{0.3mm}}
+%\newcommand{\hozline}{\makebox[\textwidth]{\hrulefill}}
+%\newcommand{\bex}{\begin{example} \begin{rm}}
+%\newcommand{\eex}{$\Box$ \end{rm} \end{example}}
+%\newcommand{\cbs}{\chgbarbegin}
+%\newcommand{\cbe}{\chgbarend}
+%\newcommand{\cbs}{}
+%\newcommand{\cbe}{}
+
+%\newcommand{\ptag}{\begin{flushright} {\rm ($P$)} \end{flushright} }
+
+
+\begin{document}
+
+\pagenumbering{arabic}
+\pagestyle{plain}
+
+\renewcommand{\thepage}{\arabic{page}}
+
+\begin{titlepage}
+
+\renewcommand{\thefootnote}{}
+%\footnotetext{\hspace*{-21pt}
+%Digital copies of the latest revision of this document may be obtained
+%through Prospero as
+%\mbox{\verb"/papers/subjects/operating-systems/prospero/doc/menu-api.PS.Z"},
+%in the \mbox{\tt \#/INET/EDU/ISI/swa} virtual system, or through
+%Anonymous FTP from \mbox{\tt PROSPERO.ISI.EDU} as
+%\mbox{\verb"/pub/prospero/doc/prospero-menu-api.PS.Z"}
+%}
+\footnotetext{\hspace*{-21pt}
+This work was supported in part by the National Science
+Foundation (Grant No. CCR-8619663), the Washington Technology Center,
+Digital Equipment Corporation, and the Defense Advance Research
+Projects Agency under NASA Cooperative Agreement NCC-2-539.
+The views and conclusions contained in
+this document are those of the authors and should not be interpreted as
+representing the official policies, either expressed or implied, of
+any of the funding agencies.
+The authors may be reached
+at USC/ISI, 4676 Admiralty Way, Marina del Rey, California\ \ 90292-6695, USA.
+Telephone +1 (310) 822-1511, email \mbox{\verb"info-prospero@isi.edu"}.  }
+\renewcommand{\thefootnote}{\arabic{footnote}}
+
+
+\vspace*{\fill}
+\begin{center}
+\Large Menu-Based Browser API to Prospero\\
+\vskip 1.5em
+{\large Draft of 5 July 1993} \\
+{\large Document Revision No. 0.3} \\
+\end{center}
+\vspace{.5in}
+
+%\Large \hspace*{\fill} Steven Augart
+%\footnotetext{\hspace*{-18pt}
+%	To Contact the Authors: \\
+%	Electronic Mail: \mbox{\verb"info-prospero@isi.edu"} \\
+%    Telephone: +1 (310) 822-1511 \\
+%    Mail: USC Information Sciences Institute, 4676 Admiralty Way,
+%  Marina del Rey, California  90292--6695\ \ U.S.A.
+%}
+%\hfill Kwynn Buess
+%\hspace*{\fill} \\
+\begin{center}
+\Large Steven Seger Augart
+\vspace{.1in}
+\Large B. Clifford Neuman
+\vspace{.1in}
+\Large Kwynn Buess
+\vspace{.2in}
+\Large Information Sciences Institute \\
+University of Southern California
+\end{center}
+\vspace*{1.2in}
+\vspace*{\fill}
+\end{titlepage}
+
+\tableofcontents
+
+\section{INTRODUCTION}
+
+The menu-based browser API is a description of interfaces to the
+PROSPERO library.  The functions and variables described here will
+eventually be prototyped in the standard Prospero include file {\tt
+p\_menu.h}; since the menu browser client and this API are still under
+development, that include file is currently located in {\tt user/menu}
+in the Prospero sources, along with the Prospero menu browser client.
+
+\section{Data Structures}
+
+The data structure {\it VLINK} is described in the include file {\tt
+pfs.h}.  The user of this API needs to know only the following facts
+about it:
+
+\begin{itemize}
+
+\item A {\it VLINK} structure has members {\tt next}
+and {\tt previous}.  These members are only meaningful when working with a
+linked list of {\it VLINK structures}; they point to the next and
+previous member of the linked list.  The {\tt previous} of the head of the
+list points to the tail of the list.  The {\tt next} of the tail of
+the list is a null pointer. 
+
+\item The {\tt APPEND\_ITEM({\it VLINK new}, {\it VLINK head})} macro,
+defined in {\tt list\_macros.h},  appends {\it new} to a doubly-linked
+list headed by the vlink {\it head}.  {\it head} is an initialized
+variable which points to an already existing list of {\it VLINK}s.  It
+can be initialized to the empty list by setting its value to the null pointer.
+
+\item The {\tt EXTRACT\_ITEM}({\it VLINK item, VLINK head}) macros,
+also defined in {\tt list\_macros.h}, removes the item {\it item} from
+the doubly-linked list headed by {\it head}.  If ITEM is not a member
+of the list, the results are not defined.  The extracted item will NOT
+be freed.  {\tt EXTRACT\_ITEM} will reset {\it head} if necessary.
+This is useful for extracting a single item for future use from a
+linked list of {\it VLINK}s and then running {\tt vllfree()} on the
+list.
+
+\end{itemize}
+
+The data structure {\it TOKEN} is also used by this API interface.
+It obeys the same doubly linked list convention that {\it VLINK}
+does.  
+
+\section {Error Reporting}
+
+\begin{verbatim}
+extern char *m_error;
+\end{verbatim}
+
+All of the functions described in this file set the global variable
+{\tt m\_error} to signal success or failure.  Upon failure, they
+will return with {\tt m\_error} set to a pointer to a string which
+is an error message.  Upon success, they will return with {\tt
+m\_error} set to a {\it NULL} pointer.
+
+\section{Library Calls}
+
+\subsection{\tt {\it VLINK }m\_top\_menu({\it void})}
+
+{\tt m\_top\_menu()} takes no arguments.  It returns a single {\it
+VLINK}, which is a link to the first menu to be displayed to the user.
+You then call m\_get\_menu() to get the contents of that menu.  
+
+\subsubsection{Implementation}
+
+Return a vlink whose host and hsoname are set from the VSWORK\_HOST and
+VSWORK\_FILE environment variables.  The NAME of this vlink (the menu
+title that will be displayed) should for now be the last component of
+the VSNAME environment variable.  Later we will talk about how to
+start up the browser when somebody is not yet VFSETUP to any virtual
+system.
+
+\subsubsection{Additional ways to get top menu --- EXCEPTION TO API}
+
+Some menu browsers allow the top menu to be specified on the command
+line, using either native information or a directory name in the
+currently active virtual system.  At the moment, no API functions are
+specified to handle this situation, and the PFS library must be called
+directly.  If the top menu is specified as a directory name in the
+currently active virtual system, just use rd\_vlink() for now.  If it
+was specified with native information, vlalloc() a new link, set its
+HSONAME to the native hsoname, its HOST to the native host, and use
+rd\_vlink().  Eventually, we will design an API function or two to
+handle getting the top menu by Prospero file name or by host and
+hsoname.
+
+
+\subsection{\tt {\it VLINK }m\_get\_menu({\it VLINK} menu)}
+
+{\tt m\_get\_menu()} is given a {\it VLINK} to a menu as its argument.  
+It will return an ordered list of {\it VLINK}s, each corresponding to
+an item in the menu.
+
+\subsubsection{Implementation} 
+
+This orders the VLINKs according to the {\sc COLLATION-ORDER} attribute.
+
+When asking for attributes to be returned in the underlying Prospero
+call, please specify that you want
+MENU-ITEM-DESCRIPTION+COLLATION-ORDER+ACCESS-METHOD to be returned.
+(Of course, do this only if you are using a PFS library interface that
+allows you to specify which attributes you are requested; at the
+moment, none of the interfaces allow this.)
+This will help us be compatible with possible future changes to the
+way the server works.
+
+The 1st two attributes are ones we need to display the menu.  Asking
+for the ACCESS-METHOD right away is also a good idea, since if you
+don't support an access-method for a file, you can choose show on the
+menu either that it is unreachable or not display it at all.
+
+\subsection{\tt {\it char *} m\_item\_description({\it VLINK vl})}
+
+This returns a string to be displayed as a description for the menu item
+associated with VLINK.  This is a pointer to data that may be
+overwritten on the next call to {\tt m\_item\_description()}, but not before.
+
+If {\it vl} is a link to a sub-menu,  then, when that sub-menu is
+displayed, most clients will also use the string returned by {\tt
+m\_item\_description()} as a title for that sub-menu.
+
+\subsubsection{Implementation}
+
+Look at the {\sc MENU-ITEM-DESCRIPTION} attribute associated with {\it
+vl}.  If that fails,look at {\it vl}'s {\tt name} member. 
+
+\subsection{\tt {\it int} m\_class({\it VLINK vl})}
+
+Return a CLASS for the object pointed to by the link.  The class says
+what you can do with an object (view it, read it, run a search through
+it, open it up as a submenu, use it to connect to another service, etc.)  These classes are constants defined
+in the API.H file.  They are:    {\sc m\_class\_unknown} (must have a
+value of 0), {\sc m\_class\_menu, m\_class\_document, m\_class\_search,
+m\_class\_portal, m\_class\_sound, m\_class\_image, m\_class\_data,
+and m\_class\_void}. 
+
+
+\subsubsection{Implementation}
+
+This is derived from the value of the {\sc object-interpretation}
+attribute.  We are working on a new portable interface to this
+function which lets the browser specify whether it knows how to
+display/retrieve/access particular types and particular subtypes.  The
+current implementation of the api returns {\sc m\_class\_data} for
+any types that it recognized but cannot perform an appropriate complex
+operation on (e.g., if the OBJECT-INTERPRETATION is a SOUND but you
+have no sound player), then return {\sc m\_class\_data}, and any
+unknown types are returned as {\sc m\_class\_unknown}.
+
+\subsection{\tt {\it TOKEN} m\_interpretation({\it vLINK vl})}
+
+This will return the sequence that is the value of the
+OBJECT-INTERPRETATION attribute.  You will call m\_interpretation() for
+information that will let you actually display the file.  This is used
+internally by m\_class(), too.  
+
+\subsubsection{Implementation}
+
+Warning: The current api implementation does not fully meet this specification
+for m\_interpretation().
+
+If no {\sc object-interpretation} attribute is present, we look at the
+{\it vl}'s {\tt target} member and see if it is {\tt DIRECTORY}, {\tt
+EXTERNAL}, or {\tt FILE}, and we also perform some simple tests on the
+suffix of a file to check whether it is likely to be a binary or text
+file.  If it ends in {\tt .gif,} it's IMAGE GIF.  If it ends in {\tt
+.ps} or {\tt .PS,} it's DOCUMENT POSTSCRIPT.  If it ends in {\tt .Z,}
+it's EMBEDDED COMPRESS, then strip off the {\tt .Z} and try again for
+the rest of the object interpretation.  If it ends in {\tt .z} or {\tt
+.gz,} it's EMBEDDED GZIP.  Otherwise, assume it's DOCUMENT TEXT ASCII.
+
+The {\sc object-interpretation} attribute is further defined in the
+{\tt working-notes} subdirectory of the menu sources.
+
+\subsection{\tt {\it FILE *} m\_fopen\_file({\it VLINK vl})}
+
+This opens the file referenced by {\it vl} in read-only mode and
+returns a standard IO library {\it FILE} pointer to it, which is then
+read from and manipulated in accordance with the stdio library
+routines.
+
+\subsubsection{Implementation}
+
+This is just an interface to {\tt pfs\_fopen()}.
+
+\subsection{\tt {\it int} m\_open\_file({\it VLINK vl})}
+
+This opens the file referenced by {\it vl} in read-only mode and
+returns a standard UNIX integer file descriptor referring to it.  This
+descriptor can then be manipulated in accordance with the standard
+conventions.  
+
+\subsubsection{Implementation}
+
+This is just an interface to {\tt pfs\_open()}.
+
+\subsection{\tt {\it void} vlfree({\it vl}), {\it void} vllfree({\it vl}), 
+	{\it VLINK} vlcopy({\it VLINK vl, int r})}
+
+{\tt vlfree()} frees the vlink {\it vl}.  It should be called on the
+link returned by {\tt m\_top\_menu()} when the application no
+longer has a use for it.  {\tt vllfree} frees a linked list of {\it
+vlink}s headed by {\it vl}.  It should be called on the list returned
+by {\tt m\_get\_menu()} when the application no longer has a need for
+it.
+
+{\tt vlcopy()} returns a copy of {\it vl}, with the {\tt next} and {\tt
+previous} members set to the null pointer.  {\it r} should always be zero.
+
+\subsubsection{Implementation}
+
+These three functions are already in libpfs; you don't need to implement them.
+
+\end{document}

@@ -1,0 +1,46 @@
+#
+# Anonftp/lib  module.
+#
+
+#MOD_CFLAGS = -ansi -pedantic -pipe
+MOD_DEBUG  = -g3
+MOD_WARN   = -Wall -Wtraditional -Wshadow -Wpointer-arith -Wcast-align \
+             -Wstrict-prototypes -Wnested-externs
+
+MOD_INCS = -I$(INCLUDE_MODULE) -I$(PROSPERO_ROOT)/include -I.
+MOD_LIBS = -L$(HOSTDB_MODULE)/$(SYSTYPE)    -lhostdb \
+           -L$(STARTDB_MODULE)/$(SYSTYPE)   -lstartdb \
+           -L$(LIBARCHIE_MODULE)/$(SYSTYPE) -larchie 
+
+include $(ARCHIE_ROOT)/Makefile.pre
+
+
+INCS = \
+        lang_exchange.h \
+        listd.h         \
+        tuple.h
+
+SRCS = \
+        client.c        \
+        command.c       \
+        configfile.c    \
+        db_functs.c     \
+        lang_exchange.c \
+        main.c          \
+        net.c           \
+        server.c        \
+        socktools.c
+
+OBJS = \
+        client.o        \
+        command.o       \
+        configfile.o    \
+        db_functs.o     \
+        lang_exchange.o \
+        main.o          \
+        net.o           \
+        server.o        \
+        socktools.o
+
+EXES = \
+        arserver

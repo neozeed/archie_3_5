@@ -1,0 +1,107 @@
+PROG = ppctest
+
+#
+# Among Prospero Protocol Converters only PROG should change.
+#
+
+INCS =
+PTOP = ../../prospero
+
+SRCS = \
+ppctest.c \
+test-access.c \
+test-io.c \
+test-link_to.c \
+test-qwstrnsplit.c \
+test-results.c \
+test-splitwhite.c \
+test-str.c \
+test-strrspn.c \
+test-token.c
+
+OBJS = \
+ppctest.o \
+test-access.o \
+test-io.o \
+test-link_to.o \
+test-qwstrnsplit.o \
+test-results.o \
+test-splitwhite.o \
+test-str.o \
+test-strrspn.o \
+test-token.o
+
+EXES = \
+ppctest \
+test-access \
+test-io \
+test-link_to \
+test-qwstrnsplit \
+test-results \
+test-splitwhite \
+test-str \
+test-strrspn \
+test-token
+
+PDIR = ../../prospero
+GLIB = -L/usr/local/packages/gnu/gcc-2.6.3/lib/gcc-lib/sparc-sun-sunos4.1.3_U1/2.6.3 -lgcc
+MLIB = $(PDIR)/user/menu
+PLIB = $(PDIR)/lib
+TLIB = /usr/local/packages/tcl/lib
+VLIB = $(PDIR)/user/vcache
+PALIB = ../../libparchie
+PSLIB = ../../libpsarchie
+ALIBS = \
+       ../lib/libppc.a \
+       $(PLIB)/psrv/libpsrv.a \
+       $(MLIB)/libmenu.a \
+       $(VLIB)/libpvcache.a \
+       $(PLIB)/pfs/libpfs.a \
+       $(PLIB)/filters/libfilter.a \
+       $(PLIB)/ardp/libardp.a \
+       $(PALIB)/libparchie.a \
+       $(PSLIB)/libpsarchie.a \
+       $(TLIB)/libtcl.a
+
+# Sun
+CC = gcc
+DEFS   =
+CDEFS  = $(DEFS)
+FLAGS  = -g3 -Wall -pipe
+IDIR   = -I$(PTOP)/include -I$(PTOP)/user/menu -I../lib -I../../include
+XU  = _
+
+CFLAGS = -ansi -pipe $(FLAGS) $(CDEFS) $(XDIR) $(IDIR)
+CCLD   = -g -u ${XU}plog -u ${XU}sindex #-u ${XU}vcache2
+# For depend
+DFLAGS = $(CDEFS) $(XDIR) $(IDIR)
+
+# ----------------------------------------------------------------------------
+CARGS = $(CFLAGS) $(DEFS) -o $@ $(OBJS) $(MAIN) $(LIBS)
+
+test-token test-splitwhite test-str: $$@.o $(ALIBS)
+	$(CC) $(CCLD) -o $@ $@.o $(ALIBS) || { rm -f $@ ; echo Failed.; }
+
+$(PROG): $(OBJS)
+	@echo HERE
+	$(CC) $(CCLD) $(CARGS) || { rm -f $@ ; echo Failed.; }
+
+clean:
+	rm -f *.o $(EXES) TAGS core
+
+edit_clean:
+	rm -f *.~*~ .*.~*~
+
+etags:
+	etags  $(PLIB)/*/*.c $(MLIB)/*.c ../lib/*.c $(SRCS)
+
+depend:
+	@( echo '/^# DO NOT DELETE THIS LINE/,$$c' ; \
+     echo '# DO NOT DELETE THIS LINE -- make depend depends on it' ; \
+     echo "" ; \
+	$(CC) -M $(DFLAGS) $(SRCS) ; \
+	echo . ; \
+	   echo w ; \
+	   echo q ) | ed - Makefile
+
+# DO NOT DELETE THIS LINE -- make depend depends on it.

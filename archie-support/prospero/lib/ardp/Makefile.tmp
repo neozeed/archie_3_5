@@ -1,0 +1,85 @@
+# 
+# Makefile for Prospero Directory Service ARDP library. 
+SOURCEBASE = ../..
+include $(SOURCEBASE)/Makefile.config
+
+CFILES = ardp_abort.c \
+	ardp_accept.c \
+	ardp_add2req.c \
+	ardp_breply.c \
+	ardp_error.c \
+	ardp_get_nxt.c \
+	ardp_headers.c \
+	ardp_int_err.c \
+	ardp_mutexes.c \
+	ardp_perrno.c \
+	ardp_pr_actv.c \
+	ardp_ptalloc.c \
+	ardp_reply.c \
+	ardp_respond.c \
+	ardp_retriev.c \
+	ardp_rqalloc.c \
+	ardp_send.c \
+	ardp_showbuf.c \
+	ardp_snd_pkt.c \
+	ardp_srv_ini.c \
+	ardp_xmit.c \
+	dnscache_alloc.c \
+	flocks.c \
+	hostname2adr.c \
+	p__th_self_num.c \
+	unixerrstr.c \
+	usc_lic_str.c
+
+OBJECTS = ardp_abort.o \
+	ardp_accept.o \
+	ardp_add2req.o \
+	ardp_breply.o \
+	ardp_error.o \
+	ardp_get_nxt.o \
+	ardp_headers.o \
+	ardp_int_err.o \
+	ardp_mutexes.o \
+	ardp_perrno.o \
+	ardp_pr_actv.o \
+	ardp_ptalloc.o \
+	ardp_reply.o \
+	ardp_respond.o \
+	ardp_retriev.o \
+	ardp_rqalloc.o \
+	ardp_send.o \
+	ardp_showbuf.o \
+	ardp_snd_pkt.o \
+	ardp_srv_ini.o \
+	ardp_xmit.o \
+	dnscache_alloc.o \
+	flocks.o \
+	hostname2adr.o \
+	p__th_self_num.o \
+	unixerrstr.o \
+	usc_lic_str.o
+
+all:	${RDP_LIB}
+
+install:
+	cp ${RDP_LIB} ${P_BINARIES}/${RDP_LIB}
+	$(RANLIB) ${P_BINARIES}/${RDP_LIB}
+
+${RDP_LIB}: ${OBJECTS}
+	rm -f ${RDP_LIB}
+	ar r${AR_FLAGS} ${RDP_LIB} ${OBJECTS}
+	$(RANLIB) ${RDP_LIB}
+
+# Dependencies
+setdependencies:
+	gcc -M $(CFLAGS) $(CFILES) | sed \
+		-e 's, [^ 	]*\.c,,' \
+		-e 's, /local/gnu/[^ 	]*,,g' \
+		-e 's, /usr/include/[^	 ]*,,g' \
+		-e 's, [./]*include/pthread\.h,,' \
+		-e 's, [./]*include/pthread/[^ 	]*,,g' \
+		-e 's, [^ 	]*/fsu_pthreads/include/[^ 	]*,,g' \
+		-e 's, [./]*include/usc-copyr\.h,,' \
+		-e 's, [./]*include/usc-license\.h,,' \
+		-e 's, [./]*include/uw-copyright\.h,,' \
+		-e '/^[ 	]*\\$$/d' | fixdep > dependency.list

@@ -1,0 +1,26 @@
+#!/bin/sh
+
+die() {
+  1>&2 echo $1 ; exit 1
+}
+
+set -eu
+
+infx=$TDIR/infix.38M
+levs=$TDIR/levs.38M
+page=$TDIR/paged.38M
+text=$TDIR/text.38M
+temp=$TDIR
+mem=10000000
+
+if time Test_sort -maxmem $mem -tmpdir $temp $text $infx > /tmp/S 2>&1 ; then
+  :
+else
+  die "sort failed"
+fi
+
+if time Test_page $infx $levs $page > /tmp/P 2>&1 ; then
+  :
+else
+  die "paging failed"
+fi

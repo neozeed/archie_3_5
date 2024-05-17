@@ -1,0 +1,71 @@
+gWAIS LINK FORMAT
+
+This document describes Prospero links to files accessible through
+WAIS; we have not yet determined a format for WAIS directory & index
+lookups.  This format works for both external WAIS links and native
+WAIS links (that is, links to WAIS files stored on a server running
+Prospero).
+
+The WAIS record locator string has a port # and hostname encoded into
+it.  We treat the record locator as an impenetrable object that we
+just give to the WAIS server at a particular wais server (WAIS servers
+are uniquely identified by a hostname port # pair); Prospero itself
+doesn't worry about extracting this information from the WAIS record
+locator string.  The person or computer program creating a link to a
+WAIS object is responsible for obtaining the WAIS port # and hostname.
+
+The HOSTNAME on the VLINK is the hostname of the prospero server which
+stores information about that file.  If the server is running on a
+non-standard port, this hostname will be followed by a port number in
+parentheses.
+
+The HSONAME on the VLINK for a file which is usually accessed through
+WAIS begins with the sequence WAIS/OBJECT/ and then finishes with the
+WAIS record locator string.
+
+Not all files which can be retrieved via the WAIS access method will
+have an HSONAME on the VLINK in this format.  This is because the
+server may send a WAIS access method even for a file that is primarily
+accessed through NFS, Anonymous FTP, or some other access method.  In
+this case, the ACCESS-METHOD attribute for the file will usually have
+the six-token format (described below).
+
+The ACCESS-METHOD attribute for WAIS files consists of 5 [sometimes 6] tokens: 
+
+	WAIS INTERNET-D <hostname> ASCII <hsoname> 
+                [optional record locator string]
+
+WAIS, INTERNET-D, and ASCII are literals.
+
+The <hostname> token in the ACCESS-METHOD attribute is the name of the
+host whose WAIS server must be contacted to retrieve the object (same
+as the hostname encoded into the record locator).  If the WAIS server
+is running on the default WAIS port (210), this <hostname> token may be the
+normal Internet hostname or it may be followed by the port # in
+parentheses.  The <hostname> token must always include the port # in
+parentheses if the WAIS server is running on a non-default port.
+
+If a sixth token is present in the WAIS access-method attribute, then
+this is the WAIS record locator string which will be sent to the WAIS
+server to retrieve the object.  If the sixth token is not present,
+then the <hsoname> token of the ACCESS-METHOD attribute must begin with
+the sequence WAIS/OBJECT/ and then finish off with the WAIS record
+locator string.  The WAIS/OBJECT/ prefix will be stripped off and the
+resulting string will be sent to the WAIS server.
+
+The most common case for the WAIS access method is on a link whose
+target is FILE (not EXTERNAL) to an object which can be retrieved from
+a wais server running on the default WAIS port on the same host as the
+PROSPERO server which indexes it, and with the PROSPERO server running
+on the default PROSPERO port.  In this case, the HOST and HOSNAME
+tokens in the ACCESS-METHOD attribute are the same and those for the
+link.  Therefore, using the defaults that apply to all access methods,
+the ACCESS-METHOD attribute can be sent across the network as:
+
+	WAIS '' '' '' ''
+
+
+In the case of an EXTERNAL link to a WAIS object, the HOST and HSONAME
+tokens in the vlink are customarially (although this is not strictly
+enforced) the same as those for the access method, and the access
+method is sent across the network using the defaulting mechanism.

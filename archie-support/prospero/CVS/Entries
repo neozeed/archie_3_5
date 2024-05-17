@@ -1,0 +1,26 @@
+/ACKNOWLEDGEMENTS/1.1.1.1/Thu Mar 18 16:50:30 1999//
+/CHANGES/1.1.1.1/Thu Mar 18 16:50:30 1999//
+/FILES/1.1.1.1/Thu Mar 18 16:50:30 1999//
+/INSTALLATION/1.1.1.1/Thu Mar 18 16:50:30 1999//
+/INSTALLATION_s/1.1.1.1/Thu Mar 18 16:50:30 1999//
+/INSTALLATION_u/1.1.1.1/Thu Mar 18 16:50:30 1999//
+/Makefile/1.1.1.1/Thu Mar 18 16:50:30 1999//
+/Makefile.boilerplate/1.1.1.1/Thu Mar 18 16:50:30 1999//
+/Makefile.config.aix-2/1.1.1.1/Thu Mar 18 16:50:30 1999//
+/Makefile.config.dist/1.1.1.1/Thu Mar 18 16:50:30 1999//
+/Makefile.config.sunos-4.1.3/1.1.1.1/Thu Mar 18 16:50:30 1999//
+/Makefile.config.sunos-4.1.3_u1/1.1.1.1/Thu Mar 18 16:50:30 1999//
+/Makefile.config.sunos-5.3/1.1.1.1/Thu Mar 18 16:50:30 1999//
+/Makefile.in/1.1.1.1/Thu Mar 18 16:50:30 1999//
+/README/1.1.1.1/Thu Mar 18 16:50:30 1999//
+/SUPPORTED/1.1.1.1/Thu Mar 18 16:50:31 1999//
+/announcement/1.1.1.1/Thu Mar 18 16:50:31 1999//
+/pfs_threads.doc/1.1.1.1/Thu Mar 18 16:50:31 1999//
+D/app////
+D/doc////
+D/include////
+D/lib////
+D/misc////
+D/patches////
+D/server////
+D/user////

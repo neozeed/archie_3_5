@@ -1,0 +1,11 @@
+This file describes some of the design decisions that were made during
+the multi-threading of the Prospero server, and the rationales for the
+decisions.
+
+We decided to use the Posix threads library {pthreads) because:
+a) it was already becoming a standard; nothing else was.
+b) it had the needed functionality for our simple task
+c) a free implementation existed for our development environment, SunOS 4.1.3 
+   on the SPARC processor.
+
+

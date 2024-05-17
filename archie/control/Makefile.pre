@@ -1,0 +1,36 @@
+#
+# Control  module.
+#
+
+#MOD_CFLAGS = -ansi -pedantic -pipe
+MOD_DEBUG  = -g3
+MOD_WARN   = -Wall -Wtraditional -Wshadow -Wpointer-arith -Wcast-align \
+             -Wstrict-prototypes -Wnested-externs
+MOD_INCS   = -I$(INCLUDE_MODULE) -I$(PATRIE_MODULE) -I$(STRIDX_MODULE)  -I.
+MOD_LIBS = \
+            -L$(HOSTDB_MODULE)/$(SYSTYPE)       -lhostdb     \
+            -L$(STARTDB_MODULE)/$(SYSTYPE)      -lstartdb    \
+            -L$(LIBARCHIE_MODULE)/$(SYSTYPE)    -larchie     \
+            -L$(WEBINDEX_MODULE)/lib/$(SYSTYPE) -lwebindex   \
+            -L$(ANONFTP_MODULE)/lib/$(SYSTYPE)  -lanonftp    \
+            -L$(STRIDX_MODULE)/$(SYSTYPE)       -larchstridx \
+            -L$(PATRIE_MODULE)/$(SYSTYPE)       -lpatrie
+
+
+include $(ARCHIE_ROOT)/Makefile.pre
+
+
+INCS = \
+        control.h      \
+        lang_control.h
+
+SRCS = \
+        lang_control.c \
+        main.c
+
+OBJS = \
+        lang_control.o \
+        main.o
+
+EXES = \
+        arcontrol

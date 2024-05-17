@@ -1,0 +1,192 @@
+There are three separate servers involved in the following document:
+1) GOPHER-GW Servers: servers responding to Prospero protocol queries
+        and making Gopher protocol queries.  This server feature is
+	implemented and is available in Prospero release Alpha.5.2.
+2) Prospero Servers that support the GOPHER database (that can read
+native gopher directory format) and reply to Prospero queries.  They
+do not make any queries themselves.   These servers have not been implemented
+yet.  They are not our top priority, since the GOPHER-GW server appears
+to fill much of the niche that this was intended to fill.  We call
+them 'local Gopher database' servers.
+3) Gopher servers that make Prospero protocol queries.
+
+----
+
+The GOPHER-GW Prospero servers (the ones that can make Gopher protocol
+queries and export the results as Prospero directories (the server
+that supports the GOPHER-GW Prospero database) and the Prospero
+servers that can export the local Gopher hierarchy (the servers that
+support the GOPHER Prospero database) will return links to Gopher
+objects using the following format:
+
+The Prospero servers export links to Gopher objects on the local
+host (known to run both Gopher and Prospero) as normal Prospero links
+which have normal Prospero access methods, INCLUDING the GOPHER access
+method.  They export links to all objects on other hosts (except for
+directories/menus and searches) as Prospero EXTERNAL links with the
+GOPHER access method, TELNET access method, TN3270 access method, or
+AFTP access method.
+
+They export links to Gopher menus and searches on other hosts (Recall
+that all Gopher links have the form <gopher-host> <gopher-port>
+<gopher-selector-string>) as links with a HOST-NAME field of some
+known GOPHER-GW host and an HSONAME of the form:
+
+        GOPHER-GW/<gopher-host>(<gopher-port>)/<gopher-type-char>/<gopher-selector-string>
+        
+This canonical form means that a Gopher server which is capable of
+making Prospero queries can always convert links of that form back to
+normal gopher links, and return the reconstructed normal Gopher link
+rather than leading the user through a series of gateways.  The
+gopher-type-character will always be 1 (menu) or 7 (search) when a
+GOPHER-GW link is exported by a Prospero server supporting the GOPHER
+database.  The GOPHER-GW server will export all links to Gopher
+non-menu objects as Prospero EXTERNAL links with the GOPHER access
+method.   
+
+. How gopher searches are exported.
+
+They are exported as Prospero directories with an
+OBJECT-INTERPRETATION of SEARCH. 
+
+In addition, a QUERY-METHOD attribute is exported for them.  This is
+an instance of the more general QUERY-METHOD format (documentation not
+in final form yet).  The first token of the query method looks like a
+procedure call.    The GOPHER-GW server uses the format
+gopher-query(search-words); since there is only one search string in a
+gopher search, there is only one argument to the procedure call.  
+
+For the gopher query method, the 2nd token is always going to be
+${search-words}. 
+
+The third and last component will always be '' for gopher searches;
+this indicates that the contents of a directory are being asked for
+and will be returned, not a link to a directory.  So:
+{ I presume this is syntactically equivalent to '*' ? - Mitra  }
+
+
+	gopher-query(search-words) ${search-words} ''
+
+There will also be an instance of the QUERY-ARGUMENT field.  Note that 'char*' is a single word with no spaces.
+
+	search-words 'Index word(s) to search for:' 'mandatory char*' '%s' ''
+
+And two instances of the QUERY-DOCUMENT attribute, one for
+gopher-query() and one for search-words.  But you don't even have to
+pay attention to them for now.
+
+To execute the search, the next request to the server will be:
+
+  DIRECTORY <search-directory-hsoname> 
+  LIST '' COMPONENTS <search-string>
+
+This can be implemented by a simple call to
+
+        p_get_dir(<vlink-to-directory>, <search-string>, usual dir, 
+                usual flags, leave ACOMP set to null)
+        
+. Special cases
+
+Gopher links to files with selector strings that start with ftp: and
+contain an @ are exported with two access methods: the regular GOPHER
+access methods and the AFTP access method directly to the host.  The
+AFTP access method is given preference.  The client will then attempt
+to make a direct anonymous FTP connection, if it supports the Prospero
+AFTP access method. (all current Prospero clients do.)  This is
+considerably more efficient and more robust than putting lots of
+additional load  on the Gopher/AFTP gateways. 
+
+Gopher links to directories with selector strings that start with ftp:
+and contain an @ are instead exported as native Prospero links to the
+Prospero server running on an archie host (the default is
+ARCHIE.SURA.NET, but this can be changed easily by editing the
+definition in the file lib/psrv/gopher_gw/goph_gw_dsdb.c).
+This bypasses the Gopher server, which would just be gatewaying
+Prospero queries to that archie server.
+
+<This is wrong, many ftp hosts arent indexed by archie, but may still
+ be pointed at by gopher, in the long term it should go directly to ftp
+ in the short term it should go through the gopher->ftp gateway. - Mitra>
+
+. Gopher CSO type
+
+We currently do not have a gateway that speaks CSO phonebook protocol.
+(Gopher type 2).  We will have to write a CSO gateway in order to
+handle these.  (Send email to info-prospero@isi.edu if the lack of
+this gateway strongly affects you, and we'll probably move it up on
+our priority list.)
+
+< Cant this go through the gopher->cso gateway, or is this something 
+  gopher clients handle - Mitra >
+
+. Form for links on the local GOPHER database
+
+HSONAMEs for Gopher menu objects on the local host (and on remote
+hosts known to be running both Prospero and Gopher), when the menu is
+being exported as part of the local GOPHER database, are always of
+the form:
+
+        GOPHER/<gopher-port>/<gopher-type-character>/<gopher-selector-string>
+
+. GOPHER-MENU-ITEM attribute and how to implement a Gopher server that
+  makes Prospero queries (this is being worked on right now):
+
+The GOPHER-GW server will provide a GOPHER-MENU-ITEM attribute
+associated with some links or directories.  This is an attribute of
+type SEQUENCE in the APPLICATION namespace.  It is an OBJECT attribute
+(which means it might be CACHED, ADDITIONAL, or REPLACEMENT -- you
+know the story :)).  It contains a single element -- the raw Gopher
+(or Gopher+) protocol line that led to this link being generated.  The
+trailing CR and LF are stripped from the protocol line.  You
+should explicitly request this attribute, as part of the ATTRIBUTES
+argument to the Prospero protocol LIST command.  (In your
+implementation, make sure to specify the GVD_ATTRIB flag to
+p_get_dir()).
+
+This means that a gatewaying service which translates Gopher queries
+into prospero queries and exports the results as Gopher menus and objects
+will never be caught in the incestuous situation of telling a gopher client
+to make a gopher query to a gateway server that will  be translated
+into a prospero query and then translated back into a gopher query by
+the responding Prospero server.  
+
+. Sidebar: How to check if a Prospero link can be exported as a raw
+Gopher link (i.e, a link that doesn't involve going through your gateway).
+
+1) Check for the presence of the GOPHER-MENU-ITEM attribute.   If it's
+there, you're all set.
+2) Look at the ACCESS-METHOD attribute.  If an object supports the
+GOPHER access method, you're set.
+3) Otherwise, you'll have to gateway the link yourself.
+
+. End of sidebar
+
+When you export a generic Prospero link as a Gopher menu entry, for
+now the Gopher type character will be 0 (file) or 1 (directory).
+Other types are also possible, as outlined in the
+OBJECT-INTERPRETATION document (currently in doc/working-notes).
+(Specifically, enough informatin is available to let you support the
+Gopher SEARCH type, the TELNET, TN3270, and various image and sound
+types.)  The Gopher host and port for the link will be the same host
+and port your Gopher server is running on.  The gopher selector string
+for the link will be:
+
+        ProsperoPoC/<prospero-host-name>/<prospero-hsoname>
+
+(ProsperoPoC means 'Prospero Point of Contact'.)  My gateway (the
+Prospero server that exports Gopher directories) will detect such an
+HSONAME and take that as a hint to test whether there is really a
+Prospero hostname and hsoname that matches that.  My gateway will
+eventually cache the results of such tests.  Your following this
+convention means that my server will never return a Prospero link that
+requires the client to go through my server and your server in order
+to make a Prospero query that it could have made directly.
+
+Implementation tip: Your server should fork when servicing requests
+(the existing Gopher servers do this).  
+
+I have a more elaborate later implementation in mind for the Gopher
+server exporting Prospero searches as if they were Gopher searches,
+but this is not important right now.
+
+

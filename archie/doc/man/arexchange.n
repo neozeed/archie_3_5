@@ -1,0 +1,353 @@
+.\" Copyright (c) 1996 Bunyip Information Systems Inc.
+.\" All rights reserved.  
+.\"	
+.\" Archie 3.5
+.\" August 1996
+.\"	
+.\"	@(#)arserver.n	
+.\"
+.TH AREXCHANGE N "August 1996"
+.SH NAME
+.B arretrieve
+\- Archie data exchange program
+.SH SYNOPSIS
+.B arexchange
+[ 
+.BI \-M " <dir>"
+] [ 
+.BI \-h " <dir>"
+] [ 
+.BI \-C " <config>"
+] [ 
+.BI \-f " <force hosts>"
+] [
+.BI \-F " <remote server list>"
+] [
+.BI \-T " <timeout>"
+] [
+.B \-e
+] [
+.BI \-d " <catalog list>"
+] [
+.BI \-I " <size>"
+] [
+.BI \-m " <maximum number>"
+] [
+.B \-Z
+] [
+.B \-v
+] [
+.B \-c
+] [
+.B \-u
+] [
+.B \-j 
+] [
+.B \-l 
+] [ 
+.BI \-L " <logfile>"
+] 
+
+.SH DESCRIPTION
+.PP
+.B arexchange
+is used by the local Archie host to retrieve preprocessed data, from other
+remote Archie hosts, by contacting the remote
+.B arserver
+process. It does so on a per-database basis with the use of the associated
+.B ~archie/bin/net_*
+programs.  So, for example, to exchange webindex data the
+.B net_webindex
+program is invoked, and it is responsible for the actual data
+transmission.
+.B arexchange
+is responsible for the administration of the data exchange.
+.RE
+.SH OPTIONS
+.TP
+.BI \-M " <dir>"
+The name of the master Archie database directory. If not specified, the
+program looks in the directory
+.BR ~archie/db ,
+then
+.BR ./db .
+.TP 
+.BI \-h " <dir>"
+The name of the Archie host database directory. If not supplied, the program
+will first try
+.BR ~archie/db/host_db ,
+then
+.BR ./host_db .
+.TP 
+.BI \-C " <config>"
+Use
+.I <config> 
+as the configuration file. See the
+.SM CONFIGURATION
+section.
+.TP
+.BI \-f " <force hosts>"
+.I <force hosts>
+is a colon separated list of data hosts to be retrieved. This overrides the
+default requests which would normally be obtained from the configuration file,
+and retrieves the data hosts even if they are not scheduled for
+retrieval. Note that the data hosts' information will not be retrieved if the
+server process at the other end of the connection determines that the
+associated records are currently inactive. All the servers listed in the
+configuration file are contacted for the specified
+.I <force hosts>
+(unless overridden by the
+.B \-F
+option). The databases retrieved are those specified in the configuration
+file.
+.TP
+.BI \-F " <remote server list>"
+.I <remote server list>
+is the colon separated list of names of Archie servers in the configuration
+file from which the program should retrieve the information requested. No
+other servers are contacted, and if the given servers are not listed in the
+configuration file no action is taken.  A simple case insensitive string
+comparison is performed between the server list on the command line and those
+in the configuration file. No DNS comparison is done, so the same names in the
+configuration file must be used on the command line (i.e. aliases must not be
+used).
+.TP
+.BI \-T " <timeout>"
+If, during the data exchange, the connection is idle for
+.I <timeout>
+minutes, the process is aborted. The timeout has a default value of
+10 minutes.
+.TP
+.B \-j
+The program does not invoke the actual data exchange, but prints the data
+provided by the remote server process as if the data exchange were being
+carried out. This is printed out in an internal protocol format. See
+.BR archie_protocol (5).
+.TP
+.B \-e
+Do not expand pseudo-domains on output. By default, a pseudo-domain specified
+in the
+.B arupdate.cf
+file (to be exchanged) is replaced with its corresponding list of domains.
+.TP
+.BI \-d " <database list>"
+Only exchange those databases in the colon separated
+.IR "<database list>" .
+If none of the databases in the list are present in the configuration file
+entry for any given server, then no transfers are performed with that
+server. This option may be used in conjunction with the
+.B \-F
+and/or
+.B \-f
+options to obtain the specified databases, on particular data hosts, from
+specific remote Archie servers.
+.TP 
+.B \-v
+Verbose mode.  Write debugging information to
+.IR stderr ,
+or to a log file, if one is specified.
+.TP
+.B \-c
+Request compression of the transferred data (using the
+.BR compress (1)
+or
+.BR gzip (1)
+program). The remote server may choose to ignore the request.
+.TP
+.B \-u
+Request uncompressed transmission of data. The remote server may choose
+to ignore the request.
+.TP 
+.B \-l
+Write any messages to the default log file
+.BR ~archie/logs/archie.log . 
+The name of the log file can be overridden with the
+.B \-L 
+option.  By default, errors are written to
+.IR stderr .
+.TP 
+.B \-Z 
+Force the retrieve programs to pick up the
+.B ls-lR.Z
+or
+.B ls-lR.gz
+files.
+.TP 
+.BI \-m " <maximum number>"
+Specify the maximum number of entries to process.
+.TP 
+.BI \-I " <size>"
+Set a minimum size, in bytes, for a site file to be indexed.  If the size of
+the site file is greater than or equal to this size, a `.idx' file will
+accompany the site file in order to speed up search queries.  The default
+value of
+.I <size>
+is 500000 bytes.  This option is useful only when updating (using the
+.B \-u
+option), and is used by the insert programs.
+.TP 
+.BI \-L " <logfile>"
+The name of the file to which information is logged.  This option must be used
+with the
+.B \-l
+option.  Note that debugging information is also written to the log file.
+.RE
+.SH CONFIGURATION
+.PP
+This program is intended to be periodically run by the
+.BR cron (8) 
+daemon (see
+.SM "Configuring the System"
+in the Archie documentation).  The program reads the configuration file,
+.BR ~archie/etc/arupdate.cf ,
+unless overridden by the 
+.B \-C 
+option. This file is also used by the
+.B arserver
+program. (See
+.BR arserver (n)).
+Lines in the configuration file have the following format:
+.IP 
+\fI<archie host> <config>\fP [, \fI<config>\fP ...]
+.PP
+where
+.RS
+.TP
+.I <archie host> 
+is the Fully Qualified Domain Name of the host with which data is to be
+exchanged.  Note that the local Archie server name should not be in this file.
+.RE
+.PP
+For each 
+.I <archie host> 
+there may be multiple 
+.I <config line> 
+entries.  Since each entry starting with 
+.I <archie host> 
+is considered to be a single line, the backslash, (`\\') is used as a line
+continuation character. Each
+.I <config> 
+consists of the following fields:
+.LP
+.I <db list> <domain list> <maxno> <perms> <freq> <date> <fail>
+.PP
+.SS Field Interpretation
+.PP
+The fields have the following syntax and meaning:
+.RS
+.TP
+.I <db list>	
+A list of Archie databases about which to query the server.  An asterisk (`*')
+indicates that the server is to be queried about
+.I all
+databases.
+.TP
+.I <domain list>	
+The list of domains about which to query the server.
+.TP
+.I <max no>	
+The maximum number of sites to accept, from the server, at a time.  A value of
+zero indicates that
+.I all
+available sites should be obtained.
+.TP
+.I <perms>		
+If the character `w' appears here, the arexchange program should query the
+server about the information on this line (see below).
+.TP
+.I <freq>	      	
+A number specifying the minimum delay, by default in minutes, until the server
+is again contacted.  The time may be specified in hours or days by appending
+an `h' or `d'
+.I immediately
+after the number.
+.TP
+.I <date>	      	
+A date, in YYYYMMDDHHMMSS format, indicating the last time the
+.B arexchange
+program queried this server.
+.TP
+.I <fail>	      	
+The number of consecutive, failed attempts to contact this server.
+.RE
+.PP
+Example:
+.IP
+The following is an example of a configuration file entry and how the program
+would interpret it.
+.LP
+\fCbunyip.com anonftp:webindex europe:usa 30 w 12h 19920703162322 2\fP
+.PP
+.RS
+.TP 
+Field 1. 
+Contact the server at `bunyip.com' to retrieve the exchanged data.
+.TP
+Field 2. 
+Request information about the anonftp and webindex databases.
+.TP
+ Field 3. 
+Ask only for those sites in `europe' and `usa'.
+.TP
+ Field 4. 
+Retrieve at most 30 sites from the server, in one session.
+.TP
+Field 5.
+This line is
+.I enabled
+so the client is to ask the server about information specified on this line.
+.TP
+Field 6. 
+Contact the server every 12 hours.
+.TP
+Field 7. 
+The time at which the server was last contacted.
+.TP
+Field 8. 
+There have been two consecutive failures to contact this site.
+.sp
+.sp
+.RE
+Note that both the local
+.BR arserver
+and
+.BR arexchange
+programs read the same configuration file.  Furthermore, it is through the
+.I <perms> 
+field that the respective server and client invocations determine the lines
+intended for them.  The
+.B arexchange
+program uses lines with a
+.I <perms> 
+value of `w'.
+.sp
+.RE
+It is also possible to specify `rw' in the permission field.  This means both
+that the remote client may contact the local server and that the local client
+is to contact the remote server.
+.sp
+.RE
+See
+.BR arserver (n)
+for more examples.
+.RE
+
+.SH FILES
+ ~archie/etc/arexchange.cf
+.br
+~archie/db/host_db/*
+
+.SH SEE ALSO
+.PP 
+.BR cron (8),
+.BR arserver (n),
+.BR arretrieve (n), 
+Archie system documentation.
+
+.SH AUTHOR
+Bunyip Information Systems,
+.br
+Montr\o"\'e"al, Qu\o"\'e"bec, Canada
+.sp
+Archie is a registered trademark of Bunyip Information Systems Inc., Canada,
+1990.

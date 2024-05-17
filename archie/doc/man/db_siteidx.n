@@ -1,0 +1,101 @@
+.\" Copyright (c) 1992, 1994, 1996 Bunyip Information Systems Inc.
+.\" All rights reserved.  
+.\"	
+.\" Archie 3.5
+.\" August 1996
+.\"	
+.\"	@(#)db_siteidx.n	
+.\"
+.TH DB_SITEIDX N "August 1996"
+
+.SH NAME
+.B db_siteidx
+\- create the site index file for a site.
+
+.SH SYNOPSIS
+.B db_siteidx 
+[
+.BI \-H " <hostname>"
+] [
+.BI \-p " <port>"
+] [ 
+.BI \-d " <database>"
+] [
+.BI \-I " <size>"
+] [ 
+.BI \-M " <dir>"
+] [
+.BI \-h " <dir>"
+] [ 
+.B \-v
+] [ 
+.B \-l
+] [
+.BI \-L " <logfile>"
+]
+
+.SH DESCRIPTION
+.B db_siteidx 
+creates an index corresponding to a site.  The index file has the same name as
+the site file, but with a `.idx' prefix.  A site index file is not necessary,
+but it speeds up searches in its associated site.  Therefore, larger site
+files will benefit from an index.
+
+.SH OPTIONS
+.TP
+.BI \-H " <hostname>"
+The host name about which you want statistics.
+.TP
+.BI \-p " <port>"
+The port number of the site if it is different from the default value.
+.TP
+.BI \-M " <dir>"
+The name of the master Archie database directory. If not specified, the
+program looks in the directory
+.BR ~archie/db ,
+then
+.BR ./db .
+.TP
+.BI \-d " <database>"
+The catalog where the site exists.
+.TP 
+.BI \-I " <size>"
+Set the minimum size for a site file to be indexed.  The size is in bytes.  If
+the size of the site file is greater or equal to this size a `.idx' file will
+accompany this site file to speed up searches in it. By default, this size is
+500000 bytes.
+.TP
+.BI \-h " <dir>"
+The name of the Archie host database directory. If not specified, the program
+will first default to
+.BR ~archie/db/host_db ,
+then
+.BR ./host_db .
+.TP
+.B \-v
+Verbose. Print debugging information.
+.TP
+.B \-l
+Write any user output to the default log file
+.BR ~archie/logs/archie.log .
+If desired, this can be overridden with the 
+.B \-L
+option. Errors will by default be written to
+.IR stderr .
+.TP
+.BI \-L " <logfile>"
+The name of the file to be used for logging information.  Note that debugging
+information is also written to the log file. This implies the
+.B \-l 
+option, as well.
+
+.SH FILES
+~archie/db/\fI<database name>\fP/*
+
+.SH AUTHOR
+Bunyip Information Systems.
+.br
+Montr\o"\'e"al, Qu\o"\'e"bec, Canada
+.sp
+Archie is a registered trademark of Bunyip Information Systems Inc., Canada,
+1990.

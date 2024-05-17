@@ -1,0 +1,27 @@
+  Verify and clean up the handling of tCounts.  [Maybe we should keep, for the
+  buffer, the first tCount index (-1 if none) and the last tCount indices for
+  all subtries and all but the last subtrie.  When shifting, a simple check
+  should be sufficient to determine whether the new, first tCount index can be
+  copied from a last index, or whether it is a last index, plus one.]
+
+  Test building and searching on eight bit input.
+
+  Get rid of bit fields in the node structure (when building the trie).  Use a
+  single bit for the type, change the level pages to have a next page field,
+  and a node count field.  -1 as the next page means this is the final page on
+  the current level.  [This allows us to squeeze out another bit, if we need
+  it, and allows us to use common routines in building and searching.  This
+  could lead to using variable length nodes when building.]
+
+  Define a type `u32' to hold values read in from the trie, or to contain
+  values to be written to the trie.  The underlying type should be an unsigned
+  integer able to contain _as_least_ 32 bits (possibly more).  Create macros
+  or procedures to extract subfields from this type, and to convert to and
+  from database byte (and bit) order.  [We could write a separate program to
+  find the underlying type, as well as determine the machine's byte order.]
+
+  Append an `informational' page to the trie.  The last four bytes will
+  contain, in database order, the page size.  [Include an indication of the
+  machine's native byte order?]
+
+  The index should also contain the range of text indexed.

@@ -1,0 +1,68 @@
+#
+# archstridx module.
+#
+
+#
+# Put this first to override the FORCE target in the included make file.
+#
+all: libarchstridx.a
+
+progs: $(EXES)
+
+
+include $(ARCHIE_ROOT)/Makefile.post
+
+
+libarchstridx.a: api.o lock.o newstr.o re.o strsrch.o utils.o
+	$(AR) r $@ $?
+	$(RANLIB) $@
+
+Test_archstridx: $(PATRIE_MODULE)/$(SYSTYPE)/libpatrie.a \
+                 Test_archstridx.o libarchstridx.a Makefile
+	$(CC) $(CFLAGS) -o $@ $@.o libarchstridx.a $(MOD_LIBS) $(SYS_LIBS)
+
+Test_archstridx.ma: $(PATRIE_MODULE)/$(SYSTYPE)/libpatrie.a \
+                      Test_archstridx.o libarchstridx.a Makefile
+	$(SENTINEL) $(CC) $(CFLAGS) -DMEMADVISE -I$(MA_HOME)/include \
+                    -o $@ Test_archstridx.o libarchstridx.a \
+                    $(MOD_LIBS) $(SYS_LIBS)
+
+Test_exists: Test_exists.o libarchstridx.a Makefile
+	$(CC) $(CFLAGS) -o $@ $@.o libarchstridx.a $(MOD_LIBS) $(SYS_LIBS)
+
+Test_lock: Test_lock.o lock.o utils.o Makefile
+	$(CC) $(CFLAGS) -o $@ lock.o $@.o utils.o $(MOD_LIBS) $(SYS_LIBS)
+
+Test_lock.ma: Test_lock.o lock.o utils.o Makefile
+	$(SENTINEL) $(CC) $(CFLAGS) -o $@ lock.o Test_lock.o utils.o $(MOD_LIBS) $(SYS_LIBS)
+
+Test_regex.bsd: Test_regex.c Makefile
+	$(MAKE) MOD_INCS= SYS_DEFS=-DUSE_BSD_REGEX SYS_INCS=-I$(REPOSIX_MODULE) Test_regex.o
+	$(CC) $(CFLAGS) -o $@ Test_regex.o -L$(REPOSIX_MODULE)/$(SYSTYPE) -lregex
+
+Test_regex.rx: Test_regex.c Makefile
+	$(MAKE) MOD_INCS= SYS_DEFS=-DUSE_GNU_RX SYS_INCS=-I/usr/local/include Test_regex.o
+	$(CC) $(CFLAGS) -o $@ Test_regex.o -L/usr/local/lib -lrx
+
+Test_regexp: Test_regexp.o Makefile
+	$(CC) $(CFLAGS) -o $@ Test_regexp.o
+
+Test_regexp.ma: Test_regexp.o Makefile
+	$(SENTINEL) $(CC) $(CFLAGS) -o $@ Test_regexp.o
+
+Test_state: $(PATRIE_MODULE)/$(SYSTYPE)/libpatrie.a \
+                 Test_state.o libarchstridx.a Makefile
+	$(CC) $(CFLAGS) -o $@ $@.o libarchstridx.a $(MOD_LIBS) $(SYS_LIBS)
+
+Test_state.ma: $(PATRIE_MODULE)/$(SYSTYPE)/libpatrie.a \
+                      Test_state.o libarchstridx.a Makefile
+	$(SENTINEL) $(CC) $(CFLAGS) -o $@ Test_state.o libarchstridx.a $(MOD_LIBS) $(SYS_LIBS)
+
+Test_strsrch: Test_strsrch.o strsrch.o Makefile
+	$(CC) $(CFLAGS) -o $@ $@.o strsrch.o $(MOD_LIBS) $(SYS_LIBS)
+
+Test_strsrch.ma: Test_strsrch.o strsrch.o Makefile
+	$(SENTINEL) $(CC) $(CFLAGS) -o $@ Test_strsrch.o strsrch.o $(MOD_LIBS) $(SYS_LIBS)
+
+clean:
+	rm -f *.o $(EXES) libarchstridx.a core bb.out

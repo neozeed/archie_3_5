@@ -1,0 +1,737 @@
+% If you somehow got this file without fullpage.sty,  delete
+% ``fullpage'' from the list of style options.  It just pulls out the
+% margins a bit.
+\documentstyle[11pt,twoside,fullpage]{article}
+% New commands
+%-------------
+% Intro copied from prospero-protocol-v5.txt
+
+% for meta-symbols
+\newcommand{\meta}[1]{{\bf \mbox{\(<\)#1\(>\)}}}
+% for literal tokens.
+\newcommand{\lit}[1]{{\tt \mbox{#1}}}
+%for attributes
+\newcommand{\atr}[1]{\mbox{\sc #1}}
+% for identifying text
+\newcommand{\text}[1]{{\em #1}\/}
+
+% Start and end of One or More
+\newcommand{\ooms}{\([\,\)}
+\newcommand{\oome}{\(\,]^+\)}
+% start and end of zero or more
+\newcommand{\zoms}{\([\,\)}
+\newcommand{\zome}{\(\,]^*\)}
+% Start and end of zero or one
+\newcommand{\zoos}{\([\,\)}
+\newcommand{\zooe}{\(\,]\)}
+% start an OR
+\newcommand{\ors}{{\bf (\,}}
+\newcommand{\ore}{{\bf \,) }}
+\newcommand{\metaor}{{\em \,or\, }}
+\newcommand{\hexnum}[1]{\(\mbox{#1}_{16}\)}
+\newcommand{\unix}{{\sc unix}}
+\newenvironment{command}{\begin{verse}\sloppy}{\end{verse}}
+\newcommand{\commandsize}{\large}
+
+%\newtheorem{example}{Example}
+% Uncomment this for almost-double spacing
+%\renewcommand{\baselinestretch}{1.7}
+%\newcommand{\hozline}{\rule{\textwidth}{0.3mm}}
+%\newcommand{\hozline}{\makebox[\textwidth]{\hrulefill}}
+%\newcommand{\bex}{\begin{example} \begin{rm}}
+%\newcommand{\eex}{$\Box$ \end{rm} \end{example}}
+%\newcommand{\cbs}{\chgbarbegin}
+%\newcommand{\cbe}{\chgbarend}
+%\newcommand{\cbs}{}
+%\newcommand{\cbe}{}
+
+%\newcommand{\ptag}{\begin{flushright} {\rm ($P$)} \end{flushright} }
+
+
+\begin{document}
+
+\pagenumbering{arabic}
+\pagestyle{plain}
+
+\renewcommand{\thepage}{\arabic{page}}
+
+
+\begin{titlepage}
+
+\renewcommand{\thefootnote}{}
+\footnotetext{\hspace*{-21pt}
+A digital copy of the latest revision of this document may be obtained
+through Prospero as
+\mbox{\verb"/papers/subjects/operating-systems/prospero/doc/library.PS.Z"},
+in the \mbox{\tt \#/INET/EDU/ISI/swa} virtual system, or through
+Anonymous FTP from \mbox{\tt PROSPERO.ISI.EDU} as
+\mbox{\verb"/pub/prospero/doc/prospero-library.PS.Z"}
+}
+\footnotetext{\hspace*{-21pt}
+This work was supported in part by the National Science
+Foundation (Grant No. CCR-8619663), the Washington Technology Center,
+Digital Equipment Corporation, and the Defense Advance Research
+Projects Agency under NASA Cooperative Agreement NCC-2-539.
+The views and conclusions contained in
+this document are those of the authors and should not be interpreted as
+representing the official policies, either expressed or implied, of
+any of the funding agencies.
+The authors may be reached
+at USC/ISI, 4676 Admiralty Way, Marina del Rey, California\ \ 90292-6695, USA.
+Telephone +1 (310) 822-1511, email \mbox{\verb"info-prospero@isi.edu"}.  }
+\renewcommand{\thefootnote}{\arabic{footnote}}
+
+
+\vspace*{\fill}
+\begin{center}
+\LARGE Prospero Library Manual\\
+\Large Version 5\\
+\vskip 1.5em
+{\large Draft of 30 March 1994} \\
+{\large Document Revision No. 0.5.3} \\
+\end{center}
+\vspace{.5in}
+
+\Large \hspace*{\fill} B. Clifford Neuman
+%\footnotetext{\hspace*{-18pt}
+%	To Contact the Authors: \\
+%	Electronic Mail: \mbox{\verb"info-prospero@isi.edu"} \\
+%    Telephone: +1 (310) 822-1511 \\
+%    Mail: USC Information Sciences Institute, 4676 Admiralty Way,
+%  Marina del Rey, California  90292--6695\ \ U.S.A.
+%}
+\hfill Steven Seger Augart \hspace*{\fill} \\
+\vspace{.2in}
+\begin{center}
+\Large Information Sciences Institute \\
+University of Southern California
+\end{center}
+\vspace*{1.2in}
+\vspace*{\fill}
+\end{titlepage}
+
+\tableofcontents
+
+\section{WARNINGS}
+
+\begin{enumerate}
+\item This manual is preliminary.  It does not fully describe all of the
+Prospero library calls.
+
+\item This manual reflects Prospero releases Alpha.5.2 and later.
+You can use it with Prospero releases between Alpha.5.0 and Beta.5.1;
+changes are documented under the appropriate functions.
+
+\end{enumerate}
+
+\section{Introduction}
+
+This manual describes the entry points to the Prospero library.
+
+\section{PFS Library}
+
+\subsection{Introduction}
+
+The PFS library includes procedures for allocating and freeing
+Prospero data structures, resolving names using Prospero, reading
+directories, retrieving attributes, adding and deleting links, and
+creating directories.  Only those procedures generally used by application
+programmers are described here.  The remaining routines are called
+internally.
+
+These functions are prototyped in the include file {\tt pfs.h}, found
+in the {\tt include} directory in the Prospero source tree.  The data
+structures manipulated by these functions and the definitions of the
+flag options are also defined and documented in that file.  When
+Prospero is installed normally, the library (ready to be linked with)
+can be found in {\tt lib/pfs/libpfs.a} in the Prospero source
+hierarchy.
+
+Since this manual is still not complete, a programmer will often find
+it helpful to look at the source code files for the functions discussed
+here.  Most of them are preceded with large comments discussing their
+behavior in more detail than is gone into here.  They can all be found
+in the {\tt lib/pfs} directory in the Prospero source tree.
+
+Examples of using these functions can be found in the {\tt user}
+directory of the Prospero source tree.
+
+Programmers looking for examples of listing a directory and retrieving
+attributes should look at {\tt vls.c}.  Examples of setting attributes
+are in {\tt set\_atr.c}.  An example of the {\tt pget\_am} interface
+to retrieving files is in {\tt vget.c} (after you see it, we expect
+you'll appreciate the simplicity of {\bf pfs\_open()}.  An example of {\tt
+add\_vlink()} is in {\tt vln.c}.
+
+\subsection{Multi-threading}
+
+Work to make the Prospero library safe in a multi-threaded
+environment, such as pthreads, is in progress.  Since one of the
+Prospero developers shot off his mouth and promised to get a
+multi-threaded Prospero server to a certain loyal Prospero customer
+well before November 15th, you can expect this item soon.
+
+\subsection{Error Reporting}
+
+Most functions in this library return a numeric error code (defined in
+{\tt perrno.h}).  The functions in this library which return pointers
+to structures will return a null pointer in case of an error.  They
+will indicate which error occurred by setting the global variable {\tt
+perrno} (defined in the include file {\tt perrno.h}) to one of the
+constants defined in that file.  Note: Functions that return an
+explicit numeric error code are not guaranteed to set {\tt perrno}.
+
+Most functions that set perrno or return an error code will also set
+an explanatory message in the global variable {\tt p\_err\_string}
+(also defined in that file).   Even if they have no additional
+information, they are supposed to set {\tt p\_err\_string} to the
+empty string so that the user isn't misled by an old error message.
+
+The Prospero library guarantees that {\tt p\_err\_string} will always
+be a pointer to a string of some sort, frequently empty.  You don't
+have to worry about it being a NULL pointer.  {\tt p\_err\_string} and
+{\tt p\_warn\_string} may change in value during the program's
+execution.  If you are operating in multi-threaded mode, their values
+will be different in different threads.
+
+The error indicators in {\tt perrno} and {\tt p\_err\_string} are
+persistent across library calls.  To clear them before making a
+library call, use the function {\bf p\_clear\_errors()}:
+\begin{verbatim}
+extern void p_clear_errors(void);
+\end{verbatim}
+
+\subsubsection{WARNING}
+
+All the functions in this library are supposed to obey the above
+convention about {\tt p\_err\_string}.  We have not gone over all of
+them to make certain that the convention is obeyed in every case, due
+to the press of other work.
+
+\subsection{Argument modification}
+
+A function that accepts a {\it VLINK} may modify that link if the
+object it points to has been forwarded.  If it does so, it will modify
+the link to refer to the new location of the object.
+
+Not all calls to the Prospero library currently do this.  When we take
+the time to revise the library, we will attempt to make this behavior
+consistent across all functions in the library that accept {\it VLINK}s
+and send Prospero protocol messages that inform them the link's target
+has been forwarded.
+
+\subsection{Initialization}
+
+Every Prospero client {\bf must} call the function 
+{\bf p\_initialize()} before making any calls to Prospero library
+functions.  Your program may well crash weirdly if you don't.
+
+
+\begin{verbatim}
+extern void p_initialize(char *software_id, int flags, 
+                         struct p_initialize_st * arg_st);
+\end{verbatim}
+
+If you're writing a client, send email to {\tt
+pfs-administrator@isi.edu} and request a software ID string.  If
+you're just experimenting with the libraries, you can pass a NULL
+pointer or empty string  as the software ID.  
+At the moment, no flag values are defined, and no members of the
+structure for additional arguments are defined, so the most common
+calling sequence is:
+\begin{verbatim}
+	p_initialize((char *) NULL, 0, (struct p_initialize_st *) NULL);
+\end{verbatim}
+
+\subsection{Data Structures}
+
+Most of the data structures in the PFS library are allocated and freed
+with special allocation functions ({\it VLINK}s are allocated with
+{\bf vlalloc}, etc.  The allocation functions also initialize the
+members of the structure to common values and the freeing functions
+de-allocate allocated memory referred to by the members of
+the structure.  
+
+Do not use the C library function {\bf free} to free memory allocated
+by one of the special Prospero allocating functions, and do not use
+one of the special freeing functions to free memory allocated by {\bf malloc}.
+
+The {\it VDIR} structure does not have special allocation and freeing
+structures.  This is because in the current uses of the Prospero
+library, one generally does not make linked lists of {\it VDIR}
+structures; instead, one allocates them on the stack with code that
+looks like this:
+
+\begin{verbatim}
+VDIR_ST dir_st;
+VDIR dir = &dir_st;
+\end{verbatim}
+and then initializes them with:
+\begin{verbatim}
+vdir_init(dir);
+\end{verbatim}
+and frees the allocated memory referred to by the members with:
+\begin{verbatim}
+vdir_freelinks(dir);
+\end{verbatim}
+
+\subsubsection{Linked Lists}
+
+Prospero uses linked lists of items as a basic data structure.  In all
+cases, these are doubly linked lists.  As usual, the empty list is
+represented by a list whose head is the NULL pointer.  When a doubly
+linked has one or more items in it, then the {\tt previous} field of
+the first item in the list points at the last item, and the {\tt next}
+field on the last is NULL.  Therefore, when a list has only one item
+in it, then the {\tt next} pointer of the last item is NULL and the
+{\tt previous} points back to itself.  In other words, if {\it head}
+is non-null, {\it head$->$previous} will always be the TAIL of the
+list.
+
+Macros for manipulating lists of these structures are in the {\tt
+list\_macros.h} include file.  This file is included by {\tt pfs.h}, but may be
+included again without problems.
+
+{\bf APPEND\_ITEM}({\it new, head}) appends the item {\it new} to a doubly linked
+list pointed to by {\it head}.  The item {\it new} goes  at the TAIL
+of the list.  It must not already be present in the list.  This macro
+modifies its second argument, {\it head}, which should be a variable.
+
+{\bf EXTRACT\_ITEM}({\it item, head}) removes {\it item} from a
+doubly-linked list headed by {\it head}.  If {\it item} is not a
+member of the list, the results are not defined.  The extracted {\it
+item} will NOT be freed.
+
+{\bf APPEND\_LISTS}({\it list1,list2}) performs an O(1) list appending
+operation.  It sets {\it list1} to point to a doubly-linked list
+consisting of {\it list1} appended to {\it list2}.  {\it list2} must
+not already be a part of {\it list1} or the results are unpredictable.
+{\it list2} will be a garbage value at the end of this exercise, since
+it will no longer point to a valid doubly-linked list.  {\it list1}
+and {\it list2} must already be valid doubly-linked lists.
+
+\subsubsection{Application-reserved ({\tt app}) member of Prospero structures}
+
+This feature is available in prospero versions Alpha.5.3 and later.
+
+For all exported structures in Prospero visible at the library
+interface (except for TOKENs), there is a special member named {\tt
+app}, for applications writers.  This member is a union:
+
+\begin{verbatim}
+	union app {
+		int flg;		/* Flag or number */
+		void *ptr;              /* Generic Pointer */
+	};
+\end{verbatim}
+
+Each allocation/freeing package (eg: vlalloc(), vlfree(), vllfree(),
+vlcopy()) has a 'application freeing function specifying function'
+(e.g., vlappfree()) associated with it.
+
+So, if we use the app.ptr member of the VLINK structure to point to a
+'struct vlink\_aux', to be freed (if non-null) with the 'vlauxlfree
+function, then code using the VLINK in that way will have to call:
+vlappfree(vlauxlfree); and then all subsequent calls to vlfree() will
+call vlauxlfree on the app.ptr member.
+
+\subsection{Entry Points}
+
+\begin{tabbing}
+{\Large \bf Entry points:} \= {\bf atalloc, atfree, atlfree, vlalloc,
+vlfree, vllfree, add\_vlink,}\\ 
+\> {\bf del\_vlink, p\_get\_dir, mk\_vdir, pget\_am, pget\_at, rd\_vdir,}\\
+\>{\bf rd\_vlink, pfs\_open, {\rm and} pfs\_fopen}. 
+\end{tabbing}
+
+\noindent {\bf PATTRIB atalloc}({\it void}), {\bf FILTER flalloc}({\it void}), {\bf TOKEN
+tkalloc}({\it char *s}), {\bf ACL acalloc}({\it void}), and {\bf VLINK
+vlalloc}({\it void}) allocate and initialize structures for storing attributes,
+filters, tokens, access control list entries, and virtual links.
+They call out\_of\_memory() on failure, which is a macro in {\tt
+pfs.h} which currently raises an error condition and aborts program
+execution.  Its behavior may be changed by resetting the value of the
+global variable {\bf internal\_error\_handler} (defined in {\tt pfs.h}
+to a function with some alternative behavior (such as popping up a 
+window with a failure message and offering to restart the application
+or exit).\footnote{
+	The Prospero directory server takes advantage of this and
+rebinds {\bf internal\_error\_handler()} to a function that logs a
+message to the server's log file and attempts to restart the server.}
+Since the only failure condition for these functions is running out of
+available memory, they do not set {\bf perrno}.  
+
+{\bf atfree}({\it
+PATTRIB at}), {\bf flfree}({\it FILTER fl}), {\bf acfree({\it ACL
+ac})}, and {\bf vlfree}({\it VLINK vl}) free the storage allocated to
+{\it at}, {\it fl}, {\it ac}, and {\it vl}.  They also free any
+standard Prospero memory structures referenced by the members of these
+structures; for example, freeing a {\it VLINK} will also free any
+Prospero string referenced by the {\it VLINK'\/}s {\tt host} member.
+They also free any memory referred to by the structure's {\tt app.ptr}
+member, using whatever function the user set via {\bf atappfree(),
+flappfree(), acappfree(),} or {\bf vlappfree(),} as appropriate.  The
+user can disable this feature, if it has already been enabled, by
+calling the appropriate {\it xx}{\bf appfree()} function with a null
+pointer as its argument.
+
+{\bf atlfree}({\it at}) and {\bf vllfree}({\it vl}) free {\it at} and
+{\it vl} and all successors in a linked list of such structures.  They
+do not return error codes nor do they set {\tt perrno}, since they
+cannot fail.  {\bf tkalloc({\it s})} initializes the {\tt token}
+member of the {\it TOKEN} structure it allocates to be a copy of {\it
+s}.
+
+{\bf {\it FILTER} flcopy({\it FILTER fl, int recurse})} will return a
+copy of the filter {\it fl}.  If the {\it recurse} flag is non-zero,
+then it will also recursively copy the linked list of filters that
+{\it fl} points to the head of.
+
+{\bf {\it char *} stcopy({\it char *s})} allocates an area of memory
+large enough to hold the string {\it s} and copies {\it s} into it.
+It is usually used to store a string.  The number of bytes allocated
+to a string 
+can be checked with the macro {\bf stsize({\it char * string})}.  An
+alternative interface to {\bf stcopy} is {\bf {\it char *}
+stalloc({\it size\_t nbytes})}.  {\bf stalloc} allocates an area of
+uninitialized memory large enough to hold {\it nbytes} bytes of data
+and returns a pointer to it.  Another interface is {\bf {\it char
+*}stcopyr({\it char *source, char *dest})}.  The sequence:
+\begin{verbatim}
+a = stcopyr("string", a);
+\end{verbatim}
+will yield results functionally equivalent to the sequence:
+\begin{verbatim}
+stfree(a);
+a = stcopy("string");
+\end{verbatim}
+The only
+difference is that {\bf stcopyr()} attempts to reuse the already
+allocated space, if available.  This avoids the overhead of extra
+calls to {\bf malloc()} and {\bf free()}, and is therefore frequently more
+efficient than the equivalent longer sequence of calls.  The existing
+Prospero libraries and utilities make frequent use of {\bf stcopyr()}
+for this purpose.
+
+Also note that \verb|a = stcopyr("foo", (char *) NULL)| is equivalent to 
+\verb|a = stcopy("foo");|
+Memory allocated by all of these interfaces should be freed with {\bf
+stfree({\it st})}.  {\bf stfree({\tt (char *) NULL})} is a guaranteed
+no-op.  The various interfaces to {\bf stcopy()} all call {\tt
+out\_of\_memory() when appropriate.}  
+
+A frequent cause of problems when using memory allocation functions is
+freeing the same chunk of memory twice.  One may optionally enable
+consistency checking code in the allocators and freeing functions by
+defining {\tt ALLOCATOR\_CONSISTENCY\_CHECK} in {\tt pfs.h}.  This code
+has not yet been finished for the {\bf stalloc()} family, but works
+for all other allocators.  If any double freeing is detected, {\bf
+internal\_error\_handler()} will be called.
+
+A programmer may also easily check for memory leaks by looking at the
+global variables {\bf {\it int\/} acl\_count, pattrib\_count,
+filter\_count, pauth\_count, pfile\_count, token\_count, vlink\_count,
+and rreq\_count} to see how many of each of the  corresponding
+structures have been allocated.\footnote{
+	We use this facility to debug the Prospero server; it returns
+this information in response to the {\tt pstatus} command.}%
+	\footnote{
+Some of the structures mentioned in this list of global variables
+are not yet documented in this manual.}
+
+{\bf add\_vlink}({\it direct,lname,l,flags}) adds a new link {\it l}
+to the directory named {\it direct} with the new link name {\it
+lname}.  {\it direct} is a string naming the directory that is to
+receive the link.  If {\it flags} is {\sc avl\_union}, then the link
+is added as a union link. {\bf add\_vlink} returns {\sc psuccess} (0)
+on success and an error code on failure. 
+
+This interface to this function will change in a later version of the
+library to be {\bf p\_add\_nlink()}, with a corresponding {\bf p\_add\_link}
+that takes a {\it VLINK} instead of a string for the {\it direct} argument.
+
+{\bf del\_vlink}({\it path,flags}) deletes the link named by {\it
+path}.  At present, {\it flags} is unused.  {\bf del\_vlink} returns
+{\sc psuccess} (0) on success and an error code on failure.
+
+This interface to this function will change in a later version of the
+library to be {\bf p\_del\_nlink()}, with a corresponding {\bf p\_del\_link()}
+that takes a {\it VLINK} instead of a string for the {\it path} argument.
+
+{\bf p\_get\_dir}({\it VLINK dlink,char *components,VDIR dir,int
+flags,TOKEN acomp})
+contacts the Prospero server on host {\it dlink-$>$host} to read the directory
+{\it dlink-$>$hsoname}, resolving union links that are returned and applying
+{\it dlink-$>$filters}, if set.
+
+If {\it components} is a null pointer, all links in the directory are
+returned.  If {\it components} is a non-null string, only those
+links with names matching the string.  The string may be a wildcarded name
+containing the {\tt *} and {\tt ?} characters; these have their
+conventional meanings.  The string may also be a regular expression,
+enclosed between parentheses; in that case, all links matching the
+regular expression are returned.
+
+{\bf p\_get\_dir()} will always, in addition to any other links it might
+return, return any link whose literal name is the {\it components}
+string.  This feature means that you do not have to worry about
+retrieving links whose names contain special characters, even if more
+special characters are defined at some future time.  An example: The
+{\it components} string {\tt (ba\(na\)*na)}, in addition to matching
+{\tt banana} and {\tt banananana}, also (as an important special case)
+matches the component whose literal name is {\tt (ba\(na\)*na)}.
+
+{\it dir} is a Prospero directory structure that is filled in.  {\it
+flags} can suppress the expansion of union links ({\sc gvd\_union}),
+force their expansion ({\sc gvd\_expand}), request the return of link
+attributes on the {\it VLINK} structure's {\tt lattrib} member ({\sc
+gvd\_attrib}), and suppress sorting of the directory links ({\sc
+gvd\_nosort}).  {\it acomp} should normally be {\sc null}.  For many
+applications, one does not need to call this procedure, and should use
+{\bf rd\_vdir} and {\bf rd\_vlink} instead.  {\bf p\_get\_dir} returns
+{\sc psuccess} (0) on success and an error code on failure.
+
+The standard way to retrieve the attributes of a link in a directory
+is to call {\bf p\_get\_dir} with the {\it dlink} argument pointing
+to the directory in which the link is located and the {\it components}
+argument being the name of the link whose attributes are to be
+retrieved.  
+
+Compatability note: {\bf p\_get\_dir} was named {\bf get\_vdir} or
+{\bf p\_get\_vdir()} in releases of Prospero before Alpha.5.2.  Those
+older interfaces are still available but should be converted.
+release is backwards-compatible with those older uses.
+Please note that the Alpha.5.3 release of {\bf p\_get\_dir()} will not
+moify the {\it dlink}, but that previous releases did corrupt the {\it
+dlink} while expanding a union lnk.
+
+{\bf mk\_vdir}({\it char path[], int flags}) creates a new virtual
+directory with 
+the new name {\it path} in the currently active virtual system.  {\it
+flags} should usually be 0; the only flag currently defined is {\sc
+MKVD\_LPRIV}, which causes the directory to be created with very
+limited permissions available to the creator.  See the documentation
+of the {\tt CREATE-OBJECT} command in the protocol specification if
+you want a better explanation of this option.
+{\bf mk\_vdir} returns {\sc psuccess} (0) on success and an error code
+on failure. 
+
+This interface to this function will change in a later version of the
+library to be {\bf p\_mk\_ndir()}, with a corresponding {\bf p\_mk\_dir}
+that takes a {\it VLINK} referring to the directory and a string which
+is the new link name.
+
+{\bf pget\_am}({\it VLINK link,TOKEN *ainfop, int methods}) returns
+the access method that should be used to access the object referenced
+by {\it link}.  {\it *ainfop} is a pointer to a variable of type
+TOKEN.  When {\bf pget\_am} returns, this variable will be a NULL
+pointer if no appropriate access methods were available or will point
+to the value of the best {\sc access-method} attribute associated with
+the object referenced by {\it link} if appropriate methods were
+available.  When more than one appropriate access method is available,
+{\bf pget\_am} attempts to choose the least expensive one.  
+
+{\it methods} is a bit-vector identifying the methods that are acceptable
+to the application.  The methods presently supported are: the local
+filesystem ({\sc p\_am\_local}), anonymous FTP ({\sc p\_am\_aftp}),
+regular FTP ({\sc p\_am\_ftp}), Sun's Network File System ({\sc
+p\_am\_nfs}), the Andrew File System ({\sc p\_am\_afs}), the Gopher
+distributed directory service binary and text file retrieval protocols
+({\sc p\_am\_gopher}), and telnettable services ({\sc p\_am\_telnet}).
+Note that to effectively use the ({\sc p\_am\_ftp}) access method, the
+server on the remote end will have to know that the user has an
+account valid for FTP on the server.  {\bf pget\_am} returns {\sc
+p\_am\_error} (0) on failure and leaves an error code in {\tt perrno}.
+Upon success, {\bf pget\_am} returns the value of the access method
+that was chosen.
+
+This interface returns information that allows you to retrieve a file,
+but does not do any of the work of retrieving it.  We expect most
+programmers to use the {\bf pfs\_open} or {\bf pfs\_fopen} interfaces
+instead.  The only exception is the TELNET access methods
+
+{\bf PATTRIB pget\_at}({\it VLINK link,char atname[]}) returns a list of values of
+the {\it atname} attribute for the object referenced by {\it link}.
+If {\it atname} is {\sc null}, all attributes for the referenced
+object are returned.  If {\it atname} is a string, it is a string
+which is just a plus-separated list of attribute specification options
+to the {\tt EDIT-OBJECT-INFO} protocol message.  {\bf pget\_at}
+returns {\sc null} on failure, or when no attributes are found.  On
+failure, an error code is left in {\tt perrno}.  On success, {\tt
+perrno} is explicitly set to {\tt PSUCCESS}.
+
+If the object has been forwarded, pget\_at() will follow the
+forwarding pointers, just as other PFS library functions do.  If the
+object has been forwarded, pget\_at() will modify {\it link}  so that
+the link's {\tt host} and {\tt hsoname} members refer to the link's
+new location.
+
+This function will be renamed in a later version of this library.  The
+new function will be named {\bf p\_get\_at}.
+
+{\bf rd\_vdir}({\it dirarg,comparg,dir,flags}) lists the directory
+named by {\it dirarg} (relative to the current working directory or
+the root of the active virtual system) returning the links whose names
+match {\it comparg}.  {\it dir} is a Prospero directory structure that
+is filled in.  {\it flags} can suppress the expansion of union
+links ({\sc rvd\_union}), force their expansion ({\sc rvd\_expand}),
+request the return of link attributes ({\sc rvd\_attrib}), suppress
+sorting of the directory links ({\sc rvd\_nosort}), suppress use of
+cached data when resolving names ({\sc rvd\_nocache}), or request the
+return of a reference to the named directory, suppressing the return
+of its contents ({\sc rvd\_dfile\_only}).  {\bf rd\_vdir} returns {\sc
+psuccess} (0) on success and an error code on failure.
+
+As a special case, if the {\it comparg} is a null pointer or the empty
+string and the {\it dirarg} refers to a link that is not a  DIRECTORY,
+then a directory entry containing a single link to the {\it vlink}
+named by comparg is returned; in that special case, this interface
+behaves similarly to {\bf rd\_slink}.
+
+This function's interface will change; it will probably be
+renamed {\bf p\_get\_ndir()}.
+
+{\bf VLINK rd\_vlink}({\it path}) is an alternative interface for
+resolving names.  {\bf rd\_vlink} returns the single link named by
+{\it path}.  Its function is equivalent to calling {\bf rd\_vdir} with
+{\it comparg} set to the last component of the path and {\it dirarg}
+set to the prefix.  {\bf rd\_vlink} returns {\sc null} on failure
+leaving an error code in {\tt perrno}.  {\bf rd\_vlink()} will also
+expand symbolic links it encounters, whereas {\bf rd\_vdir()} returns
+the symbolic links in a directory unexpanded.  
+
+{\bf {\it VLINK} rd\_slink}({\it path}) works just like {\bf
+rd\_vlink}, except it will not expand symbolic links.
+
+
+{\bf pfs\_open}({\it VLINK vl,int flags}) and
+{\bf FILE *pfs\_fopen}({\it VLINK vl, char *type}) are identical to {\bf open} and {\bf fopen} in
+the C library except that instead of a filename, they take a pointer
+to a Prospero 
+virtual link structure and open the file referenced by the link.
+Note that they currently do not work to create files; indeed, they
+inherently can't, since they accept a pointer to an already existing
+link.   {\bf pfs\_open} does not take the third optional {\it mode}
+argument that {\bf open} takes, since Prospero's access control list
+mechanism does map well onto the {\sc unix} protection modes.
+
+For files which are not already mapped into the local {\sc unix}
+filesystem, these functions work by retrieving the file as a temporary
+file; a reference to this temporary file is then returned.  In the
+current implementation, we do not cache files; a new copy is retrieved
+every time you call pfs\_open() or pfs\_fopen().  If you want to use
+the same data more than once (e.g., display it via a paging program
+and then offer to save it), it will speed up your program
+substantially if you know that {\bf pfs\_open()} and {\bf
+pfs\_fopen()} return file references which you can run {\bf lseek()}
+or {\bf fseek()} on, respectively.
+
+Until Prospero release Alpha.5.2, the {\bf pfs\_open} and {\bf
+pfs\_fopen} calls were in libpcompat, not in libpfs.
+
+\section{Pcompat Library}
+
+The compatibility library includes replacements for existing system
+calls and library routines that interact with the directory service.
+The replacements optionally resolve names using the Prospero file
+system.  The behavior depends on the value of the {\tt pfs\_enable}
+global variable.  Possible values are defined in {\it pcompat.h} and
+are described below.  Note that {\tt pfs\_enable} exists in only a
+single instance, even in a multithreaded context; setting it for one
+thread sets it for all.
+
+\begin{sloppypar}
+The default Prospero installation procedure leaves the compatibility
+library in {\tt lib/pcompat/libpcompat.a}.  Programs linked with the
+compatibility library should also be linked with the pfs library,
+since the compatibility library uses some functions in libpfs.
+\end{sloppypar}
+
+The routines in the compatibility library are self-initializing; they
+will call p\_initialize() and initialize all data structures
+internally.  This makes it possible to relink existing programs with
+the compatibility library with less effort.
+
+Like the POSIX readdir(), the Prospero readdir() is not
+multithread-safe because it uses internal data structures.  We would
+gladly accept a contributed readdir\_r(), but will not write it
+ourselves until a strong need appears.
+
+As of this writing, the compatibility library does not run on as many
+machines as the pfs library does.  Specifically, the compatibility
+library is known not to work on {\sc HP-UX} and on {\sc AIX}.
+Therefore, use of the pfs library is suggested for maximal
+portability.  The compatibility library is not compiled by default.
+(See the Prospero installation instructions for instructions on how to
+compile it.).
+
+If you are interested in the pcompat library, you should also look at
+the Prospero User's Manual, in the section titled ``The Compatibility
+Library''.
+
+Setting the environment variable {\tt PFS\_DEBUG} to a numeric value will
+cause the PCOMPAT library to set the PFS library's value of {\tt
+pfs\_debug} to that value.  This is useful for debugging applications
+that use the compatibility library.
+
+By default, the pfs compatability library will report prospero errors
+encountered by compatibility functions such as open() to {\tt stderr}.
+You can silence these error messages by setting the variable {\tt int
+pfs\_quiet} in your program to a non-zero value or by defining your
+own global variable {\tt pfs\_quiet} with a non-zero initialized
+value.  The global variable {\tt pfs\_quiet} is not multi-threaded; a
+single instance of it is shared among multi-threaded programs.
+
+\begin{table}
+\begin{center}
+\caption{Settings for the {\tt pfs\_enable} global variable\label{pfsenable}}
+\vspace{0.1in}
+\begin{tabular}{|l|p{3.9in}|} \hline
+Value & Meaning \\ \hline \hline
+PMAP\_DISABLE & Never resolve names within the virtual system \\ \hline 
+PMAP\_ENABLE & Always resolve names within the virtual system \\ \hline 
+PMAP\_COLON & Resolve names within the virtual system if they contain a : \\ \hline 
+PMAP\_ATSIGN\_NF & Resolve names within the virtual system by default, but
+treat names beginning with an @ or full path names that
+don't exist in the virtual system as native file names \\ \hline 
+PMAP\_ATSIGN & Resolve names within the virtual system by default, but 
+treat names beginning with an @ as native file names \\ \hline
+\end{tabular}
+\vspace{-0.1in}
+\end{center}
+\end{table}
+
+\subsection{Entry Points}
+
+\begin{tabbing}
+{\Large \bf Entry points:} \= {\bf closedir creat, execve,
+open, opendir, readdir, scandir,}\\
+\>{\bf seekdir, stat, telldir, and pfs\_access}.
+\end{tabbing}
+
+\noindent {\bf closedir, creat, execve, open, opendir, readdir, scandir,
+seekdir, stat}, and {\bf telldir} are identical to the entry points
+with the same names in the standard C library except that, depending
+on the value of the {\tt pfs\_enable} variable, file names may be resolved
+using Prospero.
+
+{\bf pfs\_access}({\it char *path,char *npath,int npathlen, int
+flags}) accepts a name, {\it path}, that is to be resolved using
+Prospero.  {\bf pfs\_access} resolves the name, selects an access
+method, mounts the appropriate file system or retrieves the file if
+necessary, and returns a new name in {\it npath} that may be passed to
+open.  {\it npath} must be a buffer large enough to hold the new name,
+and its size must be passed in {\it npathlen}.  By setting {\it
+flags}, it is possible to specify that the file is to be created if it
+does not exist ({\sc pfa\_create}), or to indicate that the file will
+be opened read only ({\sc pfa\_ro}). {\bf pfs\_access} returns {\sc
+psuccess} (0) or {\sc pmc\_delete\_on\_close} on success.  A return
+value of {\sc pmc\_delete\_on\_close} indicates that the file has been
+cached on the local system and that the calling application should
+delete the cached copy when done with it.  Any other return code
+indicates failure.
+
+{\bf Warning:} As of this writing, the {\sc pfa\_create} flag has not
+been fully implemented.  
+
+\end{document}

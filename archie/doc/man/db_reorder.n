@@ -1,0 +1,116 @@
+.\" Copyright (c) 1992, 1994, 1996 Bunyip Information Systems Inc.
+.\" All rights reserved.  
+.\"	
+.\" Archie 3.5
+.\" August 1996
+.\"	
+.\"	@(#)db_reorder.n	
+.\"
+.TH DB_REORDER N "August 1996"
+
+.SH NAME
+.B db_reorder
+\- fix the order of sites in the start_db database according to the
+domain.order file.
+
+.SH SYNOPSIS
+.B db_reorder 
+[
+.BI \-H " <hostname>"
+] [ 
+.BI \-d " <database>"
+] [ 
+.BI \-M " <dir>"
+] [
+.BI \-h " <dir>"
+] [ 
+.B \-v
+] [ 
+.B \-l 
+] [
+.BI \-L " <logfile>"
+]
+
+.SH DESCRIPTION
+For each string in the
+.B start_db
+database,
+.B db_reorder 
+sorts the list of associated hosts according to the contents of
+.BR ~archie/etc/domain.order .
+This file specifies the order in which hosts are listed, in response
+to a search, when multiple hosts are associated with a match.
+.PP
+.B db_reorder
+must be run in order for changes to
+.B domain.order
+to take effect.
+
+The
+.B domain.order
+contains one or more lines, each of which is a colon (`:') separated list of
+domains, or pseudo-domains.  Hosts belonging to domains on lines nearer the
+start of the file will appear first in search results.  The order of domains
+within a single line has no effect on the result.
+.PP
+For example if the
+.B domain.order
+contains:
+.nf
+.IP
+\fCca:edu
+org:com\fP
+.PP
+then hosts in `.ca' and `.edu' domains will appear befores those in the `.org'
+and `.com' domains.
+
+.SH OPTIONS
+.TP
+.BI \-M " <dir>"
+The name of the master Archie database directory. If not specified, the
+program first looks in the directory
+.BR ~archie/db ,
+then
+.BR ./db .
+.TP
+.BI \-d " <database>"
+The catalog for which the corresponding starts database will be reordered.  By
+default, the program will reorder all catalogs listed in
+.BR ~archie/etc/catalogs.cf .
+.TP
+.BI \-h " <dir>"
+The name of the Archie host database directory. If not specified, the program
+will first look in
+.BR ~archie/db/host_db ,
+then
+.BR ./host_db .
+.TP
+.B \-v
+Verbose mode.  Print messages indicating what the program is doing.
+.TP
+.B \-l
+Log messages to the file
+.BR ~archie/logs/archie.log .
+The location of the file may be overridden with the
+.B \-L 
+option.  By default, messages are written to
+.IR stderr .
+.TP
+.BI \-L " <logfile>"
+Specify the log file.  For this to have any effect, the
+.B \-l 
+option must be specified, as well.  Note that debugging information is also
+written to the log file.
+
+.SH FILES
+~archie/db/<db-name>/start_db/*
+.br
+~archie/etc/domain.order
+
+.SH AUTHOR
+Bunyip Information Systems.
+.br
+Montr\o"\'e"al, Qu\o"\'e"bec, Canada
+.sp
+Archie is a registered trademark of Bunyip Information Systems Inc., Canada,
+1990.

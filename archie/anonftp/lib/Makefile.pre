@@ -1,0 +1,26 @@
+#
+# Anonftp/lib  module.
+#
+
+MOD_CFLAGS = -ansi -pedantic -pipe
+#MOD_CFLAGS = -traditional  -pipe
+MOD_DEBUG  = -g3
+MOD_WARN   = -Wall -Wshadow -Wpointer-arith -Wcast-align \
+             -Wnested-externs
+
+MOD_INCS = -I$(INCLUDE_MODULE) -I$(PROSPERO_ROOT)/include -I.
+
+include $(ARCHIE_ROOT)/Makefile.pre
+
+
+INCS = \
+	lang_libanonftp.h
+
+SRCS = \
+	db_ops.c	\
+	lang_libanonftp.c
+
+OBJS = \
+	db_ops.o	\
+	lang_libanonftp.o
+

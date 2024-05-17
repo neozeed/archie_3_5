@@ -1,0 +1,58 @@
+Instructions for getting started as a Prospero user
+
+Find the directory in which the Prospero binaries are installed.
+
+Source the file vfsetup.source in this directory.  You may want to
+source this file from your .cshrc.
+
+To configure your virtual system, use the vfsetup alias (it is defined
+by vfsetup.source).  Specify the name of the virtual system to be
+configured as an argument.  If you are just playing around, use the
+virtual system: guest.  The command would be "vfsetup guest".
+
+Use vcd and vwd to move around the virtual system, and vls to see what
+is there.  These commands will allow you to explore.  Since you may
+start from an empty subdirectory, be sure to look above (..), or in
+the root directory (/).  A quick summary of the commands that are
+available follows.
+
+    vfsetup [-n host path , [-r,v] name , -f file]
+      Sets up virtual system
+      Example: vfsetup guest
+
+    vcd [-u] path
+      Change directory
+      Example: vcd /papers/subjects/naming/prospero
+
+    vwd
+      Print current virtual working directory
+      
+    vls [-a, -A, -c, -f, -u, -v] [path]
+      List directory
+      Example: vls /
+
+    vln [-u] [-s] [-e] [-n host] oldname newname
+      Add a link
+      Example: vln /papers /guest/articles
+
+    vmkdir directory
+      Make a new virtual directory
+
+    vrm link
+      Remove a link    
+
+    vget virtual-file [local-file]
+      Retrieve a file using anonymous FTP
+      Example: vget getting-started.txt these-instructions
+
+To have your own virtual system created, send a message to
+pfs-administrator@isi.edu.  With your own virtual system, you will be
+able to keep track of the files that you have found.  More details on
+the use of Prospero may be found in the Prospero users manual.
+
+The information available through Prospero is growing.  If you can't
+find what you are looking for initially, it might appear at a later
+date.  You can help by adding information.  Once you have organized
+information in your own virtual system, send a message to
+pfs-administrator to have it added to the prototype virtual system.
+

@@ -1,0 +1,138 @@
+<html>
+<title>Archie Help</title>
+<center><h2>Archie Help</h2></center>
+<blockquote>This help file explains in moderate detail what each field in the search page
+means. If you still can't locate the help you need or you want to report an
+error please mail us at <i><A
+HREF="mailto:archie-group@bunyip.com">archie-group@bunyip.com</A></i> and we
+will get back to you as soon as we can.
+</blockquote>
+<hr>
+<br>
+<b>Search For:</b>
+<blockquote>
+Here you type in the search variable.  If regular expression is the type of
+search you are using then the string would be the
+<A HREF="archie-help.html#regex" REL="SUBDOCUMENT">regular expression</A> you are
+looking for.
+</blockquote>
+
+<b>Database:</b>
+<blockquote>
+The database which will be undergoing the search.  If you are searching the
+web then press on the <i>Web Index</i> button. Otherwise if you are searching
+the FTP sites then press on the other button.
+</blockquote>
+
+<b>Search Type:</b>
+<blockquote>
+<ul>
+<li><b>Exact: </b>
+<li><b>Sub String: </b><br>
+<i>Substring (case insensitive)</i>:  A match  occurs  if
+the  file (or directory) name in the database contains
+the user-given substring, without regard  to case.
+<pre>
+Example:
+
+               The pattern:
+                    is
+
+               matches any of the following:
+
+                    islington
+                    this
+                    poison
+
+</pre>
+<i>Substring (case sensitive):</i>  As above, but  taking case as significant.
+
+<pre>
+Example:
+
+               The pattern:
+
+                    TeX
+
+               will match:
+
+                    LaTeX
+
+               but neither of the following:
+
+                    Latex
+                    TExTroff
+</pre>
+<li><b><A NAME="regex" REL="SUBDOCUMENT">Regular Expression</A>: </b>
+     Regular expressions follow the conventions of the ed(1) command,
+     allowing sophisticated pattern matching.   Regular expressions imbue
+     certain characters with special meaning, providing a  quoting  mechanism  to  remove
+     this special meaning when required.
+</ul>
+</blockquote>
+
+<b>Case: </b>
+<blockquote>
+This option only affects searches of type Regular Expression and Substring.
+</blockquote>
+
+<b>Output Format: </b>
+<blockquote>
+This controls the output format for results from the Web Index database.
+<ul>
+<li><b>Keywords Only</b>: The most frequently occurring Keywords in each document will
+be displayed after the document's URL.
+<li><b>Excerpts Only</b>: A short excerpt from each document is displayed
+after its URL.
+<li><b>Links Only</b>: Only links are displayed with no further details. No excerpts
+or Keywords are displayed with each URL.
+</ul>
+</blockquote>
+
+<h3>Optional Parameters</h3>
+<ul>
+<li><b>Path restriction or exclusion: </b>Several parameters could be used to
+improve your search results. But first you must specify what type of operation
+to be used on those upcoming fields.  If you specify <b>OR</b> then you ask
+that the strings you provide in these fields have an OR relationship among
+them. Otherwise if you specify <b>AND</b> then you are asking for all the
+strings that you provide in these fields to be considered.
+<ul>
+<li><b>Path Restriction</b> : You can improve the results by restricting on
+the path of each URL that comes back.  The strings you provide in these field
+will be matched against the paths returned in the result and paths that do not
+contain these strings will be disregarded.  If you have chosen the <b>OR</b>
+as your operator among the strings then if any of the strings occur in a path
+this path will be considered valid. However if you have chosen <b>AND</b> as
+your operator then unless all the entered strings appear in the path, the path
+is invalid.
+<li><b>Path Exclusion</b> : You can exclude certain results from coming back
+if they contain a specific string you don't need to see.  By specifying this
+string in this field you will achieve your goal.
+</ul>
+<li><b>Domains: </b>          This variable allows you to  restrict  the  scope  of
+your  search  based  upon  the  Fully Qualified Domain Names (FQDN) of the
+anonymous FTP or Web sites being searched.  In  this  way,  you can specify a
+list of domain names to which all returned  sites  must  match.
+
+<li><b>Maximum Hits :</b>     Allows Archie to generate at most  the
+specified number  of  matches  (permissible  range: 0-200;  default: 100).
+
+<li><b>Maximum Hits Per Match :</b>          Across all the anonymous FTP and
+Web archives  on  the  Internet (and  even  on  one  single anonymous FTP archive) many
+files will have the same  name.  For  example,  if  you
+search for a very common filename like "README" you can
+get hundreds even thousands of matches. You  can  limit
+the  number  of  files  with the same name through this variable.
+
+<li><b>Maximum Match :</b>   This variable will limit the number filenames (or
+strings matched) returned.
+For  example, if maxmatch is set to 2 and you perform a
+substring search for the string "etc", and the database
+contains  filenames  "etca", "betc" and "detc" only the
+filenames "etca" and "betc" will be returned.  However,
+depending  on  the  values of maxhitspm and maxhits you
+will get back a  number  of  actual  files  with  those
+names.
+</ul>
+</html>

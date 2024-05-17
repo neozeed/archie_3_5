@@ -1,0 +1,43 @@
+#
+# re-posix module.
+#
+# This code is from the NetBSD distribution.  I had to create sys/cdefs.h
+# under this directory.
+#
+
+MOD_CFLAGS = -ansi -pedantic -pipe
+#
+# _POSIX2_RE_DUP_MAX is the maximum number of repeated occurences of a regular
+# expression (e.g. egrep's \{m,n\}).
+#
+MOD_DEFS   = -D_POSIX2_RE_DUP_MAX=255
+#
+# The -I. is for version 3.63 of GNU make, on the 4.1.x machines.  It's
+# not needed with version 3.74, on java.
+#
+MOD_INCS   = -I. -I..
+MOD_OPT    = -O3
+MOD_WARN   =
+
+
+include $(ARCHIE_ROOT)/Makefile.pre
+
+
+INCS = \
+        cclass.h \
+        cname.h  \
+        engine.c \
+        regex2.h \
+        utils.h
+
+SRCS = \
+        regcomp.c  \
+        regerror.c \
+        regexec.c  \
+        regfree.c
+
+OBJS = \
+        regcomp.o  \
+        regerror.o \
+        regexec.o  \
+        regfree.o

@@ -1,0 +1,33 @@
+#
+# webindex/tools module.
+#
+
+#MOD_CFLAGS = -ansi -pedantic -pipe
+MOD_DEBUG  = -g3
+MOD_WARN   = -Wall -Wtraditional -Wshadow -Wpointer-arith -Wcast-align \
+             -Wstrict-prototypes -Wnested-externs
+MOD_INCS   = -I$(INCLUDE_MODULE) -I$(WEBINDEX_MODULE)/lib -I.
+MOD_LIBS   = \
+              -L$(LIBARCHIE_MODULE)/$(SYSTYPE)    -larchie   \
+              -L$(HOSTDB_MODULE)/$(SYSTYPE)       -lhostdb   \
+              -L$(WEBINDEX_MODULE)/lib/$(SYSTYPE) -lwebindex
+
+
+include $(ARCHIE_ROOT)/Makefile.pre
+
+
+INCS = \
+        extern_urls.h \
+        lang_tools.h 
+
+SRCS = \
+        extern_urls.c \
+        lang_tools.c
+
+OBJS = \
+        extern_urls.o \
+        lang_tools.o
+
+EXES = \
+        extern_urls \
+        extern_urls_ndbm

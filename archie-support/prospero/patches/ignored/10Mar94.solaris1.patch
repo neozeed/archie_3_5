@@ -1,0 +1,108 @@
+--- 10Mar94+/user/pfsinit	Sat Mar 26 18:22:23 1994
+***************
+*** 1,4 ****
+--- 1,5 ----
+  #!/bin/sh
++ # set -x
+  # This scripts job is to start or stop pfs, depending on its argument
+  # It is intended to be run by rc.d or whatever the equivalent is on your
+  # system. 
+***************
+*** 9,29 ****
+  # Ideally this should work through the "TOPDIR" variable, but I havent
+  # figured out how to do that in a script - easier to link /usr/pfs
+  # to the right place :-)  
+  case "$1" in
+  
+  start) 
+- 	#set -x
+  	if [ -f /etc/hostanddomain ]
+  	then PSRV_HOSTNAME=`line </etc/hostanddomain`
+  	fi
+! 	su pfs -c "setenv PSRV_HOSTNAME $PSRV_HOSTNAME ; /usr/pfs/bin/pstart" 
+  	;;
+  
+  stop)
+! 	if ps -ef | grep dirsrv
+  	then
+  		/usr/pfs/bin/padmin -kill -force
+  	fi
+  	;;
+  install)
+  	if [ -d /etc/init.d ] 
+--- 10,52 ----
+  # Ideally this should work through the "TOPDIR" variable, but I havent
+  # figured out how to do that in a script - easier to link /usr/pfs
+  # to the right place :-)  
++ PERL=/usr/local/bin/perl
++ GENERATION=/usr/local/bin/generation
++ LOGDIR=/var/spool/logs
++ 
+  case "$1" in
+  
++ aspfs_kill)
++ 	# The weird syntax of the egrep is to avoid it matching itself
++         ps -fu pfs | \
++ 	 egrep " 1[ ].*dirsrv" | \
++ 	 awk '{ print $2 }'  | \
++ 	while read line ; do kill -9 $line ; done
++ 		;;
++ kill)
++ 		exec su pfs -c "$0 aspfs_kill"   ;;
+  start) 
+  	if [ -f /etc/hostanddomain ]
+  	then PSRV_HOSTNAME=`line </etc/hostanddomain`
+  	fi
+! 	su pfs -c "$0 aspfs_kill ; setenv PSRV_HOSTNAME $PSRV_HOSTNAME ; /usr/pfs/bin/pstart ; $0 as_pfs_restart_on_err&" 
+! 	date >$LOGDIR/rmg.often.log
+! 	$GENERATION $LOGDIR/rmg.often.log
+! 	if [ -f /usr/local/bin/rmg.often ]
+! 	then /usr/local/bin/rmg.often >>$LOGDIR/rmg.often.log &
+! 	fi
+  	;;
+  
+  stop)
+! 	if ps -fu pfs | egrep " 1[ ].*dirsrv" >/dev/null
+  	then
+  		/usr/pfs/bin/padmin -kill -force
+  	fi
++ 	
++ 	if ps -fu pfs | egrep " 1[ ].*dirsrv" >/dev/null
++ 	then
++ 		exec $0 kill
++ 	fi
+  	;;
+  install)	
+  	if [ -d /etc/init.d ] 
+***************
+*** 33,38 ****
+--- 56,84 ----
+  		ln /etc/init.d/pfsinit /etc/rc1.d/K58pfsinit 
+  		ln /etc/init.d/pfsinit /etc/rc0.d/K58pfsinit
+  	fi
++ 	;;
++ as_pfs_restart_on_err)
++ 	RMGLOG=$LOGDIR/rmg.log
++ 	PSRV_HOSTNAME=`line </etc/hostanddomain`
++ 	export PSRV_HOSTNAME
++ 	while :
++ 	do
++ 		sleep 60		# Wait for it to restart
++ 		echo " ==  ERR == MONITORING RESTART == $Date " >>$RMGLOG
++ 		tail -1f $RMGLOG |
++ 		$PERL -ne '/ERR:.*:Server Down:/ && (exit)'
++ 		Date="`date`"
++ 		echo " ==  ERR == ATTEMPTING RESTART == $Date " >>$RMGLOG
++ 		$0 aspfs_kill
++ 		PSRV_HOSTNAME="$PSRV_HOSTNAME" /usr/pfs/bin/pstart
++ 		echo " ==  ERR == DONE RESTART == $Date " >>$RMGLOG
++ 	done 
++ 	;;
++ restart_on_err)
++ 	exec su pfs -c "$0 as_pfs_restart_on_err"
++ 	;;
++ *) 
++ 	echo "$1" is not a valid command to pfsinit
+  	;;
+  esac
+  

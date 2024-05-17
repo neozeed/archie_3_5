@@ -1,0 +1,75 @@
+diff -b -r -c -N 10Mar94.all/user/pfsinit 10Mar94+/user/pfsinit
+*** 10Mar94.all/user/pfsinit	Tue Apr 26 15:38:03 1994
+--- 10Mar94+/user/pfsinit	Wed Apr 20 15:57:44 1994
+***************
+*** 14,20 ****
+--- 14,39 ----
+  GENERATION=/usr/local/bin/generation
+  LOGDIR=/var/spool/logs
+  
++ generation2() {
++ 	date >${1}+
++ 	$GENERATION ${1}
++ }
++ start_rmg_often() {
++ 	generation2 $LOGFIR/rmg.often.log
++ 	if [ -f /usr/local/bin/rmg.often ]
++ 	then /usr/local/bin/rmg.often >>$LOGDIR/rmg.often.log &
++ 	fi
++ }
++ dirsrv_start() {
++ 	if [ -f /etc/hostanddomain ]
++ 	then PSRV_HOSTNAME=`line </etc/hostanddomain`
++ 	fi
++ 	limit descriptors 1000
++ 	su pfs -c "$0 aspfs_kill ; setenv PSRV_HOSTNAME $PSRV_HOSTNAME ; /usr/pfs/bin/pstart ; $0 as_pfs_restart_on_err&" 
++ }
++ 
+  case "$1" in
++ dirsrv_start)	dirsrv_start  ;;
+  
+  aspfs_kill)
+  	# The weird syntax of the egrep is to avoid it matching itself
+***************
+*** 23,43 ****
+  	 awk '{ print $2 }'  | \
+  	while read line ; do kill -9 $line ; done
+  		;;
+! kill)
+! 		exec su pfs -c "$0 aspfs_kill"   ;;
+! start) 
+! 	if [ -f /etc/hostanddomain ]
+! 	then PSRV_HOSTNAME=`line </etc/hostanddomain`
+! 	fi
+! 	su pfs -c "$0 aspfs_kill ; setenv PSRV_HOSTNAME $PSRV_HOSTNAME ; /usr/pfs/bin/pstart ; $0 as_pfs_restart_on_err&" 
+! 	date >$LOGDIR/rmg.often.log
+! 	$GENERATION $LOGDIR/rmg.often.log
+! 	if [ -f /usr/local/bin/rmg.often ]
+! 	then /usr/local/bin/rmg.often >>$LOGDIR/rmg.often.log &
+! 	fi
+  	;;
+  
+! stop)
+  	if ps -fu pfs | egrep " 1[ ].*dirsrv" >/dev/null
+  	then
+  		/usr/pfs/bin/padmin -kill -force
+--- 42,60 ----
+  	 awk '{ print $2 }'  | \
+  	while read line ; do kill -9 $line ; done
+  		;;
+! kill)		exec su pfs -c "$0 aspfs_kill"   ;;
+! 
+! start) # This is what it does on system start (reboot)
+! 	start_rmg_often
+! 	# If the system was down - cant be any rmg processes running
+! 	find /usr/pfs/vcache/p -type f -exec rm {} \;
+! 	find /usr/pfs/vcache/tmp -type f -exec rm {} \;
+! 	generation2 $LOGDIR/pfs.log
+! 	generation2 $LOGDIR/rmg.log
+! 	dirsrv_start
+  	;;
+  
+! stop)	# This is what it does on shutdown
+  	if ps -fu pfs | egrep " 1[ ].*dirsrv" >/dev/null
+  	then
+  		/usr/pfs/bin/padmin -kill -force

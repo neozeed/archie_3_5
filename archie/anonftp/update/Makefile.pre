@@ -1,0 +1,65 @@
+#
+# anonftp/update module.
+#
+
+MOD_CFLAGS = -ansi -pedantic -pipe
+#MOD_CFLAGS = -traditional -pipe -DSLEEP
+MOD_DEBUG  = -g3
+MOD_OPT  = -O3
+MOD_WARN   = -Wall -Wshadow -Wpointer-arith -Wcast-align
+MOD_INCS = \
+            -I$(INCLUDE_MODULE)        \
+            -I$(PROSPERO_ROOT)/include \
+            -I$(PATRIE_MODULE)         \
+            -I$(STARTDB_MODULE)        \
+            -I$(STRIDX_MODULE)         \
+            -I$(WEBINDEX_MODULE)/lib   \
+            -I.
+MOD_LIBS = \
+            -L$(ANONFTP_MODULE)/lib/$(SYSTYPE)  -lanonftp    \
+            -L$(LIBARCHIE_MODULE)/$(SYSTYPE)    -larchie     \
+            -L$(STRIDX_MODULE)/$(SYSTYPE)       -larchstridx \
+            -L$(HOSTDB_MODULE)/$(SYSTYPE)       -lhostdb     \
+            -L$(PATRIE_MODULE)/$(SYSTYPE)       -lpatrie     \
+            -L$(STARTDB_MODULE)/$(SYSTYPE)      -lstartdb    \
+            -L$(WEBINDEX_MODULE)/lib/$(SYSTYPE) -lwebindex   \
+            -ldb
+
+
+include $(ARCHIE_ROOT)/Makefile.pre
+
+
+INCS = \
+        delete_anonftp.h \
+        insert_anonftp.h \
+        lang_anonftp.h   \
+        lcheck_anonftp.h \
+        net_anonftp.h    \
+        update_anonftp.h
+
+SRCS = \
+        check_anonftp.c  \
+        delete_anonftp.c \
+        insert_anonftp.c \
+        lang_anonftp.c   \
+        net_anonftp.c    \
+        setup_delete.c   \
+        setup_insert.c   \
+        update_anonftp.c
+
+OBJS = \
+        check_anonftp.o  \
+        delete_anonftp.o \
+        insert_anonftp.o \
+        lang_anonftp.o   \
+        net_anonftp.o    \
+        setup_delete.o   \
+        setup_insert.o   \
+        update_anonftp.o \
+
+EXES = \
+        check_anonftp  \
+        delete_anonftp \
+        insert_anonftp \
+        net_anonftp    \
+        update_anonftp

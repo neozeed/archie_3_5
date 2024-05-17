@@ -1,0 +1,87 @@
+SOURCEBASE=../..
+include $(SOURCEBASE)/Makefile.config
+
+
+CFILES =  api.c menu.c main.c comp.c bub.c item_desc.c line.c io_util.c objects.c search.c
+OBJECTS= api.o menu.o main.o comp.o bub.o item_desc.o line.o io_util.o objects.o search.o
+
+MENU_LIB=libmenu.a
+
+PROGS = menu
+SPECIAL_OTHERTARGETS = $(MENU_LIB) 
+
+all:    $(PROGS) $(SPECIAL_OTHERTARGETS) 
+
+menu:  $(OBJECTS) ${USE_VCACHE_LIBS_DEPENDENCIES}
+	$(CC) $(CFLAGS) -o menu $(OBJECTS) ${USE_VCACHE_LIBS} ../../../libpsarchie/libpsarchie.a
+
+## This library needs to be more reasonably generated.
+## It currently is a melange.  At least it's useful.
+
+${MENU_LIB}: ${OBJECTS}
+	rm -f ${MENU_LIB}
+	ar r${AR_FLAGS} ${MENU_LIB} ${OBJECTS}
+	$(RANLIB) ${MENU_LIB}
+
+install:
+	-${INSTALL} -c -m $(INSTALL_EXE_MODE) -o ${OWNER} -g ${GROUP} menu ${P_BINARIES}/menu${GENERATIONSUFFIX} 
+	-${GENERATION} ${P_BINARIES}/menu
+
+
+# Dependencies
+api.o : p_menu.h ../../include/pfs.h \
+  ../../include/pfs_utils.h ../../include/ardp.h \
+  ../../include/pfs_threads.h \
+  ../../include/list_macros.h \
+  ../../include/../lib/ardp/flocks.h ../../include/implicit_fixes.h \
+  ../../include/pmachine.h \
+  menu.h \
+  ../../include/perrno.h 
+menu.o : menu.h p_menu.h ../../include/pfs.h \
+  ../../include/pfs_utils.h ../../include/ardp.h \
+  ../../include/pfs_threads.h \
+  ../../include/list_macros.h \
+  ../../include/../lib/ardp/flocks.h ../../include/implicit_fixes.h \
+  ../../include/pmachine.h \
+  config.h ../../include/psite.h ../../include/perrno.h 
+main.o : menu.h \
+  p_menu.h ../../include/pfs.h ../../include/pfs_utils.h ../../include/ardp.h \
+  ../../include/pfs_threads.h \
+  ../../include/list_macros.h \
+  ../../include/../lib/ardp/flocks.h ../../include/implicit_fixes.h \
+  ../../include/pmachine.h 
+comp.o : ../../include/pfs.h \
+  ../../include/pfs_utils.h ../../include/ardp.h \
+  ../../include/pfs_threads.h \
+  ../../include/list_macros.h \
+  ../../include/../lib/ardp/flocks.h ../../include/implicit_fixes.h \
+  ../../include/pmachine.h 
+bub.o : ../../include/pfs.h \
+  ../../include/pfs_utils.h ../../include/ardp.h \
+  ../../include/pfs_threads.h \
+  ../../include/list_macros.h \
+  ../../include/../lib/ardp/flocks.h ../../include/implicit_fixes.h \
+  ../../include/pmachine.h \
+  menu.h p_menu.h 
+item_desc.o : ../../include/pfs.h \
+  ../../include/pfs_utils.h ../../include/ardp.h \
+  ../../include/pfs_threads.h \
+  ../../include/list_macros.h \
+  ../../include/../lib/ardp/flocks.h ../../include/implicit_fixes.h \
+  ../../include/pmachine.h 
+line.o : 
+io_util.o : 
+objects.o : \
+  ../../include/pfs.h \
+  ../../include/pfs_utils.h ../../include/ardp.h ../../include/pfs_threads.h \
+  ../../include/list_macros.h \
+  ../../include/../lib/ardp/flocks.h ../../include/implicit_fixes.h \
+  ../../include/pmachine.h \
+  config.h p_menu.h menu.h 
+search.o : ../../include/pfs.h \
+  ../../include/pfs_utils.h ../../include/ardp.h \
+  ../../include/pfs_threads.h \
+  ../../include/list_macros.h \
+  ../../include/../lib/ardp/flocks.h ../../include/implicit_fixes.h \
+  ../../include/pmachine.h \
+  menu.h p_menu.h 

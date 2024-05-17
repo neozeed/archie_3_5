@@ -1,0 +1,35 @@
+From bcn  Tue Jun  1 07:51:35 1993
+Received: from tgo.isi.edu by venera.isi.edu (5.65c/5.61+local-12)
+	id <AA09948>; Tue, 1 Jun 1993 14:51:40 -0700
+Date: Tue, 1 Jun 93 14:51:35 PDT
+Posted-Date: Tue, 1 Jun 93 14:51:35 PDT
+Message-Id: <9306012151.AA00562@tgo.isi.edu>
+Received: by tgo.isi.edu (4.1/4.0.3-4)
+	id <AA00562>; Tue, 1 Jun 93 14:51:35 PDT
+From: Clifford Neuman <bcn>
+To: PETER@psychnet.psychol.utas.edu.au
+Cc: C.Warren@deakin.edu.au, bajan@bunyip.com, info-prospero
+In-Reply-To: Alan Emtage's message of Tue, 1 Jun 1993 17:19:13 -0400 <9306012119.AA17783@mocha.bunyip.com>
+Subject: About UDP ports that archie uses
+Status: R
+
+There are two ports officially assigned to Prospero (and hence archie
+as well).  The official port is 191, and the official non-privileged
+port is 1525.  If a Prospero or archie server is able to bind the
+privileged port, the server will listen on both ports.  If not, it
+will only listen on the non-privileged port.
+
+If the server can bind the privileged port, the response will be sent
+on the privileged port.  The default port used to contact a server is
+presently 1525, which is the most general port since all servers
+listen on it.  It is not uncommon to have a message sent on 1525, but
+to receive the response from 191.  If you are writing your own client,
+it should not reject a response simply because the server port
+changed.  You may use the connection id in the response to pair the
+response with the request.
+
+	~ Cliff
+
+
+
+

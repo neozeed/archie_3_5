@@ -1,0 +1,129 @@
+SOURCEBASE = ../..
+include $(SOURCEBASE)/Makefile.config
+
+# There used to be a lib/pcompat/Makefile.pcompat and a separate 
+# lib/pcompat/Makefile.nopcompat.
+# This is no longer the case.
+
+CFILES = \
+	closedir.c \
+	creat.c \
+	execve.c \
+	getvdirent.c \
+	open.c \
+	opendir.c \
+	pcompat_init.c \
+	pfs_access.c \
+	pfs_default.c \
+	pfs_quiet.c \
+	readdir.c \
+	scandir.c \
+	seekdir.c \
+	stat.c \
+	telldir.c 
+
+
+OBJECTS = \
+	closedir.o \
+	creat.o \
+	execve.o \
+	getvdirent.o \
+	open.o \
+	opendir.o \
+	pcompat_init.o \
+	pfs_access.o \
+	pfs_default.o \
+	pfs_quiet.o \
+	readdir.o \
+	scandir.o \
+	seekdir.o \
+	stat.o \
+	telldir.o 
+
+all:	${CMP_LIB}
+
+${CMP_LIB}: ${OBJECTS} 
+	rm -f ${CMP_LIB}
+	ar rv ${CMP_LIB} ${OBJECTS} 
+	ranlib ${CMP_LIB}
+
+install:
+
+#	$(INSTALL) -o $(OWNER) -g $(GROUP) ${CMP_LIB} ${P_BINARIES}/${CMP_LIB}
+#	ranlib ${P_BINARIES}/${CMP_LIB}
+
+
+# Dependencies
+closedir.o : \
+  ../../include/pmachine.h 
+creat.o : \
+  ../../include/pfs.h \
+  ../../include/pfs_utils.h ../../include/ardp.h ../../include/pfs_threads.h \
+  ../../include/list_macros.h \
+  ../../include/../lib/ardp/flocks.h ../../include/implicit_fixes.h \
+  ../../include/pmachine.h \
+  ../../include/pcompat.h 
+execve.o : \
+  ../../include/pfs.h \
+  ../../include/pfs_utils.h ../../include/ardp.h \
+  ../../include/pfs_threads.h \
+  ../../include/list_macros.h ../../include/../lib/ardp/flocks.h \
+  ../../include/implicit_fixes.h \
+  ../../include/pmachine.h \
+  ../../include/pcompat.h 
+getvdirent.o : \
+  ../../include/pmachine.h \
+  ../../include/pfs.h ../../include/pfs_utils.h ../../include/ardp.h \
+  ../../include/pfs_threads.h \
+  ../../include/list_macros.h ../../include/../lib/ardp/flocks.h \
+  ../../include/implicit_fixes.h \
+  ../../include/pcompat.h ../../include/perrno.h 
+open.o : \
+  ../../include/pfs.h \
+  ../../include/pfs_utils.h ../../include/ardp.h ../../include/pfs_threads.h \
+  ../../include/list_macros.h ../../include/../lib/ardp/flocks.h \
+  ../../include/implicit_fixes.h \
+  ../../include/pmachine.h \
+  ../../include/pcompat.h \
+  ../../include/perrno.h 
+opendir.o : \
+  ../../include/pmachine.h 
+pcompat_init.o : ../../include/pcompat.h \
+  ../../include/pfs_threads.h \
+  ../../include/pfs_utils.h ../../include/pmachine.h \
+  ../../include/pfs.h ../../include/ardp.h \
+  ../../include/list_macros.h ../../include/../lib/ardp/flocks.h \
+  ../../include/implicit_fixes.h 
+pfs_access.o : \
+  ../../include/pfs.h \
+  ../../include/pfs_utils.h ../../include/ardp.h ../../include/pfs_threads.h \
+  ../../include/list_macros.h ../../include/../lib/ardp/flocks.h \
+  ../../include/implicit_fixes.h \
+  ../../include/pmachine.h \
+  ../../include/psite.h ../../include/pcompat.h \
+  ../../include/perrno.h 
+pfs_default.o : ../../include/pcompat.h \
+  ../../include/pfs_threads.h \
+  ../../include/pfs_utils.h ../../include/pmachine.h 
+pfs_quiet.o : ../../include/pcompat.h \
+  ../../include/pfs_threads.h \
+  ../../include/pfs_utils.h ../../include/pmachine.h 
+readdir.o : \
+  ../../include/pmachine.h 
+scandir.o : \
+  ../../include/pmachine.h \
+  ../../include/pfs_threads.h \
+  ../../include/pfs_utils.h 
+seekdir.o : \
+  ../../include/pmachine.h 
+stat.o : \
+  ../../include/pfs.h ../../include/pfs_utils.h \
+  ../../include/ardp.h \
+  ../../include/pfs_threads.h \
+  ../../include/list_macros.h ../../include/../lib/ardp/flocks.h \
+  ../../include/implicit_fixes.h \
+  ../../include/pmachine.h \
+  ../../include/pcompat.h \
+  ../../include/perrno.h 
+telldir.o : \
+  ../../include/pmachine.h 

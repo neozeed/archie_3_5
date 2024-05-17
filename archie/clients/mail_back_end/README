@@ -1,0 +1,18 @@
+
+  The program `split_file' is used to split large files prior to mailing
+  them back to the user.
+
+  Its usage is:
+
+    split_file -s <max-part-size> -f <fname-base> [-n]
+
+  By default an integral number of text lines will be written to each "split
+  file".  That is, <max-part-size> bytes, plus how ever may characters it takes
+  to commplete the current text line.
+
+  The `-n' option specifies that exactly <max-part-size> bytes will be written
+   to each "split file".
+
+  <fname-base> is the base part of the output file name; a `.<n>' will be
+  appended to the actual name, where <n> is a number greater than or equal
+  to zero.

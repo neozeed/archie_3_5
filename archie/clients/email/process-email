@@ -1,0 +1,56 @@
+#!/bin/sh
+#
+# process-email (c) Copyright Bunyip Information Systems, Inc. 1994
+#
+# This routine can be used to batch incoming email requests for later 
+# processing
+#
+PATH=/bin:/usr/bin:/usr/ucb
+
+
+ch_tmp()
+{
+
+    if p=`grep "^archie:" /etc/passwd` ; then
+      archiehome=`echo $p | awk -F: '{print $6}'`
+    elif p=`ypmatch archie passwd` ; then
+        archiehome=`echo $p | awk -F: '{print $6}'`
+    fi
+
+    chdir $archiehome/db/tmp
+}
+
+usage() {
+  echo "Usage: batch-email -t <tmp dir>"
+  exit 1
+}
+
+tdir="notset"
+
+while [ $# -gt 1 ] ; do
+  case $1 in
+
+#temp directory
+    -t)  if [ $# -gt 1 ] ; then shift ; tdir=$1; else usage; fi;;
+
+  esac
+  shift
+done
+
+
+if [ $tdir = "notset" ]; then
+   ch_tmp
+else
+   chdir $tdir
+fi
+
+for i in aremail.*; do
+#	$archiehome/bin/email-client -i $i $*
+	if ($archiehome/bin/email-client < $i) ; then
+		/bin/rm -f $i
+	else
+		/bim/mv -f $i FAILED_$i
+	fi
+done
+
+

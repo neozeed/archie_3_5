@@ -1,0 +1,21 @@
+#
+# Start  DB module.
+#
+
+#
+# Put this first to override the FORCE target in the included make file.
+#
+
+all: $(EXES)
+
+
+include $(ARCHIE_ROOT)/Makefile.post
+
+
+libstartdb.a:  $(OBJS)
+	$(AR) r $@ $?
+	$(RANLIB) $@
+
+clean:
+	rm -f *.o  libstartdb.a core
+

@@ -1,0 +1,933 @@
+# 
+# Makefile for Prospero Directory Service PFS library. 
+SOURCEBASE = ../..
+include $(SOURCEBASE)/Makefile.config
+
+CFILES = \
+	acalloc.c \
+	acltypes.c \
+	add_vlink.c \
+	asntotime.c \
+	atalloc.c \
+	atr_build.c \
+	atr_lookup.c \
+	bindecode.c \
+	binencode.c \
+	cl_qoprintf.c \
+	copyfile.c \
+	del_vlink.c \
+	elt.c \
+	equal_atrs.c \
+	equal_seq.c \
+	filetoin.c \
+	flalloc.c \
+	fl_insert.c \
+	fputbst.c \
+	get_acl.c \
+	in_acl.c \
+	in_atrs.c \
+	in_filter.c \
+	in_forwarded.c \
+	in_id.c \
+	in_line.c \
+	in_link.c \
+	in_nextline.c \
+	in_readc.c \
+	in_select.c \
+	in_sequence.c \
+        internal_err.c \
+	is_file.c \
+	length.c \
+	mapname.c \
+	mk_vdir.c \
+	mkdirs.c \
+	month_sname.c \
+	modify_acl.c \
+	myhost.c \
+	oballoc.c \
+	obother.c \
+	opentcp.c \
+	out_acl.c \
+	out_atr.c \
+	out_atrs.c \
+	out_filter.c \
+	out_link.c \
+	out_sequence.c \
+	p__qbstokenize.c \
+	p__qbstscanf.c \
+	p__req.c \
+	p_get_dir.c \
+	p_initialize.c \
+	p_uln_index.c \
+        paalloc.c \
+	penviron.c \
+	perrmesg.c \
+	pfalloc.c \
+	pfs_debug.c \
+	pfs_enable.c \
+	pfs_fopen.c \
+	pfs_mutexes.c \
+	pfs_open.c \
+	pget_am.c \
+	pget_at.c \
+	pmap_cache.c \
+	pmap_nfs.c \
+	pset_at.c \
+	pset_linkat.c \
+	qbstp_stcopyr.c \
+	qfprintf.c \
+	qindex.c \
+	qoprintf.c \
+	qrindex.c \
+	qscanf.c \
+	qsp_stcopyr.c \
+	qsprintf.c \
+	qsscanf.c \
+	qtokenize.c \
+	rd_vdir.c \
+	rd_vlink.c \
+	re_comp_exec.c \
+	readheader.c \
+	scan_error.c \
+	sindex.c \
+	slashpath.c \
+	slashpath2.c \
+	socket.c \
+	stat.c \
+	stcopy.c \
+	stequal.c \
+	strccmp.c \
+	strpbrk.c \
+	strspn.c \
+	timetoasn.c \
+	tkalloc.c \
+	tokeniz_mcmp.c \
+	ucase.c \
+	ul_insert.c \
+	unquote.c \
+	update_link.c \
+	vfsetenv.c \
+	vl_add_atrs.c \
+	vqfprintf.c \
+	vqscanf.c \
+	vqsprintf.c \
+	vl_comp.c \
+	vl_delete.c \
+	vl_insert.c \
+	vlalloc.c \
+	wcmatch.c \
+	wholefiltoin.c 
+
+OBJECTS = \
+	acalloc.o \
+	acltypes.o \
+	add_vlink.o \
+	asntotime.o \
+	atalloc.o \
+	atr_build.o \
+	atr_lookup.o \
+	bindecode.o \
+	binencode.o \
+	cl_qoprintf.o \
+	copyfile.o \
+	del_vlink.o \
+	elt.o \
+	equal_atrs.o \
+	equal_seq.o \
+	filetoin.o \
+	flalloc.o \
+	fl_insert.o \
+	fputbst.o \
+	get_acl.o \
+	in_acl.o \
+	in_atrs.o \
+	in_filter.o \
+	in_forwarded.o \
+	in_id.o \
+	in_line.o \
+	in_link.o \
+	in_nextline.o \
+	in_readc.o \
+	in_sequence.o \
+	in_select.o \
+        internal_err.o \
+	is_file.o \
+	length.o \
+	mapname.o \
+	mk_vdir.o \
+	mkdirs.o \
+	month_sname.o \
+	modify_acl.o \
+	myhost.o \
+	oballoc.o \
+	obother.o \
+	opentcp.o \
+	out_acl.o \
+	out_atr.o \
+	out_atrs.o \
+	out_filter.o \
+	out_link.o \
+	out_sequence.o \
+	p__qbstokenize.o \
+	p__qbstscanf.o \
+	p__req.o \
+	p_get_dir.o \
+	p_initialize.o \
+	p_uln_index.o \
+        paalloc.o \
+	penviron.o \
+	perrmesg.o \
+	pfalloc.o \
+	pfs_debug.o \
+	pfs_enable.o \
+	pfs_fopen.o \
+	pfs_mutexes.o \
+	pfs_open.o \
+	pget_am.o \
+	pget_at.o \
+	pmap_cache.o \
+	pmap_nfs.o \
+	pset_at.o \
+	pset_linkat.o \
+	qbstp_stcopyr.o \
+	qfprintf.o \
+	qindex.o \
+	qoprintf.o \
+	qrindex.o \
+	qscanf.o \
+	qsp_stcopyr.o \
+	qsprintf.o \
+	qsscanf.o \
+	qtokenize.o \
+	rd_vdir.o \
+	rd_vlink.o \
+	re_comp_exec.o \
+	readheader.o \
+	scan_error.o \
+	sindex.o \
+	slashpath.o \
+	slashpath2.o \
+	socket.o \
+	stat.o \
+	stcopy.o \
+	stequal.o \
+	strccmp.o \
+	strpbrk.o \
+	strspn.o \
+	timetoasn.o \
+	tkalloc.o \
+	tokeniz_mcmp.o \
+	ucase.o \
+	ul_insert.o \
+	unquote.o \
+	update_link.o \
+	vfsetenv.o \
+	vl_add_atrs.o \
+	vqfprintf.o \
+	vqscanf.o \
+	vqsprintf.o \
+	vl_comp.o \
+	vl_delete.o \
+	vl_insert.o \
+	vlalloc.o \
+	wcmatch.o \
+	wholefiltoin.o 
+
+all:	${PFS_LIB}
+
+SPECIAL_OTHERTARGETS = $(PFS_LIB) 
+
+install:
+# We currently don't install this library
+#	cp ${PFS_LIB} ${P_BINARIES}/${PFS_LIB}
+#	$(RANLIB) ${P_BINARIES}/${PFS_LIB}
+
+${PFS_LIB}: ${OBJECTS}
+	rm -f ${PFS_LIB}
+	ar r${AR_FLAGS} ${PFS_LIB} ${OBJECTS}
+	$(RANLIB) ${PFS_LIB}
+
+## This will cuse there to be too many dependencies for TAGS and ETAGS
+## include $(SOURCEBASE)/Makefile.boilerplate
+
+# Dependencies
+acalloc.o : ../../include/pmachine.h \
+  ../../include/pfs.h \
+  ../../include/pfs_utils.h ../../include/ardp.h ../../include/pfs_threads.h \
+  ../../include/list_macros.h ../../include/../lib/ardp/flocks.h \
+  ../../include/implicit_fixes.h 
+acltypes.o : 
+add_vlink.o : \
+  ../../include/ardp.h ../../include/pfs_threads.h \
+  ../../include/pfs_utils.h \
+  ../../include/list_macros.h ../../include/../lib/ardp/flocks.h ../../include/pfs.h \
+  ../../include/pmachine.h \
+  ../../include/implicit_fixes.h \
+  ../../include/pprot.h \
+  ../../include/pparse.h \
+  ../../include/perrno.h 
+asntotime.o : 
+atalloc.o : \
+  ../../include/pfs.h ../../include/pfs_utils.h ../../include/ardp.h ../../include/pfs_threads.h \
+  ../../include/list_macros.h \
+  ../../include/../lib/ardp/flocks.h ../../include/implicit_fixes.h \
+  ../../include/pmachine.h 
+atr_build.o : ../../include/pfs.h ../../include/pfs_utils.h \
+  ../../include/ardp.h \
+  ../../include/pfs_threads.h \
+  ../../include/list_macros.h \
+  ../../include/../lib/ardp/flocks.h ../../include/implicit_fixes.h \
+  ../../include/pmachine.h 
+atr_lookup.o : ../../include/pfs.h \
+  ../../include/pfs_utils.h ../../include/ardp.h \
+  ../../include/pfs_threads.h \
+  ../../include/list_macros.h \
+  ../../include/../lib/ardp/flocks.h ../../include/implicit_fixes.h \
+  ../../include/pmachine.h \
+  ../../include/pprot.h ../../include/pparse.h 
+bindecode.o : 
+binencode.o : 
+cl_qoprintf.o : ../../include/ardp.h \
+  ../../include/pfs_threads.h ../../include/pfs_utils.h \
+  ../../include/list_macros.h \
+  ../../include/../lib/ardp/flocks.h ../../include/pfs.h ../../include/pmachine.h \
+  ../../include/implicit_fixes.h \
+  ../../include/pparse.h 
+copyfile.o : ../../include/perrno.h \
+  ../../include/pfs_threads.h \
+  ../../include/pfs_utils.h ../../include/pfs.h ../../include/ardp.h \
+  ../../include/list_macros.h \
+  ../../include/../lib/ardp/flocks.h ../../include/implicit_fixes.h \
+  ../../include/pmachine.h 
+del_vlink.o : \
+  ../../include/ardp.h ../../include/pfs_threads.h \
+  ../../include/pfs_utils.h \
+  ../../include/list_macros.h ../../include/../lib/ardp/flocks.h ../../include/pfs.h \
+  ../../include/pmachine.h \
+  ../../include/implicit_fixes.h \
+  ../../include/pprot.h ../../include/pparse.h \
+  ../../include/perrno.h 
+elt.o : \
+  ../../include/pfs.h ../../include/pfs_utils.h ../../include/ardp.h \
+  ../../include/pfs_threads.h \
+  ../../include/list_macros.h \
+  ../../include/../lib/ardp/flocks.h ../../include/implicit_fixes.h \
+  ../../include/pmachine.h 
+equal_atrs.o : ../../include/pfs.h \
+  ../../include/pfs_utils.h ../../include/ardp.h \
+  ../../include/pfs_threads.h \
+  ../../include/list_macros.h \
+  ../../include/../lib/ardp/flocks.h ../../include/implicit_fixes.h \
+  ../../include/pmachine.h 
+equal_seq.o : ../../include/pfs.h \
+  ../../include/pfs_utils.h ../../include/ardp.h \
+  ../../include/pfs_threads.h \
+  ../../include/list_macros.h \
+  ../../include/../lib/ardp/flocks.h ../../include/implicit_fixes.h \
+  ../../include/pmachine.h 
+filetoin.o : ../../include/pfs.h \
+  ../../include/pfs_utils.h ../../include/ardp.h \
+  ../../include/pfs_threads.h \
+  ../../include/list_macros.h \
+  ../../include/../lib/ardp/flocks.h ../../include/implicit_fixes.h \
+  ../../include/pmachine.h \
+  ../../include/pparse.h 
+flalloc.o : \
+  ../../include/pfs.h ../../include/pfs_utils.h ../../include/ardp.h \
+  ../../include/pfs_threads.h \
+  ../../include/list_macros.h ../../include/../lib/ardp/flocks.h ../../include/implicit_fixes.h \
+  ../../include/pmachine.h 
+fl_insert.o : \
+  ../../include/pfs.h ../../include/pfs_utils.h ../../include/ardp.h \
+  ../../include/pfs_threads.h \
+  ../../include/list_macros.h \
+  ../../include/../lib/ardp/flocks.h ../../include/implicit_fixes.h \
+  ../../include/pmachine.h \
+  ../../include/perrno.h 
+fputbst.o : \
+  ../../include/pfs.h ../../include/pfs_utils.h ../../include/ardp.h ../../include/pfs_threads.h \
+  ../../include/list_macros.h \
+  ../../include/../lib/ardp/flocks.h ../../include/implicit_fixes.h \
+  ../../include/pmachine.h 
+get_acl.o : \
+  ../../include/ardp.h ../../include/pfs_threads.h \
+  ../../include/pfs_utils.h \
+  ../../include/list_macros.h ../../include/../lib/ardp/flocks.h ../../include/pfs.h \
+  ../../include/pmachine.h \
+  ../../include/implicit_fixes.h \
+  ../../include/pparse.h \
+  ../../include/pprot.h ../../include/perrno.h 
+in_acl.o : ../../include/pfs.h \
+  ../../include/pfs_utils.h ../../include/ardp.h \
+  ../../include/pfs_threads.h \
+  ../../include/list_macros.h \
+  ../../include/../lib/ardp/flocks.h ../../include/implicit_fixes.h \
+  ../../include/pmachine.h \
+  ../../include/pparse.h \
+  ../../include/pprot.h ../../include/perrno.h 
+in_atrs.o : ../../include/pfs.h \
+  ../../include/pfs_utils.h ../../include/ardp.h \
+  ../../include/pfs_threads.h \
+  ../../include/list_macros.h \
+  ../../include/../lib/ardp/flocks.h ../../include/implicit_fixes.h \
+  ../../include/pmachine.h \
+  ../../include/pparse.h \
+  ../../include/perrno.h ../../include/pprot.h 
+in_filter.o : ../../include/pfs.h \
+  ../../include/pfs_utils.h ../../include/ardp.h \
+  ../../include/pfs_threads.h \
+  ../../include/list_macros.h \
+  ../../include/../lib/ardp/flocks.h ../../include/implicit_fixes.h \
+  ../../include/pmachine.h \
+  ../../include/pparse.h \
+  ../../include/pprot.h ../../include/perrno.h 
+in_forwarded.o : ../../include/pfs.h \
+  ../../include/pfs_utils.h ../../include/ardp.h \
+  ../../include/pfs_threads.h \
+  ../../include/list_macros.h \
+  ../../include/../lib/ardp/flocks.h ../../include/implicit_fixes.h \
+  ../../include/pmachine.h \
+  ../../include/pparse.h \
+  ../../include/pprot.h ../../include/perrno.h 
+in_id.o : ../../include/pfs.h \
+  ../../include/pfs_utils.h ../../include/ardp.h \
+  ../../include/pfs_threads.h \
+  ../../include/list_macros.h \
+  ../../include/../lib/ardp/flocks.h ../../include/implicit_fixes.h \
+  ../../include/pmachine.h \
+  ../../include/perrno.h ../../include/pparse.h \
+  ../../include/pprot.h 
+in_line.o : \
+  ../../include/pfs.h ../../include/pfs_utils.h ../../include/ardp.h \
+  ../../include/pfs_threads.h \
+  ../../include/list_macros.h \
+  ../../include/../lib/ardp/flocks.h ../../include/implicit_fixes.h \
+  ../../include/pmachine.h \
+  ../../include/pparse.h \
+  ../../include/perrno.h 
+in_link.o : ../../include/pfs.h \
+  ../../include/pfs_utils.h ../../include/ardp.h \
+  ../../include/pfs_threads.h \
+  ../../include/list_macros.h \
+  ../../include/../lib/ardp/flocks.h ../../include/implicit_fixes.h \
+  ../../include/pmachine.h \
+  ../../include/pparse.h \
+  ../../include/pprot.h ../../include/perrno.h 
+in_nextline.o : ../../include/ardp.h \
+  ../../include/pfs_threads.h \
+  ../../include/pfs_utils.h \
+  ../../include/list_macros.h \
+  ../../include/../lib/ardp/flocks.h ../../include/pfs.h \
+  ../../include/pmachine.h \
+  ../../include/implicit_fixes.h \
+  ../../include/pparse.h 
+in_readc.o : ../../include/ardp.h \
+  ../../include/pfs_threads.h ../../include/pfs_utils.h \
+  ../../include/list_macros.h \
+  ../../include/../lib/ardp/flocks.h ../../include/pfs.h \
+  ../../include/pmachine.h \
+  ../../include/implicit_fixes.h \
+  ../../include/pparse.h 
+in_select.o : ../../include/pfs.h \
+  ../../include/pfs_utils.h ../../include/ardp.h \
+  ../../include/pfs_threads.h \
+  ../../include/list_macros.h \
+  ../../include/../lib/ardp/flocks.h ../../include/implicit_fixes.h \
+  ../../include/pmachine.h \
+  ../../include/perrno.h ../../include/pparse.h \
+  ../../include/pprot.h 
+in_sequence.o : ../../include/pfs.h \
+  ../../include/pfs_utils.h ../../include/ardp.h \
+  ../../include/pfs_threads.h \
+  ../../include/list_macros.h \
+  ../../include/../lib/ardp/flocks.h ../../include/implicit_fixes.h \
+  ../../include/pmachine.h \
+  ../../include/pparse.h 
+internal_err.o : ../../include/pfs.h \
+  ../../include/pfs_utils.h ../../include/ardp.h \
+  ../../include/pfs_threads.h \
+  ../../include/list_macros.h \
+  ../../include/../lib/ardp/flocks.h ../../include/implicit_fixes.h \
+  ../../include/pmachine.h \
+  ../../include/perrno.h 
+is_file.o : \
+  ../../include/pfs.h ../../include/pfs_utils.h ../../include/ardp.h \
+  ../../include/pfs_threads.h \
+  ../../include/list_macros.h ../../include/../lib/ardp/flocks.h \
+  ../../include/implicit_fixes.h \
+  ../../include/pmachine.h 
+length.o : ../../include/pfs.h \
+  ../../include/pfs_utils.h ../../include/ardp.h \
+  ../../include/pfs_threads.h \
+  ../../include/list_macros.h \
+  ../../include/../lib/ardp/flocks.h ../../include/implicit_fixes.h \
+  ../../include/pmachine.h 
+mapname.o : \
+  ../../include/pfs.h ../../include/pfs_utils.h ../../include/ardp.h \
+  ../../include/pfs_threads.h \
+  ../../include/list_macros.h \
+  ../../include/../lib/ardp/flocks.h ../../include/implicit_fixes.h \
+  ../../include/pmachine.h \
+  ../../include/psite.h ../../include/pcompat.h \
+  ../../include/perrno.h 
+mk_vdir.o : \
+  ../../include/ardp.h ../../include/pfs_threads.h \
+  ../../include/pfs_utils.h \
+  ../../include/list_macros.h ../../include/../lib/ardp/flocks.h ../../include/pfs.h \
+  ../../include/pmachine.h \
+  ../../include/implicit_fixes.h \
+  ../../include/pprot.h ../../include/perrno.h ../../include/pparse.h 
+mkdirs.o : \
+  ../../include/pmachine.h \
+  ../../include/pfs.h ../../include/pfs_utils.h ../../include/ardp.h \
+  ../../include/pfs_threads.h \
+  ../../include/list_macros.h ../../include/../lib/ardp/flocks.h \
+  ../../include/implicit_fixes.h \
+  ../../include/perrno.h 
+month_sname.o : 
+modify_acl.o : \
+  ../../include/ardp.h ../../include/pfs_threads.h \
+  ../../include/pfs_utils.h \
+  ../../include/list_macros.h ../../include/../lib/ardp/flocks.h ../../include/pfs.h \
+  ../../include/pmachine.h \
+  ../../include/implicit_fixes.h \
+  ../../include/pprot.h ../../include/perrno.h ../../include/pparse.h 
+myhost.o : ../../include/pcompat.h ../../include/pfs_threads.h \
+  ../../include/pfs_utils.h \
+  ../../include/pmachine.h \
+  ../../include/pfs.h ../../include/ardp.h \
+  ../../include/list_macros.h ../../include/../lib/ardp/flocks.h \
+  ../../include/implicit_fixes.h 
+oballoc.o : \
+  ../../include/pfs.h ../../include/pfs_utils.h ../../include/ardp.h ../../include/pfs_threads.h \
+  ../../include/list_macros.h \
+  ../../include/../lib/ardp/flocks.h ../../include/implicit_fixes.h \
+  ../../include/pmachine.h 
+obother.o : ../../include/pfs.h ../../include/pfs_utils.h \
+  ../../include/ardp.h \
+  ../../include/pfs_threads.h \
+  ../../include/list_macros.h \
+  ../../include/../lib/ardp/flocks.h ../../include/implicit_fixes.h \
+  ../../include/pmachine.h 
+opentcp.o : \
+  ../../include/pfs_threads.h \
+  ../../include/pfs_utils.h ../../include/ardp.h \
+  ../../include/list_macros.h ../../include/../lib/ardp/flocks.h \
+  ../../include/pfs.h ../../include/pmachine.h \
+  ../../include/implicit_fixes.h \
+  ../../include/perrno.h ../../include/sockettime.h 
+out_acl.o : ../../include/pfs.h \
+  ../../include/pfs_utils.h ../../include/ardp.h \
+  ../../include/pfs_threads.h \
+  ../../include/list_macros.h \
+  ../../include/../lib/ardp/flocks.h ../../include/implicit_fixes.h \
+  ../../include/pmachine.h \
+  ../../include/pparse.h 
+out_atr.o : ../../include/pfs.h ../../include/pfs_utils.h \
+  ../../include/ardp.h \
+  ../../include/pfs_threads.h \
+  ../../include/list_macros.h \
+  ../../include/../lib/ardp/flocks.h ../../include/implicit_fixes.h \
+  ../../include/pmachine.h \
+  ../../include/pparse.h \
+  ../../include/pprot.h 
+out_atrs.o : ../../include/pfs.h \
+  ../../include/pfs_utils.h ../../include/ardp.h \
+  ../../include/pfs_threads.h \
+  ../../include/list_macros.h \
+  ../../include/../lib/ardp/flocks.h ../../include/implicit_fixes.h \
+  ../../include/pmachine.h \
+  ../../include/pparse.h 
+out_filter.o : ../../include/pfs.h \
+  ../../include/pfs_utils.h ../../include/ardp.h \
+  ../../include/pfs_threads.h \
+  ../../include/list_macros.h \
+  ../../include/../lib/ardp/flocks.h ../../include/implicit_fixes.h \
+  ../../include/pmachine.h \
+  ../../include/pparse.h 
+out_link.o : ../../include/pfs.h \
+  ../../include/pfs_utils.h ../../include/ardp.h \
+  ../../include/pfs_threads.h \
+  ../../include/list_macros.h \
+  ../../include/../lib/ardp/flocks.h ../../include/implicit_fixes.h \
+  ../../include/pmachine.h \
+  ../../include/pparse.h 
+out_sequence.o : ../../include/pfs.h \
+  ../../include/pfs_utils.h ../../include/ardp.h \
+  ../../include/pfs_threads.h \
+  ../../include/list_macros.h \
+  ../../include/../lib/ardp/flocks.h ../../include/implicit_fixes.h \
+  ../../include/pmachine.h \
+  ../../include/pparse.h \
+  ../../include/pprot.h 
+p__qbstokenize.o : ../../include/pfs.h \
+  ../../include/pfs_utils.h ../../include/ardp.h \
+  ../../include/pfs_threads.h \
+  ../../include/list_macros.h \
+  ../../include/../lib/ardp/flocks.h ../../include/implicit_fixes.h \
+  ../../include/pmachine.h 
+p__qbstscanf.o : \
+  ../../include/pfs.h \
+  ../../include/pfs_utils.h ../../include/ardp.h \
+  ../../include/pfs_threads.h \
+  ../../include/list_macros.h \
+  ../../include/../lib/ardp/flocks.h ../../include/implicit_fixes.h \
+  ../../include/pmachine.h \
+  ../../include/pparse.h 
+p__req.o : \
+  ../../include/ardp.h ../../include/pfs_threads.h \
+  ../../include/pfs_utils.h \
+  ../../include/list_macros.h \
+  ../../include/../lib/ardp/flocks.h ../../include/pfs.h ../../include/pmachine.h \
+  ../../include/implicit_fixes.h \
+  ../../include/psite.h ../../include/pprot.h ../../include/perrno.h \
+  ../../include/pcompat.h 
+p_get_dir.o : \
+  ../../include/pprot.h \
+  ../../include/ardp.h ../../include/pfs_threads.h ../../include/pfs_utils.h \
+  ../../include/list_macros.h ../../include/../lib/ardp/flocks.h ../../include/pfs.h \
+  ../../include/pmachine.h \
+  ../../include/implicit_fixes.h \
+  ../../include/perrno.h ../../include/pparse.h 
+p_initialize.o : ../../include/pfs_threads.h \
+  ../../include/pfs_utils.h \
+  ../../include/pfs.h ../../include/ardp.h \
+  ../../include/list_macros.h \
+  ../../include/../lib/ardp/flocks.h ../../include/implicit_fixes.h \
+  ../../include/pmachine.h \
+  ../../include/perrno.h ../../include/pcompat.h 
+p_uln_index.o : ../../include/pfs.h \
+  ../../include/pfs_utils.h ../../include/ardp.h \
+  ../../include/pfs_threads.h \
+  ../../include/list_macros.h \
+  ../../include/../lib/ardp/flocks.h ../../include/implicit_fixes.h \
+  ../../include/pmachine.h 
+paalloc.o : \
+  ../../include/pfs.h ../../include/pfs_utils.h ../../include/ardp.h \
+  ../../include/pfs_threads.h \
+  ../../include/list_macros.h ../../include/../lib/ardp/flocks.h \
+  ../../include/implicit_fixes.h \
+  ../../include/pmachine.h 
+penviron.o : \
+  ../../include/pcompat.h ../../include/pfs_threads.h \
+  ../../include/pfs_utils.h \
+  ../../include/pmachine.h \
+  ../../include/pfs.h ../../include/ardp.h \
+  ../../include/list_macros.h ../../include/../lib/ardp/flocks.h ../../include/implicit_fixes.h \
+  ../../include/psite.h ../../include/perrno.h 
+perrmesg.o : ../../include/perrno.h ../../include/pfs_threads.h \
+  ../../include/pfs_utils.h 
+pfalloc.o : \
+  ../../include/pfs.h ../../include/pfs_utils.h ../../include/ardp.h ../../include/pfs_threads.h \
+  ../../include/list_macros.h \
+  ../../include/../lib/ardp/flocks.h ../../include/implicit_fixes.h \
+  ../../include/pmachine.h 
+pfs_debug.o : 
+pfs_enable.o : ../../include/pcompat.h \
+  ../../include/pfs_threads.h \
+  ../../include/pfs_utils.h ../../include/pmachine.h 
+pfs_fopen.o : \
+  ../../include/pfs.h ../../include/pfs_utils.h \
+  ../../include/ardp.h ../../include/pfs_threads.h \
+  ../../include/list_macros.h ../../include/../lib/ardp/flocks.h \
+  ../../include/implicit_fixes.h \
+  ../../include/pmachine.h \
+  ../../include/pcompat.h \
+  ../../include/perrno.h 
+pfs_mutexes.o : ../../include/pfs_threads.h \
+  ../../include/pfs_utils.h \
+  ../../include/pfs.h ../../include/ardp.h \
+  ../../include/list_macros.h \
+  ../../include/../lib/ardp/flocks.h ../../include/implicit_fixes.h \
+  ../../include/pmachine.h 
+pfs_open.o : \
+  ../../include/pfs.h \
+  ../../include/pfs_utils.h ../../include/ardp.h ../../include/pfs_threads.h \
+  ../../include/list_macros.h ../../include/../lib/ardp/flocks.h ../../include/implicit_fixes.h \
+  ../../include/pmachine.h \
+  ../../include/pcompat.h \
+  ../../include/perrno.h 
+pget_am.o : \
+  ../../include/pfs.h ../../include/pfs_utils.h ../../include/ardp.h \
+  ../../include/pfs_threads.h \
+  ../../include/list_macros.h ../../include/../lib/ardp/flocks.h ../../include/implicit_fixes.h \
+  ../../include/pmachine.h \
+  ../../include/perrno.h 
+pget_at.o : \
+  ../../include/ardp.h ../../include/pfs_threads.h \
+  ../../include/pfs_utils.h \
+  ../../include/list_macros.h ../../include/../lib/ardp/flocks.h ../../include/pfs.h \
+  ../../include/pmachine.h \
+  ../../include/implicit_fixes.h \
+  ../../include/pprot.h ../../include/perrno.h ../../include/pparse.h 
+pmap_cache.o : \
+  ../../include/pfs.h ../../include/pfs_utils.h ../../include/ardp.h ../../include/pfs_threads.h \
+  ../../include/list_macros.h \
+  ../../include/../lib/ardp/flocks.h ../../include/implicit_fixes.h \
+  ../../include/pmachine.h \
+  ../../include/pcompat.h \
+  ../../include/psite.h ../../include/perrno.h ../../include/mitra_macros.h 
+pmap_nfs.o : ../../include/psite.h 
+pset_at.o : \
+  ../../include/ardp.h ../../include/pfs_threads.h ../../include/pfs_utils.h \
+  ../../include/list_macros.h \
+  ../../include/../lib/ardp/flocks.h ../../include/pfs.h \
+  ../../include/pmachine.h \
+  ../../include/implicit_fixes.h \
+  ../../include/pparse.h \
+  ../../include/pprot.h ../../include/perrno.h 
+pset_linkat.o : \
+  ../../include/ardp.h ../../include/pfs_threads.h \
+  ../../include/pfs_utils.h \
+  ../../include/list_macros.h \
+  ../../include/../lib/ardp/flocks.h ../../include/pfs.h ../../include/pmachine.h \
+  ../../include/implicit_fixes.h \
+  ../../include/pparse.h \
+  ../../include/perrno.h 
+qbstp_stcopyr.o : ../../include/pfs.h \
+  ../../include/pfs_utils.h ../../include/ardp.h \
+  ../../include/pfs_threads.h \
+  ../../include/list_macros.h \
+  ../../include/../lib/ardp/flocks.h ../../include/implicit_fixes.h \
+  ../../include/pmachine.h 
+qfprintf.o : ../../include/pfs.h \
+  ../../include/pfs_utils.h ../../include/ardp.h \
+  ../../include/pfs_threads.h \
+  ../../include/list_macros.h \
+  ../../include/../lib/ardp/flocks.h ../../include/implicit_fixes.h \
+  ../../include/pmachine.h \
+  ../../include/pprot.h 
+qindex.o : ../../include/pfs.h ../../include/pfs_utils.h \
+  ../../include/ardp.h \
+  ../../include/pfs_threads.h \
+  ../../include/list_macros.h \
+  ../../include/../lib/ardp/flocks.h ../../include/implicit_fixes.h \
+  ../../include/pmachine.h \
+  ../../include/perrno.h 
+qoprintf.o : ../../include/pfs.h \
+  ../../include/pfs_utils.h ../../include/ardp.h \
+  ../../include/pfs_threads.h \
+  ../../include/list_macros.h \
+  ../../include/../lib/ardp/flocks.h ../../include/implicit_fixes.h \
+  ../../include/pmachine.h \
+  ../../include/pparse.h 
+qrindex.o : ../../include/pfs.h \
+  ../../include/pfs_utils.h ../../include/ardp.h \
+  ../../include/pfs_threads.h \
+  ../../include/list_macros.h \
+  ../../include/../lib/ardp/flocks.h ../../include/implicit_fixes.h \
+  ../../include/pmachine.h 
+qscanf.o : ../../include/pparse.h \
+  ../../include/pfs.h ../../include/pfs_utils.h ../../include/ardp.h \
+  ../../include/pfs_threads.h \
+  ../../include/list_macros.h \
+  ../../include/../lib/ardp/flocks.h ../../include/implicit_fixes.h \
+  ../../include/pmachine.h 
+qsp_stcopyr.o : ../../include/pfs.h \
+  ../../include/pfs_utils.h ../../include/ardp.h \
+  ../../include/pfs_threads.h \
+  ../../include/list_macros.h \
+  ../../include/../lib/ardp/flocks.h ../../include/implicit_fixes.h \
+  ../../include/pmachine.h 
+qsprintf.o : ../../include/pfs.h \
+  ../../include/pfs_utils.h ../../include/ardp.h \
+  ../../include/pfs_threads.h \
+  ../../include/list_macros.h \
+  ../../include/../lib/ardp/flocks.h ../../include/implicit_fixes.h \
+  ../../include/pmachine.h 
+qsscanf.o : \
+  ../../include/pfs.h \
+  ../../include/pfs_utils.h ../../include/ardp.h \
+  ../../include/pfs_threads.h \
+  ../../include/list_macros.h \
+  ../../include/../lib/ardp/flocks.h ../../include/implicit_fixes.h \
+  ../../include/pmachine.h \
+  ../../include/pparse.h 
+qtokenize.o : ../../include/pfs.h \
+  ../../include/pfs_utils.h ../../include/ardp.h \
+  ../../include/pfs_threads.h \
+  ../../include/list_macros.h \
+  ../../include/../lib/ardp/flocks.h ../../include/implicit_fixes.h \
+  ../../include/pmachine.h \
+  ../../include/pprot.h 
+rd_vdir.o : \
+  ../../include/pfs.h ../../include/pfs_utils.h ../../include/ardp.h ../../include/pfs_threads.h \
+  ../../include/list_macros.h \
+  ../../include/../lib/ardp/flocks.h ../../include/implicit_fixes.h \
+  ../../include/pmachine.h \
+  ../../include/perrno.h 
+rd_vlink.o : \
+  ../../include/pfs.h ../../include/pfs_utils.h ../../include/ardp.h \
+  ../../include/pfs_threads.h \
+  ../../include/list_macros.h ../../include/../lib/ardp/flocks.h ../../include/implicit_fixes.h \
+  ../../include/pmachine.h \
+  ../../include/perrno.h 
+re_comp_exec.o : ../../include/pfs_threads.h \
+  ../../include/pfs_utils.h 
+readheader.o : \
+  ../../include/pfs.h ../../include/pfs_utils.h ../../include/ardp.h \
+  ../../include/pfs_threads.h \
+  ../../include/list_macros.h ../../include/../lib/ardp/flocks.h \
+  ../../include/implicit_fixes.h \
+  ../../include/pmachine.h 
+scan_error.o : \
+  ../../include/pfs.h ../../include/pfs_utils.h ../../include/ardp.h ../../include/pfs_threads.h \
+  ../../include/list_macros.h \
+  ../../include/../lib/ardp/flocks.h ../../include/implicit_fixes.h \
+  ../../include/pmachine.h \
+  ../../include/perrno.h 
+sindex.o : \
+  ../../include/pmachine.h \
+  ../../include/pfs.h \
+  ../../include/pfs_utils.h ../../include/ardp.h ../../include/pfs_threads.h \
+  ../../include/list_macros.h ../../include/../lib/ardp/flocks.h \
+  ../../include/implicit_fixes.h 
+slashpath.o : ../../include/pfs.h \
+  ../../include/pfs_utils.h ../../include/ardp.h \
+  ../../include/pfs_threads.h \
+  ../../include/list_macros.h \
+  ../../include/../lib/ardp/flocks.h ../../include/implicit_fixes.h \
+  ../../include/pmachine.h 
+slashpath2.o : ../../include/pfs.h \
+  ../../include/pfs_utils.h ../../include/ardp.h \
+  ../../include/pfs_threads.h \
+  ../../include/list_macros.h \
+  ../../include/../lib/ardp/flocks.h ../../include/implicit_fixes.h \
+  ../../include/pmachine.h 
+socket.o : ../../include/pfs.h \
+  ../../include/pfs_utils.h ../../include/ardp.h \
+  ../../include/pfs_threads.h \
+  ../../include/list_macros.h \
+  ../../include/../lib/ardp/flocks.h ../../include/implicit_fixes.h \
+  ../../include/pmachine.h \
+  ../../include/perrno.h ../../include/posix_signal.h \
+  ../../include/sockettime.h 
+stat.o : \
+  ../../include/pfs.h \
+  ../../include/pfs_utils.h ../../include/ardp.h \
+  ../../include/pfs_threads.h \
+  ../../include/list_macros.h \
+  ../../include/../lib/ardp/flocks.h ../../include/implicit_fixes.h \
+  ../../include/pmachine.h 
+stcopy.o : \
+  ../../include/ardp.h ../../include/pfs_threads.h ../../include/pfs_utils.h \
+  ../../include/list_macros.h ../../include/../lib/ardp/flocks.h \
+  ../../include/pfs.h ../../include/pmachine.h \
+  ../../include/implicit_fixes.h 
+stequal.o : ../../include/pfs.h \
+  ../../include/pfs_utils.h ../../include/ardp.h \
+  ../../include/pfs_threads.h \
+  ../../include/list_macros.h \
+  ../../include/../lib/ardp/flocks.h ../../include/implicit_fixes.h \
+  ../../include/pmachine.h 
+strccmp.o : 
+strpbrk.o : 
+strspn.o : 
+timetoasn.o : \
+  ../../include/pfs.h ../../include/pfs_utils.h ../../include/ardp.h \
+  ../../include/pfs_threads.h \
+  ../../include/list_macros.h \
+  ../../include/../lib/ardp/flocks.h ../../include/implicit_fixes.h \
+  ../../include/pmachine.h 
+tkalloc.o : \
+  ../../include/pfs.h ../../include/pfs_utils.h ../../include/ardp.h ../../include/pfs_threads.h \
+  ../../include/list_macros.h \
+  ../../include/../lib/ardp/flocks.h ../../include/implicit_fixes.h \
+  ../../include/pmachine.h \
+  ../../include/mitra_macros.h 
+tokeniz_mcmp.o : ../../include/pfs.h \
+  ../../include/pfs_utils.h ../../include/ardp.h \
+  ../../include/pfs_threads.h \
+  ../../include/list_macros.h \
+  ../../include/../lib/ardp/flocks.h ../../include/implicit_fixes.h \
+  ../../include/pmachine.h \
+  ../../include/pprot.h 
+ucase.o : 
+ul_insert.o : \
+  ../../include/pfs.h \
+  ../../include/pfs_utils.h ../../include/ardp.h ../../include/pfs_threads.h \
+  ../../include/list_macros.h \
+  ../../include/../lib/ardp/flocks.h ../../include/implicit_fixes.h \
+  ../../include/pmachine.h \
+  ../../include/perrno.h 
+unquote.o : \
+  ../../include/pfs_threads.h ../../include/pfs_utils.h 
+update_link.o : \
+  ../../include/ardp.h ../../include/pfs_threads.h \
+  ../../include/pfs_utils.h \
+  ../../include/list_macros.h ../../include/../lib/ardp/flocks.h ../../include/pfs.h \
+  ../../include/pmachine.h \
+  ../../include/implicit_fixes.h \
+  ../../include/pprot.h ../../include/perrno.h 
+vfsetenv.o : \
+  ../../include/pfs.h ../../include/pfs_utils.h ../../include/ardp.h \
+  ../../include/pfs_threads.h \
+  ../../include/list_macros.h \
+  ../../include/../lib/ardp/flocks.h ../../include/implicit_fixes.h \
+  ../../include/pmachine.h \
+  ../../include/psite.h ../../include/perrno.h 
+vl_add_atrs.o : ../../include/pfs.h \
+  ../../include/pfs_utils.h ../../include/ardp.h \
+  ../../include/pfs_threads.h \
+  ../../include/list_macros.h \
+  ../../include/../lib/ardp/flocks.h ../../include/implicit_fixes.h \
+  ../../include/pmachine.h \
+  ../../include/pparse.h \
+  ../../include/perrno.h 
+vqfprintf.o : ../../include/pfs.h \
+  ../../include/pfs_utils.h ../../include/ardp.h \
+  ../../include/pfs_threads.h \
+  ../../include/list_macros.h \
+  ../../include/../lib/ardp/flocks.h ../../include/implicit_fixes.h \
+  ../../include/pmachine.h \
+  ../../include/pprot.h ../../include/perrno.h 
+vqscanf.o : \
+  ../../include/pfs_threads.h \
+  ../../include/pfs_utils.h ../../include/pfs.h ../../include/ardp.h \
+  ../../include/list_macros.h \
+  ../../include/../lib/ardp/flocks.h ../../include/implicit_fixes.h \
+  ../../include/pmachine.h \
+  ../../include/pparse.h \
+  charset.h 
+vqsprintf.o : ../../include/ardp.h \
+  ../../include/pfs_threads.h \
+  ../../include/pfs_utils.h \
+  ../../include/list_macros.h \
+  ../../include/../lib/ardp/flocks.h ../../include/pfs.h ../../include/pmachine.h \
+  ../../include/implicit_fixes.h \
+  charset.h 
+vl_comp.o : ../../include/pfs.h \
+  ../../include/pfs_utils.h ../../include/ardp.h \
+  ../../include/pfs_threads.h \
+  ../../include/list_macros.h \
+  ../../include/../lib/ardp/flocks.h ../../include/implicit_fixes.h \
+  ../../include/pmachine.h 
+vl_delete.o : \
+  ../../include/pfs.h ../../include/pfs_utils.h ../../include/ardp.h \
+  ../../include/pfs_threads.h \
+  ../../include/list_macros.h \
+  ../../include/../lib/ardp/flocks.h ../../include/implicit_fixes.h \
+  ../../include/pmachine.h \
+  ../../include/perrno.h 
+vl_insert.o : \
+  ../../include/pfs.h ../../include/pfs_utils.h ../../include/ardp.h ../../include/pfs_threads.h \
+  ../../include/list_macros.h \
+  ../../include/../lib/ardp/flocks.h ../../include/implicit_fixes.h \
+  ../../include/pmachine.h \
+  ../../include/perrno.h 
+vlalloc.o : \
+  ../../include/pfs.h ../../include/pfs_utils.h ../../include/ardp.h ../../include/pfs_threads.h \
+  ../../include/list_macros.h \
+  ../../include/../lib/ardp/flocks.h ../../include/implicit_fixes.h \
+  ../../include/pmachine.h \
+  ../../include/mitra_macros.h 
+wcmatch.o : \
+  ../../include/pmachine.h 
+wholefiltoin.o : ../../include/pfs.h \
+  ../../include/pfs_utils.h ../../include/ardp.h \
+  ../../include/pfs_threads.h \
+  ../../include/list_macros.h \
+  ../../include/../lib/ardp/flocks.h ../../include/implicit_fixes.h \
+  ../../include/pmachine.h \
+  ../../include/pparse.h \
+  ../../include/perrno.h 

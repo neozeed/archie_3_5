@@ -1,0 +1,61 @@
+set status
+set max_split_size 30000
+set maxhits 15
+
+set server java.cc.mcgill.ca
+set search sub
+find ntp
+list ^c.*\.c[ah]
+domains
+set autologout 500
+set search subcase
+find etc
+servers
+set search regex
+find a.*[bc].*d$
+show
+whatis xnlock
+
+set server archie.rutgers.edu
+servers
+list ^c.*\.c[ah]
+manpage roff
+set search regex
+find a.*[bc].*d$
+domains
+set autologout 500
+set search sub
+find ntp
+mail wheelan
+whatis xnlock
+set search subcase
+find etc
+show
+
+set server archie.sura.net
+whatis xnlock
+set search sub
+find ntp
+set search regex
+find a.*[bc].*d$
+show
+servers
+domains
+set autologout 500
+set search subcase
+find etc
+list ^c.*\.c[ah]
+
+set server java
+set search regex
+find a.*[bc].*d$
+show
+set autologout 500
+whatis xnlock
+servers
+set search sub
+find ntp
+set search subcase
+find etc
+domains
+list ^c.*\.c[ah]

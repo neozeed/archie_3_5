@@ -1,0 +1,27 @@
+We would like to thank the following people for bug fixes, for porting
+Prospero to other machine types (and feeding back the changes), or for
+adding new features.
+
+Eric Anderson           SURAnet
+Joseph Boykin           Encore Computer Corporation
+Benjamin Britt          University of Southern California (ISI)
+Kwynn Buess             University of Southern California (ISI)
+Sio-Man Cheang          University of Southern California (ISI)
+Steve Cliffe            University of Wollongong, Australia
+John Curran 		NSF Network Service Center (NNSC)
+Alan Emtage             Bunyip Information Systems
+George Ferguson         University of Rochester
+Manjiry Gadagkar        University of Southern California
+Bill Heelan		Bunyip Information Systems
+Sanjay Joshi            University of Southern California
+Jonathan Kamens		MIT Project Athena
+Brendan Kehoe           Cygnus
+Dan King                University of Southern California
+Case Larsen		Lawrence Berkeley Laboratory
+Gaute Nessan            University of Tromsoe, Norway
+Mitra			Pandora Systems
+Rainer Orth             University of Cologne, Germany
+Bob Smart		CSIRO, Australia
+Prasad Upasani          University of Southern California (ISI)
+
+  -- Clifford Neuman and Steven Augart

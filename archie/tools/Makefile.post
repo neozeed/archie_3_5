@@ -1,0 +1,180 @@
+#
+# Control module.
+#
+
+all: $(EXES)
+
+
+include $(ARCHIE_ROOT)/Makefile.post
+
+
+ardomains: \
+           ardomain.o lang_tools.o \
+           $(ANONFTP_MODULE)/lib/$(SYSTYPE)/libanonftp.a \
+           $(LIBARCHIE_MODULE)/$(SYSTYPE)/libarchie.a \
+           $(STRIDX_MODULE)/$(SYSTYPE)/libarchstridx.a \
+           $(HOSTDB_MODULE)/$(SYSTYPE)/libhostdb.a \
+           $(PATRIE_MODULE)/$(SYSTYPE)/libpatrie.a \
+           $(STARTDB_MODULE)/$(SYSTYPE)/libstartdb.a \
+           $(WEBINDEX_MODULE)/lib/$(SYSTYPE)/libwebindex.a
+	${CC} ${CFLAGS} ${INCLUDES} -o ardomains ardomain.o lang_tools.o \
+		${MOD_LIBS} ${SYS_LIBS}
+
+host_manage: \
+             host_manage.o screen.o dbspecs.o lang_tools.o \
+             $(ANONFTP_MODULE)/lib/$(SYSTYPE)/libanonftp.a \
+             $(LIBARCHIE_MODULE)/$(SYSTYPE)/libarchie.a \
+             $(STRIDX_MODULE)/$(SYSTYPE)/libarchstridx.a \
+             $(HOSTDB_MODULE)/$(SYSTYPE)/libhostdb.a \
+             $(PATRIE_MODULE)/$(SYSTYPE)/libpatrie.a \
+             $(STARTDB_MODULE)/$(SYSTYPE)/libstartdb.a \
+             $(WEBINDEX_MODULE)/lib/$(SYSTYPE)/libwebindex.a
+	${CC} ${CFLAGS} ${INCLUDES} -o host_manage host_manage.o screen.o dbspecs.o lang_tools.o \
+		 ${MOD_LIBS} ${SYS_LIBS} -lcurses -ltermcap
+
+convert_hostdb: \
+                convert_hostdb.o old_hostdb.o utils.o \
+                $(ANONFTP_MODULE)/lib/$(SYSTYPE)/libanonftp.a \
+                $(LIBARCHIE_MODULE)/$(SYSTYPE)/libarchie.a \
+                $(STRIDX_MODULE)/$(SYSTYPE)/libarchstridx.a \
+                $(HOSTDB_MODULE)/$(SYSTYPE)/libhostdb.a \
+                $(PATRIE_MODULE)/$(SYSTYPE)/libpatrie.a \
+                $(STARTDB_MODULE)/$(SYSTYPE)/libstartdb.a \
+                $(WEBINDEX_MODULE)/lib/$(SYSTYPE)/libwebindex.a
+	${CC} ${CFLAGS} ${INCLUDES} -o convert_hostdb convert_hostdb.o old_hostdb.o utils.o \
+		 ${MOD_LIBS} ${SYS_LIBS}
+
+db_build: \
+          db_build.o \
+          $(ANONFTP_MODULE)/lib/$(SYSTYPE)/libanonftp.a \
+          $(LIBARCHIE_MODULE)/$(SYSTYPE)/libarchie.a \
+          $(STRIDX_MODULE)/$(SYSTYPE)/libarchstridx.a \
+          $(HOSTDB_MODULE)/$(SYSTYPE)/libhostdb.a \
+          $(PATRIE_MODULE)/$(SYSTYPE)/libpatrie.a \
+          $(STARTDB_MODULE)/$(SYSTYPE)/libstartdb.a \
+          $(WEBINDEX_MODULE)/lib/$(SYSTYPE)/libwebindex.a
+	${CC} ${CFLAGS} ${INCLUDES} -o db_build db_build.o \
+		 ${MOD_LIBS} ${SYS_LIBS}
+
+db_stats: \
+          db_stats.o \
+          $(ANONFTP_MODULE)/lib/$(SYSTYPE)/libanonftp.a \
+          $(LIBARCHIE_MODULE)/$(SYSTYPE)/libarchie.a \
+          $(STRIDX_MODULE)/$(SYSTYPE)/libarchstridx.a \
+          $(HOSTDB_MODULE)/$(SYSTYPE)/libhostdb.a \
+          $(PATRIE_MODULE)/$(SYSTYPE)/libpatrie.a \
+          $(STARTDB_MODULE)/$(SYSTYPE)/libstartdb.a \
+          $(WEBINDEX_MODULE)/lib/$(SYSTYPE)/libwebindex.a
+	${CC} ${CFLAGS} ${INCLUDES} -o db_stats db_stats.o \
+		 ${MOD_LIBS} ${SYS_LIBS}
+
+db_dump: \
+         db_dump.o \
+         $(ANONFTP_MODULE)/lib/$(SYSTYPE)/libanonftp.a \
+         $(LIBARCHIE_MODULE)/$(SYSTYPE)/libarchie.a \
+         $(STRIDX_MODULE)/$(SYSTYPE)/libarchstridx.a \
+         $(HOSTDB_MODULE)/$(SYSTYPE)/libhostdb.a \
+         $(PATRIE_MODULE)/$(SYSTYPE)/libpatrie.a \
+         $(STARTDB_MODULE)/$(SYSTYPE)/libstartdb.a \
+         $(WEBINDEX_MODULE)/lib/$(SYSTYPE)/libwebindex.a
+	${CC} ${CFLAGS} ${INCLUDES} -o db_dump db_dump.o \
+		 ${MOD_LIBS} ${SYS_LIBS}
+
+db_reorder: \
+            db_reorder.o \
+            $(ANONFTP_MODULE)/lib/$(SYSTYPE)/libanonftp.a \
+            $(LIBARCHIE_MODULE)/$(SYSTYPE)/libarchie.a \
+            $(STRIDX_MODULE)/$(SYSTYPE)/libarchstridx.a \
+            $(HOSTDB_MODULE)/$(SYSTYPE)/libhostdb.a \
+            $(PATRIE_MODULE)/$(SYSTYPE)/libpatrie.a \
+            $(STARTDB_MODULE)/$(SYSTYPE)/libstartdb.a \
+            $(WEBINDEX_MODULE)/lib/$(SYSTYPE)/libwebindex.a
+	${CC} ${CFLAGS} ${INCLUDES} -o db_reorder db_reorder.o \
+		 ${MOD_LIBS} ${SYS_LIBS}
+
+db_check: \
+          db_check.o \
+          $(ANONFTP_MODULE)/lib/$(SYSTYPE)/libanonftp.a \
+          $(LIBARCHIE_MODULE)/$(SYSTYPE)/libarchie.a \
+          $(STRIDX_MODULE)/$(SYSTYPE)/libarchstridx.a \
+          $(HOSTDB_MODULE)/$(SYSTYPE)/libhostdb.a \
+          $(PATRIE_MODULE)/$(SYSTYPE)/libpatrie.a \
+          $(STARTDB_MODULE)/$(SYSTYPE)/libstartdb.a \
+          $(WEBINDEX_MODULE)/lib/$(SYSTYPE)/libwebindex.a
+	${CC} ${CFLAGS} ${INCLUDES} -o db_check db_check.o \
+		 ${MOD_LIBS} ${SYS_LIBS}
+
+db_siteidx: \
+            db_siteidx.o \
+            $(ANONFTP_MODULE)/lib/$(SYSTYPE)/libanonftp.a \
+            $(LIBARCHIE_MODULE)/$(SYSTYPE)/libarchie.a \
+            $(STRIDX_MODULE)/$(SYSTYPE)/libarchstridx.a \
+            $(HOSTDB_MODULE)/$(SYSTYPE)/libhostdb.a \
+            $(PATRIE_MODULE)/$(SYSTYPE)/libpatrie.a \
+            $(STARTDB_MODULE)/$(SYSTYPE)/libstartdb.a \
+            $(WEBINDEX_MODULE)/lib/$(SYSTYPE)/libwebindex.a
+	${CC} ${CFLAGS} ${INCLUDES} -o db_siteidx db_siteidx.o \
+		 ${MOD_LIBS} ${SYS_LIBS}
+
+dump_hostdb: \
+          dump_hostdb.o lang_tools.o \
+          $(ANONFTP_MODULE)/lib/$(SYSTYPE)/libanonftp.a \
+          $(LIBARCHIE_MODULE)/$(SYSTYPE)/libarchie.a \
+          $(STRIDX_MODULE)/$(SYSTYPE)/libarchstridx.a \
+          $(HOSTDB_MODULE)/$(SYSTYPE)/libhostdb.a \
+          $(PATRIE_MODULE)/$(SYSTYPE)/libpatrie.a \
+          $(STARTDB_MODULE)/$(SYSTYPE)/libstartdb.a \
+          $(WEBINDEX_MODULE)/lib/$(SYSTYPE)/libwebindex.a
+	${CC} ${CFLAGS} ${INCLUDES} -o dump_hostdb dump_hostdb.o lang_tools.o \
+		 ${MOD_LIBS} ${SYS_LIBS}
+
+dump_hostdb: \
+                dump_hostdb.o \
+                $(ANONFTP_MODULE)/lib/$(SYSTYPE)/libanonftp.a \
+                $(LIBARCHIE_MODULE)/$(SYSTYPE)/libarchie.a \
+                $(STRIDX_MODULE)/$(SYSTYPE)/libarchstridx.a \
+                $(HOSTDB_MODULE)/$(SYSTYPE)/libhostdb.a \
+                $(PATRIE_MODULE)/$(SYSTYPE)/libpatrie.a \
+                $(STARTDB_MODULE)/$(SYSTYPE)/libstartdb.a \
+                $(WEBINDEX_MODULE)/lib/$(SYSTYPE)/libwebindex.a
+	${CC} ${CFLAGS} ${INCLUDES} -o dump_hostdb dump_hostdb.o \
+		 ${MOD_LIBS} ${SYS_LIBS}
+
+dump_hostdb_ndbm: \
+                dump_hostdb.o \
+                $(ANONFTP_MODULE)/lib/$(SYSTYPE)/libanonftp.a \
+                $(LIBARCHIE_MODULE)/$(SYSTYPE)/libarchie.a \
+                $(STRIDX_MODULE)/$(SYSTYPE)/libarchstridx.a \
+                $(HOSTDB_MODULE)/$(SYSTYPE)/libhostdb.a \
+                $(PATRIE_MODULE)/$(SYSTYPE)/libpatrie.a \
+                $(STARTDB_MODULE)/$(SYSTYPE)/libstartdb.a \
+                $(WEBINDEX_MODULE)/lib/$(SYSTYPE)/libwebindex.a
+	${CC} ${CFLAGS} ${INCLUDES} -o dump_hostdb_ndbm dump_hostdb.o \
+		 ${MOD_LIBS} ${SYS_LIBS_1}
+
+fix_start_db: \
+              fix_start_db.o \
+              $(ANONFTP_MODULE)/lib/$(SYSTYPE)/libanonftp.a \
+              $(LIBARCHIE_MODULE)/$(SYSTYPE)/libarchie.a \
+              $(STRIDX_MODULE)/$(SYSTYPE)/libarchstridx.a \
+              $(HOSTDB_MODULE)/$(SYSTYPE)/libhostdb.a \
+              $(PATRIE_MODULE)/$(SYSTYPE)/libpatrie.a \
+              $(STARTDB_MODULE)/$(SYSTYPE)/libstartdb.a \
+              $(WEBINDEX_MODULE)/lib/$(SYSTYPE)/libwebindex.a
+	${CC} ${CFLAGS} ${INCLUDES} -o fix_start_db fix_start_db.o \
+		 ${MOD_LIBS} ${SYS_LIBS}
+
+restore_hostdb: \
+                restore_hostdb.o \
+                $(ANONFTP_MODULE)/lib/$(SYSTYPE)/libanonftp.a \
+                $(LIBARCHIE_MODULE)/$(SYSTYPE)/libarchie.a \
+                $(STRIDX_MODULE)/$(SYSTYPE)/libarchstridx.a \
+                $(HOSTDB_MODULE)/$(SYSTYPE)/libhostdb.a \
+                $(PATRIE_MODULE)/$(SYSTYPE)/libpatrie.a \
+                $(STARTDB_MODULE)/$(SYSTYPE)/libstartdb.a \
+                $(WEBINDEX_MODULE)/lib/$(SYSTYPE)/libwebindex.a
+	${CC} ${CFLAGS} ${INCLUDES} -o restore_hostdb restore_hostdb.o \
+		 ${MOD_LIBS} ${SYS_LIBS}
+
+clean:
+	rm -f *.o $(EXES) core

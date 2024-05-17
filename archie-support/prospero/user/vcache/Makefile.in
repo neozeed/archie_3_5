@@ -1,0 +1,151 @@
+#
+# Derived from Berkeley ftp code.  Those parts are:
+# Copyright (c) 1988 Regents of the University of California.
+# All rights reserved.
+#
+# Redistribution and use in source and binary forms are permitted
+# provided that the above copyright notice and this paragraph are
+# duplicated in all such forms and that any documentation,
+# advertising materials, and other materials related to such
+# distribution and use acknowledge that the software was developed
+# by the University of California, Berkeley.  The name of the
+# University may not be used to endorse or promote products derived
+# from this software without specific prior written permission.
+# THIS SOFTWARE IS PROVIDED ``AS IS'' AND WITHOUT ANY EXPRESS OR
+# IMPLIED WARRANTIES, INCLUDING, WITHOUT LIMITATION, THE IMPLIED
+# WARRANTIES OF MERCHANTIBILITY AND FITNESS FOR A PARTICULAR PURPOSE.
+#
+#	@(#)Makefile	5.6 (Berkeley) 6/29/88
+#
+
+# You must #define WAIS to include WAIS support, and uncomment the WAIS 
+# lines.  See the comment in main.c
+# Footnote: ignore the above comment.  There are now two distinct types of WAIS support (aiee).
+# The OLD one is no longer in use, but the hooks remain.
+# This should be cleaned up one day.  --swa
+
+SOURCEBASE=../..
+include $(SOURCEBASE)/Makefile.config
+
+LIBOBJECTS    = cmds.o ftp.o pclose.o aftpget.o ruserpass.o gopherget.o vcache.o
+XLIBOBJECTS    = main.o
+
+CFILES = \
+	aftpget.c \
+	cmds.c \
+	ftp.c \
+	gopherget.c  \
+	main.c \
+	pclose.c \
+	ruserpass.c \
+	vcache.c
+
+
+OBJECTS = $(LIBOBJECTS) $(XLIBOBJECTS) 
+
+SPECIAL_PROGS = vcache
+
+all: ${VCACHE_LIB} vcache
+
+# PFS_VCACHE_LIBS* defined in Makefile.boilerplate
+
+vcache:	$(XLIBOBJECTS) $(PFS_VCACHE_LIBS_DEPENDENCIES) 
+	${CC} ${CFLAGS} -o vcache $(XLIBOBJECTS) $(PFS_VCACHE_LIBS) ../../../libpsarchie/libpsarchie.a
+
+# This is for the OLD wais support.  Ignore.
+#wais.dir:
+#	cd wais ; \
+#	${MAKE} libwais.a
+
+# This is one possibility for testing. Uncomment during development.
+#TV      = ./vcache -v -D -t
+#TVD     = /tmp/test_vcache
+#test:
+#	-mkdir $(TVD)
+#	-$(TV) $(TVD)/gopher0 GOPHER INTERNET-D "GOPHER.PATH.NET(8001)" ASCII 0/testarea/About TEXT
+#	-$(TV) $(TVD)/aftp AFTP INTERNET-D PROSPERO.ISI.EDU ASCII /pub/prospero/papers/.messages ASCII
+#	-$(TV) $(TVD)/aftp AFTP INTERNET-D ftp.path.net ASCII /pub/iiirdoc ascii
+
+install:
+	${INSTALL} -c -o ${OWNER} -g ${GROUP} -m $(INSTALL_EXE_MODE)  vcache \
+		${P_BINARIES}/vcache${GENERATIONSUFFIX}
+	${GENERATION} ${P_BINARIES}/vcache
+
+#       This library is not generally installed.
+#	${INSTALL} -c -o ${OWNER} -g ${GROUP} -m 644 ${VCACHE_LIB} \
+#		${P_BINARIES}/${VCACHE_LIB}${GENERATIONSUFFIX}
+#	${RANLIB} ${P_BINARIES}/${VCACHE_LIB}${GENERATIONSUFFIX}
+#	${GENERATION} ${P_BINARIES}/${VCACHE_LIB} 
+
+
+
+${VCACHE_LIB}: ${LIBOBJECTS}
+	rm -f ${VCACHE_LIB}
+	ar r${AR_FLAGS} ${VCACHE_LIB} ${LIBOBJECTS} 
+	${RANLIB} ${VCACHE_LIB}
+
+
+# Dependencies
+aftpget.o : ftp_var.h \
+  ../../include/posix_signal.h \
+  ../../include/pfs.h \
+  ../../include/pfs_utils.h ../../include/ardp.h ../../include/pfs_threads.h \
+  ../../include/list_macros.h \
+  ../../include/../lib/ardp/flocks.h ../../include/implicit_fixes.h \
+  ../../include/pmachine.h \
+  ../../include/perrno.h ../../include/pcompat.h \
+  vcache_macros.h 
+cmds.o : ftp_var.h \
+  ../../include/posix_signal.h \
+  ../../include/pmachine.h \
+  ../../include/perrno.h \
+  ../../include/pfs_threads.h ../../include/pfs_utils.h vcache_macros.h ../../include/ardp.h \
+  ../../include/list_macros.h \
+  ../../include/../lib/ardp/flocks.h ../../include/pfs.h \
+  ../../include/implicit_fixes.h \
+  ../../include/vcache.h 
+ftp.o : ftp_var.h \
+  ../../include/posix_signal.h \
+  ../../include/pcompat.h \
+  ../../include/pfs_threads.h ../../include/pfs_utils.h \
+  ../../include/pmachine.h \
+  ../../include/perrno.h vcache_macros.h ../../include/ardp.h \
+  ../../include/list_macros.h ../../include/../lib/ardp/flocks.h \
+  ../../include/pfs.h \
+  ../../include/implicit_fixes.h \
+  ../../include/vcache.h ../../include/sockettime.h 
+gopherget.o : \
+  ../../include/perrno.h ../../include/pfs_threads.h \
+  ../../include/pfs_utils.h ../../include/pmachine.h \
+  ../../include/pfs.h ../../include/ardp.h \
+  ../../include/list_macros.h \
+  ../../include/../lib/ardp/flocks.h ../../include/implicit_fixes.h \
+  vcache_macros.h 
+main.o : \
+  ../../include/pfs.h ../../include/pfs_utils.h \
+  ../../include/ardp.h ../../include/pfs_threads.h \
+  ../../include/list_macros.h ../../include/../lib/ardp/flocks.h \
+  ../../include/implicit_fixes.h \
+  ../../include/pmachine.h \
+  ../../include/pcompat.h \
+  ../../include/perrno.h 
+pclose.o : \
+  ../../include/posix_signal.h \
+  ../../include/pmachine.h \
+  ../../include/implicit_fixes.h \
+  ../../include/pfs_threads.h ../../include/pfs_utils.h 
+ruserpass.o : \
+  ftp_var.h \
+  vcache_macros.h ../../include/ardp.h ../../include/pfs_threads.h \
+  ../../include/pfs_utils.h \
+  ../../include/list_macros.h ../../include/../lib/ardp/flocks.h \
+  ../../include/pfs.h ../../include/pmachine.h \
+  ../../include/implicit_fixes.h \
+  ../../include/perrno.h ../../include/string_with_strcasecmp.h 
+vcache.o : \
+  ../../include/pmachine.h \
+  vcache.h \
+  ../../include/pfs.h ../../include/pfs_utils.h ../../include/ardp.h \
+  ../../include/pfs_threads.h \
+  ../../include/list_macros.h ../../include/../lib/ardp/flocks.h ../../include/implicit_fixes.h \
+  ../../include/psite.h ../../include/perrno.h vcache_macros.h 

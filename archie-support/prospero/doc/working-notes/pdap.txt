@@ -1,0 +1,89 @@
+Prospero Data Access Protocol (doc/working-notes/pdap.txt in the
+Prospero Release)
+
+Note that this document is not necessarily going to be fully in sync
+with the PDAP draft paper (Augart, Neuman, Rao, unpublished).  Until
+that paper is published, the protocol is subject to change.
+
+Goal: To provide a single file system protocol supporting several
+      modes of file access (whole file caching, remote read/write, etc),
+      that supports gateway functionality to other file services,
+      as well as support for a range of authentication and authorization
+      mechanisms. 
+ 
+Note: authentication and encryption/integrity eventually
+      provided by ARDP library.  For now, authentication
+      and authorization provided directly by this protocol.
+
+Message format - this is layered on ARDP protocol.
+
+sequence { 1 octet version
+           sequence of sequence { 1 octet operation
+                         asn1length data-length
+                         data-length octets operation-data}
+         }
+
+Operations =
+
+  1 open
+  2 open response
+  3 close
+  4 close response
+  5 stat
+  6 stat response
+  7 read
+  8 read response
+  9 write
+ 10 write response
+ 11 lease request
+ 12 lease response
+ 13 authenticate/authorization/accounting (for methods not provided in ARDP)
+ 14 authentication/authorization/accounting response (if not done in ARDP)
+  
+
+Commands:
+
+  1 open 1 octet flags: read, write, append, create, cache, oob-xfer
+         1 octet name-type
+           name-type APPLICATION, FILESYSTEM, DEVICE, URL, PROSPERO-AM
+              application takes application name and application specific name
+              filesystem takes local system pathname
+              device takes device identifier and an integer for i-node
+              URL takes a URL for string (for gatewaying)
+              PROSPERO-AM takes an access method sequence (for gatewaying)
+         if oob-xfer flags set, path or identifier where to store
+  2 open response 1 octet (success/failure/warning)
+                  1 octet handle type (capability,crypto_cap,asn1int,none)
+		  asn1length length
+                  length octets file handle
+		  optional file name if left out in request, gensymed
+                  if oob-xfer, name of file to open
+                  error/warning code and text
+                  
+
+  3 close file handle type and handle.  If none, then file opened in
+          same request.
+
+  4 close response
+          success/failure/warning
+          error/warning code and text
+
+  7 read file handle type and handle (if none, as opened in same message)
+         offset
+         asn1length length
+
+  8 read response
+         success/failure/warning
+         asnlength length
+         length octets data to be returned
+         error/warning code and text
+
+  9 write file handle type and handle (if none, as opened in same message)
+	 offset
+         asn1length lenght
+         length octets data to be written
+
+ 10 write response
+         success/failure/warning
+         error/warning code and text
+

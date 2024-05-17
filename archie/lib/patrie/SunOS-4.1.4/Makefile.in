@@ -1,0 +1,20 @@
+#
+# lib/patrie/SunOS-4.1.4
+#
+
+#SYS_CFLAGS = -O3 -pg -static
+#
+# SunOS 4.1.4 is weird (or is it just our version) in that strcmp()
+# compares characters as unsigned, yet all the others do not.
+#
+SYS_DEFS   = -D_POSIX_SOURCE \
+             -D__USE_FIXED_PROTOTYPES__ \
+             -DSUNOS \
+             -DHAVE_UNSIGNED_STRCMP \
+             -D'memmove(a,b,c)=bcopy(b,a,c)'
+SENT_FLAGS = -ffixed-%g2 -ffixed-%g3 -ffixed-%g4
+
+include ../Makefile.pre
+include ../Makefile.post
+
+# DO NOT DELETE THIS LINE -- make depend depends on it

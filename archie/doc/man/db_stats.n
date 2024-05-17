@@ -1,0 +1,108 @@
+.\" Copyright (c) 1992, 1994, 1996 Bunyip Information Systems Inc.
+.\" All rights reserved.  
+.\"	
+.\" Archie 3.5
+.\" August 1996
+.\"	
+.\"	@(#)db_stats.n	
+.\"
+.TH DB_STATS N "August 1996"
+
+.SH NAME
+.B db_stats
+\- print statistics about Archie databases.
+
+.SH SYNOPSIS
+.B db_stats 
+[
+.BI \-H " <hostname>"
+] [
+.BI \-p " <port>"
+] [ 
+.BI \-d " <database>"
+] [ 
+.BI \-M " <dir>"
+] [
+.BI \-h " <dir>"
+] [ 
+.B \-v
+] [ 
+.B \-l
+] [
+.BI \-L " <logfile>"
+]
+
+.SH DESCRIPTION
+.B db_stats 
+performs a quick scan over the database files and prints out statistical
+information.  Basic numbers reflecting the size of each site file and the
+number of different type of records contained are calculated.  It also
+gives general information regarding each database like the total size
+of indexed files and so on.
+
+.BR db_stats ,
+when run on the webindex catalog, reports the number of URLs on each site and
+the number of indexable URLs.  An example of a non-inexable URL is a gif file
+or a binary file.
+
+.SH OPTIONS
+.TP
+.BI \-H " <hostname>"
+The host name of the site about which you want statistics. by default
+.B db_stats
+will examine all sites.
+.TP
+.BI \-p " <port>"
+The port number of the site, if it is different from the default value.
+.TP
+.BI \-d " <database>"
+The catalog about which to print statistics.  By default, the program will
+examine all available catalogs listed in
+.BR ~archie/etc/catalogs.cf .
+.TP
+.BI \-M " <dir>"
+The name of the master Archie database directory. If not specified, the
+program looks in the directory
+.BR ~archie/db ,
+then
+.BR ./db .
+.TP
+.BI \-h " <dir>"
+The name of the Archie host database directory. If not specified, the program
+will first try
+.BR ~archie/db/host_db ,
+then
+.BR ./host_db .
+.TP
+.B \-v
+Verbose mode.  Print messages indicating what the program is doing.
+.TP
+.B \-l
+Log messages to the file
+.BR ~archie/logs/archie.log .
+The location of the file may be overridden with the
+.B \-L 
+option.  By default, messages are written to
+.IR stderr .
+.TP
+.BI \-L " <logfile>"
+Specify the log file.  For this to have any effect, the
+.B \-l 
+option must be specified, as well.  Note that debugging information is also
+written to the log file.
+
+.SH FILES
+~archie/db/\fI<database name>\fP/*,
+.br
+~archie/db/host_db/*
+
+.SH SEE ALSO
+.BR db_check (n),
+
+.SH AUTHOR
+Bunyip Information Systems.
+.br
+Montr\o"\'e"al, Qu\o"\'e"bec, Canada
+.sp
+Archie is a registered trademark of Bunyip Information Systems Inc., Canada,
+1990.

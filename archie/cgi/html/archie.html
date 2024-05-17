@@ -1,0 +1,30 @@
+<HTML>
+<BODY BGCOLOR="#ccccdd">
+<TITLE>Search in Archie</TITLE>
+<!-- Please modify the action field in the following line to accomodate your system -->
+<FORM method="POST" action="http://archie.bunyip.com/cgi-bin/archie.cgi">
+
+<INPUT TYPE=hidden NAME=oflag VALUE="0">
+<CENTER>
+<IMG SRC="query.gif" ALT="Archie Query Form"><br>
+<font size="+2">S</font>earch <font size="+2">f</font>or:<br>
+<INPUT SIZE=48 NAME="query"><br>
+<INPUT TYPE="submit" VALUE=" Search "><INPUT TYPE="reset" VALUE="Reset">
+</CENTER>
+<PRE>
+<blockquote>
+<b><font size="+1">D</font>atabase:</b>    <INPUT TYPE=radio NAME=database VALUE="Anonymous FTP" CHECKED>Anonymous FTP   <INPUT TYPE=radio NAME=database VALUE="Web Index">Web Index
+<b><font size="+1">S</font>earch Type:</b> <INPUT TYPE=radio NAME=type VALUE="Sub String" CHECKED>Sub String      <INPUT TYPE=radio NAME=type VALUE="Exact">Exact       <INPUT TYPE=radio NAME=type VALUE="Regular Expression">Regular Expression
+<b><font size="+1">C</font>ase:</b>        <INPUT TYPE=radio NAME=case VALUE="Insensitive" CHECKED>Insensitive     <INPUT TYPE=radio NAME=case VALUE="Sensitive">Sensitive<p>
+<b><font size="+1">O</font>utput Format For Web Index Search:</b> <INPUT TYPE=radio NAME="format" VALUE="Keywords Only">Keywords
+                                    <INPUT TYPE=radio NAME="format" VALUE="Excerpts Only" CHECKED>Excerpts
+                                    <INPUT TYPE=radio NAME="format" VALUE="Links Only">Links
+                                    <INPUT TYPE=radio NAME="format" VALUE="Strings Only">Strings
+</blockquote>
+</PRE>
+<HR>
+<CENTER>
+<B><A HREF="archie-help.html">Help</A> | <A HREF="archie-adv.html">Advanced Search</A> | <A HREF="http://www.bunyip.com/products/archie"> Archie's Home Page</A></B>
+</CENTER>
+</FORM>
+</HTML>

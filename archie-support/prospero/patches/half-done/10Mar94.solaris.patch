@@ -1,0 +1,224 @@
+diff -b -r -c -N 10Mar94/Makefile 10Mar94+/Makefile
+*** 10Mar94/Makefile	Mon Mar 14 20:29:47 1994
+--- 10Mar94+/Makefile	Mon Mar 14 17:26:28 1994
+***************
+*** 66,74 ****
+  # Many BSD-derived C compilers prepend C symbols with an _, and require that 
+  # the _ be present as an argument to the linker's -u flag.
+  # Under SunOS use this definition:
+! COMPILER_PREPENDS_C_SYMBOLS_WITH_UNDERSCORE=_
+  # under SOLARIS, use this empty definition:
+! # COMPILER_PREPENDS_C_SYMBOLS_WITH_UNDERSCORE=
+  
+  CC	= gcc
+  
+--- 66,74 ----
+  # Many BSD-derived C compilers prepend C symbols with an _, and require that 
+  # the _ be present as an argument to the linker's -u flag.
+  # Under SunOS use this definition:
+! # COMPILER_PREPENDS_C_SYMBOLS_WITH_UNDERSCORE=_
+  # under SOLARIS, use this empty definition:
+! COMPILER_PREPENDS_C_SYMBOLS_WITH_UNDERSCORE=
+  
+  CC	= gcc
+  
+***************
+*** 88,96 ****
+  # This does not work on SunOS 4.1.3., because the include files don't prototype
+  # all the functions.  Has been tested under Solaris.
+  # GCCWARN = -Wimplicit
+! GCCWARN=
+  # Compiling with these will generate lots of warnings 
+  GCCTRY = -Wformat -Wshadow -Wreturn-type 
+  # -O -Wuninitialized # -Wuninitialized is not supported without -O
+  GCCNO = -Wredundant-decls -Wstrict-prototypes
+! CFLAGS  = -g ${GCCWARN} ${GCCTRY}
+--- 88,96 ----
+  # This does not work on SunOS 4.1.3., because the include files don't prototype
+  # all the functions.  Has been tested under Solaris.
+  # GCCWARN = -Wimplicit
+! GCCWARN= -Wimplicit
+  # Compiling with these will generate lots of warnings 
+  GCCTRY = -Wformat -Wshadow -Wreturn-type 
+  # -O -Wuninitialized # -Wuninitialized is not supported without -O
+  GCCNO = -Wredundant-decls -Wstrict-prototypes
+! CFLAGS  = -g -D_REENTRANT ${GCCWARN} ${GCCTRY}
+***************
+*** 103,107 ****
+  # SCOUNIX: Need -lsocket, -lcrypt_i, needs -lm if WAIS_GW defined
+  # LIBS = -lsocket -lcrypt_i -lm
+  # Some systems (Solaris???) need		-lmalloc
+! # SOLARIS: Need -lsocket -lnsl
+! # LIBS = -lsocket -lnsl
+--- 103,107 ----
+  # SCOUNIX: Need -lsocket, -lcrypt_i, needs -lm if WAIS_GW defined
+  # LIBS = -lsocket -lcrypt_i -lm
+  # Some systems (Solaris???) need		-lmalloc
+! # SOLARIS: Need -lsocket -lnsl -lthread
+! LIBS = -lsocket -lnsl -lthread
+***************
+*** 108,109 ****
+  # All systems need -lm if WAIS_GW is defined.
+! LIBS = -lm
+--- 108,109 ----
+  # All systems need -lm if WAIS_GW is defined.
+! # LIBS = -lm
+diff -b -r -c -N 10Mar94/include/ardp.h 10Mar94+/include/ardp.h
+*** 10Mar94/include/ardp.h	Mon Mar 14 20:29:23 1994
+--- 10Mar94+/include/ardp.h	Mon Mar 14 17:49:32 1994
+***************
+*** 64,73 ****
+  #define	     ARDP_DEFAULT_PORT    1525   /* Default destination port number */
+  #endif /* PROSPERO */
+  
+! #define      ARDP_BACKOFF(x)   (2 * x)   /* Backoff algorithm               */
+! #define      ARDP_DEFAULT_TIMEOUT    4	 /* Default time before retry (sec) */
+  #define      ARDP_DEFAULT_RETRY	     3	 /* Default number of times to try  */
+! #define	     ARDP_DEFAULT_WINDOW_SZ 16   /* Default maximum packets to send at
+                                              once, unless special request
+                                              received from client. */
+  #define      ARDP_MAX_WINDOW_SZ    256   /* Maximum # of packets we'll send
+--- 64,73 ----
+  #define	     ARDP_DEFAULT_PORT    1525   /* Default destination port number */
+  #endif /* PROSPERO */
+  
+! #define      ARDP_BACKOFF(x)   (1 * x)   /* Backoff algorithm               */
+! #define      ARDP_DEFAULT_TIMEOUT    6	 /* Default time before retry (sec) */
+  #define      ARDP_DEFAULT_RETRY	     3	 /* Default number of times to try  */
+! #define	     ARDP_DEFAULT_WINDOW_SZ 75   /* Default maximum packets to send at
+                                              once, unless special request
+                                              received from client. */
+  #define      ARDP_MAX_WINDOW_SZ    256   /* Maximum # of packets we'll send
+diff -b -r -c -N 10Mar94/include/pmachine.h 10Mar94+/include/pmachine.h
+*** 10Mar94/include/pmachine.h	Fri Mar 11 05:29:52 1994
+--- 10Mar94+/include/pmachine.h	Mon Mar 14 16:22:23 1994
+***************
+*** 37,46 ****
+   * Add others as needed.  
+   *
+   * Files that check these defintions:
+   *   include/pmachine.h, lib/pcompat/opendir.c, lib/pcompat/readdir.c
+   */
+! #define P_OS_TYPE		"SUNOS"
+! #define SUNOS
+  
+  /*
+   * Miscellaneous definitions
+--- 37,46 ----
+   * Add others as needed.  
+   *
+   * Files that check these defintions:
+   *   include/pmachine.h, lib/pcompat/opendir.c, lib/pcompat/readdir.c
+   */
+! #define P_OS_TYPE		"SOLARIS"
+! #define SOLARIS
+  
+  /*
+   * Miscellaneous definitions
+***************
+*** 81,87 ****
+   */
+  
+  #ifdef SOLARIS
+! #define ARDP_MY_WINDOW_SZ 9
+  #endif
+  
+  /* Not sure if we need this as well, we certainly need the definition
+--- 81,87 ----
+   */
+  
+  #ifdef SOLARIS
+! #define ARDP_MY_WINDOW_SZ 6
+  #endif
+  
+  /* Not sure if we need this as well, we certainly need the definition
+diff -b -r -c -N 10Mar94/lib/ardp/Makefile 10Mar94+/lib/ardp/Makefile
+*** 10Mar94/lib/ardp/Makefile	Mon Mar 14 20:29:48 1994
+--- 10Mar94+/lib/ardp/Makefile	Mon Mar 14 16:22:30 1994
+***************
+*** 9,15 ****
+  
+  CC	= gcc
+  CFLAGS  = -g
+- RANLIB  = ranlib
+  F_CC	= $(CFLAGS) -c
+  F_CPP	= ${INCS} ${MACHDEF}
+  
+--- 9,14 ----
+diff -b -r -c -N 10Mar94/lib/ardp/ardp_rqalloc.c 10Mar94+/lib/ardp/ardp_rqalloc.c
+*** 10Mar94/lib/ardp/ardp_rqalloc.c	Fri Mar 11 05:30:23 1994
+--- 10Mar94+/lib/ardp/ardp_rqalloc.c	Mon Mar 14 16:22:34 1994
+***************
+*** 18,24 ****
+  /* When debugging the ARDP window flow control stuff, use these definitions. */
+  /* Defaults are set here. */
+  #if 0
+! #define ARDP_MY_WINDOW_SZ   2 /* Our window size;currently only implemented on
+                                   the client.  Here, the client asks for a
+                                   window size of 2, for testing. */
+  #undef ARDP_DEFAULT_WINDOW_SZ   /* Peer window size the server will use for its
+--- 18,24 ----
+  /* When debugging the ARDP window flow control stuff, use these definitions. */
+  /* Defaults are set here. */
+  #if 0
+! #define ARDP_MY_WINDOW_SZ   6 /* Our window size;currently only implemented on
+                                   the client.  Here, the client asks for a
+                                   window size of 2, for testing. */
+  #undef ARDP_DEFAULT_WINDOW_SZ   /* Peer window size the server will use for its
+diff -b -r -c -N 10Mar94/server/Makefile 10Mar94+/server/Makefile
+*** 10Mar94/server/Makefile	Mon Mar 14 20:29:50 1994
+--- 10Mar94+/server/Makefile	Mon Mar 14 18:53:42 1994
+***************
+*** 131,136 ****
+--- 131,137 ----
+  
+  dirsrv: $(DIRSRV_OBJECTS) ${SRV_LIB} ${PFS_LIB} ${RDP_LIB} ${DB_LIBS}
+  	${CC} ${F_CCL} -o $@ $(DIRSRV_OBJECTS) \
++ 		-lmalloc \
+  		${ARDPNEEDSSRV} ${SRV_LIB} \
+  		${DB_LIBS} ${SRV_LIB} \
+  		${ARDPNEEDPFS} ${PFS_LIB} \
+diff -b -r -c -N 10Mar94/user/pfsinit 10Mar94+/user/pfsinit
+*** 10Mar94/user/pfsinit	Wed Dec 31 19:00:00 1969
+--- 10Mar94+/user/pfsinit	Sat Mar 12 21:53:33 1994
+***************
+*** 0 ****
+--- 1,38 ----
++ #!/bin/sh
++ # This scripts job is to start or stop pfs, depending on its argument
++ # It is intended to be run by rc.d or whatever the equivalent is on your
++ # system. 
++ # - Mitra 22Dec93
++ 
++ # This version was designed for Solaris - 
++ 
++ # Ideally this should work through the "TOPDIR" variable, but I havent
++ # figured out how to do that in a script - easier to link /usr/pfs
++ # to the right place :-)  
++ case "$1" in
++ 
++ start) 
++ 	#set -x
++ 	if [ -f /etc/hostanddomain ]
++ 	then PSRV_HOSTNAME=`line </etc/hostanddomain`
++ 	fi
++ 	su pfs -c "setenv PSRV_HOSTNAME $PSRV_HOSTNAME ; /usr/pfs/bin/pstart" 
++ 	;;
++ 
++ stop)
++ 	if ps -ef | grep dirsrv
++ 	then
++ 		/usr/pfs/bin/padmin -kill -force
++ 	fi
++ 	;;
++ install)
++ 	if [ -d /etc/init.d ] 
++ 	then
++ 		cp pfsinit /etc/init.d/pfsinit 
++ 		ln /etc/init.d/pfsinit /etc/rc2.d/S91pfsinit
++ 		ln /etc/init.d/pfsinit /etc/rc1.d/K58pfsinit 
++ 		ln /etc/init.d/pfsinit /etc/rc0.d/K58pfsinit
++ 	fi
++ 	;;
++ esac
++ 

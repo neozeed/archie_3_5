@@ -1,0 +1,50 @@
+#!/bin/sh
+# Define some common functions: getsysteminformation applyallpatches cleanitup
+Parm=$1
+. apply.patches.common
+Version=10Mar94
+ApplVersion=$Version
+# Get system dependent variables, esp Sys and Loc, can be overridden below
+getsysteminformation
+UntarsInto=prealpha.5.3.10Mar93
+TarFile=10Mar94.tar.Z
+ExternalPatches="newpsite"
+PublicPatches="bug debug purify pfailure debugNwarn"
+PrivatePatches="mitraopt"
+NewPatches="thread doc aolwait dnscache dircache memleaks"
+LocalPatches="${Sys} ${Loc}" 
+Patches="$ExternalPatches $PublicPatches $PrivatePatches $NewPatches
+	 $LocalPatches"
+betweentarandpatches() {
+  mv  ${UntarsInto} ${ApplVersion}
+  [ -f $ApplVersion/include/usc-license.h ] || 
+    echo "/*No licence in distribution*/" >$ApplVersion/include/usc-license.h
+}
+afterpatches() {
+	#echo after.patches in patched version
+	ln -s /src/prospero/rmg user/rmg
+}
+case "$Parm" in
+mk) untarandapplyallpatchesandmkpatch ;;
+*) untarandapplyallpatches ;;
+esac
+
+exit
+
+######## The patches .....
+
+newpsite	The ISI patch to add sites
+bug		Various bug fixes
+debug		Stuff to help debugging
+purify		Support for Purify
+pfailure	probably pointless patch to help track PFAILURE problems
+debugNwarn	more debugging, and fixes for compiler warnings
+mitraopt	Mitra's preferences for all his sites
+thread		Fixes to enable it to work multi-threaded
+doc		Some documentation
+aolwait		Support for backing off aol clients, and distinguishing
+		dead servers from slow ones
+solaris		Support for solaris
+
+***NOTE ***  pfs_threads is not patched by any of these, the release
+version is really bad and should probably be replaced by my copy.

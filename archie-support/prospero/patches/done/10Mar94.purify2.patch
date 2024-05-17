@@ -1,0 +1,7 @@
+diff -b -r -c -N 10Mar94.all/server/.purify 10Mar94+/server/.purify
+*** 10Mar94.all/server/.purify	Wed Dec 31 19:00:00 1969
+--- 10Mar94+/server/.purify	Fri Mar 25 14:36:27 1994
+***************
+*** 0 ****
+--- 1 ----
++ suppress umr _s_alloc_bugs

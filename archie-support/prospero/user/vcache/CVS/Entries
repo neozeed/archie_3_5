@@ -1,0 +1,17 @@
+/.cvsignore/1.1.1.1/Thu Mar 18 16:51:00 1999//
+/FILES/1.1.1.1/Thu Mar 18 16:51:00 1999//
+/Makefile.in/1.1.1.1/Thu Mar 18 16:51:00 1999//
+/aftpget.c/1.1.1.1/Thu Mar 18 16:51:00 1999//
+/cmds.c/1.1.1.1/Thu Mar 18 16:51:00 1999//
+/ftp.c/1.1.1.1/Thu Mar 18 16:51:00 1999//
+/ftp.h/1.1.1.1/Thu Mar 18 16:51:00 1999//
+/ftp_var.h/1.1.1.1/Thu Mar 18 16:51:00 1999//
+/gopherget.c/1.1.1.1/Thu Mar 18 16:51:00 1999//
+/main.c/1.1.1.1/Thu Mar 18 16:51:00 1999//
+/pclose.c/1.1.1.1/Thu Mar 18 16:51:01 1999//
+/ruserpass.c/1.1.1.1/Thu Mar 18 16:51:00 1999//
+/telnet.h/1.1.1.1/Thu Mar 18 16:51:01 1999//
+/vcache.c/1.1.1.1/Thu Mar 18 16:51:01 1999//
+/vcache.h/1.1.1.1/Thu Mar 18 16:51:01 1999//
+/vcache_macros.h/1.1.1.1/Thu Mar 18 16:51:01 1999//
+D

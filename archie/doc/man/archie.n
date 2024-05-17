@@ -1,0 +1,1172 @@
+.\" Copyright (c) 1994, 1996 Bunyip Information Systems Inc.
+.\" All rights reserved.  
+.\"	
+.\" Archie 3.5
+.\" August 1996
+.\"	
+.\"	@(#)archie.n
+.\"
+.TH ARCHIE N "August 1996"
+.SH NAME
+archie \- Internet archive server listing service
+.SH SYNOPSIS
+.B archie
+.SH DESCRIPTION
+This manual page describes Version 3 of the Archie system. This Internet
+information service allows the user to query a catalog containing a list of
+files which are available on hosts connected to the Internet. Software located
+through this service can be obtained by means of
+.IR ftp (1);
+for hosts with access to BITNET/NetNorth/EARN,
+it can be obtained by electronic mail through the Princeton
+.BR bitftp (1L)
+service. Send mail to
+.sp
+.in +2in
+bitftp@pucc.princeton.edu
+.in 0
+.LP
+Other Internet users who are not directly connected may use the services
+of various ftp-by-mail servers including
+.sp
+.in +2in
+ftpmail@decwrl.dec.com
+.in 0
+.LP
+Some Archie systems track archive sites globally, others only track the
+archive sites in their country, region or continent, in order to reduce the
+load on trans-oceanic links. There are a number of Archie hosts serving
+different continental user communities. The
+.B servers
+command will list the most
+up-to-date information on
+Archie servers worldwide.
+.sp
+.ta +3n; +25n
+\fBarchie.au\fP	Australia
+.br
+\fBarchie.edvz.uni-linz.ac.at\fP	Austria
+.br
+\fBarchie.univie.ac.at\fP	Austria
+.br
+\fBarchie.cs.mcgill.ca\fP	Canada
+.br
+.br
+\fBarchie.funet.fi\fP	Finland
+.br
+\fBarchie.univ-rennes1.fr\fP	France
+.br
+\fBarchie.th-darmstadt.de\fP	Germany
+.br
+\fBarchie.ac.il\fP	Israel
+.br
+\fBarchie.unipi.it\fP	Italy
+.br
+\fBarchie.wide.ad.jp\fP	Japan
+.br
+\fBarchie.hana.nm.kr\fP	Korea
+.br
+\fBarchie.sogang.ac.kr\fP	Korea
+.br
+\fBarchie.uninett.no\fP	Norway
+.br
+\fBarchie.rediris.es\fP	Spain
+.br
+\fBarchie.luth.se\fP	Sweden
+.br
+\fBarchie.switch.ch\fP	Switzerland
+.br
+\fBarchie.ncu.edu.tw\fP	Taiwan
+.br
+\fBarchie.doc.ic.ac.uk\fP	United Kingdom
+.br
+\fBarchie.hensa.ac.uk\fP	United Kingdom
+.br
+\fBarchie.unl.edu\fP	USA (NE)
+.br
+\fBarchie.internic.net\fP	USA (NJ)
+.br
+\fBarchie.rutgers.edu\fP	USA (NJ)
+.br
+\fBarchie.ans.net\fP	USA (NY)
+.br
+\fBarchie.sura.net\fP	USA (MD)
+.ta
+.br
+.LP
+Archie can be accessed interactively, via electronic mail or
+through Archie client programs available widely on the Internet.
+.sp
+.SS "Using the Interactive (telnet) Interface"
+.sp
+In order to use the interactive system you should use the
+following procedure:
+.TP
+1)
+\fBtelnet\fP to the Archie system closest to you. Do not use \fBftp\fP
+for this, it will not work.
+.TP
+2)
+Login as user
+.BR archie
+(no capital letters); no password is required. The system should print a
+banner message and status report before presenting you with the command
+prompt.  Some newer operating systems will prompt for a password. Just hit the
+return key and continue.
+.TP
+3)
+Type \fBhelp\fP for complete information on the system.
+.LP
+For full details,
+refer to the section entitled
+.SM "ARCHIE COMMANDS"
+which appears below.
+.sp
+.SS "Using the Electronic Mail Interface"
+.sp
+In order to use the email interface, send requests to:
+.IP
+\fCarchie@\fP\fI<archie_server>\fP
+.LP
+where \fI<archie_server>\fP is one of the hosts listed above, or one returned
+by the \fBservers\fP command.  Send the word ``help'' in a message to obtain
+a list of available commands and features.  This is a completely automated
+interface, acting without human intervention.
+.LP
+For full details,
+refer to the section entitled
+.SM "ARCHIE COMMANDS"
+which appears below.
+.SS "Using the Archie clients"
+.sp
+The source code as well as machine executables for a variety of Archie
+client programs can be obtained via anonymous
+.BR ftp (1)
+from many of the Archie
+server hosts listed above. They are usually stored in the 
+.B archie/clients 
+or 
+.B pub/archie/clients
+directories. These clients communicate, via the \fIProspero\fP distributed
+file system protocol, with Archie servers, which perform the specified queries
+and return the results to the user. Currently there are UNIX and VMS command
+line, curses and X window clients as well as Mac and PC Windows versions. For
+more information on \fIProspero\fP send your queries to
+info-prospero-request@isi.edu
+.sp
+.SS "Communicating with the Database Administrators"
+Mail to Archie administrators at a particular Archie server should be sent to
+the address
+.IP
+\fCarchie\(emadmin@\fP\fI<archie_server>\fP
+.LP
+where \fI<archie_server>\fP is one of the hosts listed above.
+.sp
+To send mail to the implementors of the Archie system, please send mail to
+.IP
+\fCarchie\(emgroup@bunyip.com\fP
+.LP
+The Archie server system is a product of Bunyip Information Systems.
+.sp
+Requests for additions to the set of hosts surveyed for the catalog, or other
+administrative matters, should be sent to:
+.IP
+\fCarchie\(emadmin@bunyip.com\fP
+.SH "ARCHIE COMMANDS"
+In version 3 of the Archie system the telnet and email clients accept a common
+set of commands. Additionally, there are specialized commands specfic to the
+particular interfaces. See
+.SM "THE INTERACTIVE INTERFACE"
+and 
+.SM "THE EMAIL INTERFACE"
+sections below for a list of these commands.
+.sp
+Note that some Archie server sites may disable some of the commands for
+reasons particular to their site.  As well, some sites limit the number of
+concurrent interactive (telnet) sessions to better utilize limited resources.
+.SS "Commands"
+Arguments to commands shown in square brackets (`[]') are optional; all others
+are mandatory.
+.TP
+.BI find " <pattern>"
+.TP
+.BI prog " <pattern>"
+This command produces a list of files matching the pattern \fI<pattern>\fP.
+The \fI<pattern>\fP may be interpreted as a simple substring, a case sensitive
+substring, an exact string or a regular expression, depending on the value of
+the \fBsearch\fP variable.  The output normally contains such information as
+the file name that was matched, the directory path leading to it, the site
+containing it and the time at which that site was last updated.  The format of
+the output can be selected through the \fBoutput_format\fP variable.  The
+results are sorted according to the value of the \fBsortby\fP variable, and
+are limited in number by the \fBmaxhits\fP variable.
+.sp
+\fBprog\fP is identical to
+.BR find .
+It is included for backward compatibility with older versions of the system.
+.TP
+.BR help \ [\fI<topic>\fP\ [\fI<subtopic>\fP]\ ...]
+Invoke the help system and present help on the specified topic.  A list of
+words is considered to be one topic, not a list of individual topics. Thus,
+.RS
+.IP
+\fChelp set maxhits\fP
+.RE
+.IP
+requests help on the subtopic \fImaxhits\fP of topic \fIset\fP, not on two
+separate topics.  After help is presented, the user is placed in the help
+system at the deepest level containing subtopics.
+.sp
+For example, after typing
+.RS
+.IP
+\fChelp set maxhits\fP
+.RE
+.IP
+and being shown the information for that topic, the user is placed at the
+level \fIset\fP in the help hierarchy.
+.TP
+.BR list " [\fI<pattern>\fP]"
+Produce a list of sites whose contents are contained in the Archie
+catalog. With no argument all the sites are listed. If given, the
+\fI<pattern>\fP argument is interpreted as a regular expression (see
+.SM "REGULAR EXPRESSIONS"
+below) against which to match site names: only those names matching are
+printed. The format of the output can be selected through the
+\fBoutput_format\fP variable.
+.IP
+Note that the numerical (IP) address associated with a site name was valid at
+the last time the site was updated in the Archie catalog but may have been
+changed subsequently.  Furthermore, the listed IP address is the primary
+address as listed in the Domain Name System (secondary addresses are not
+stored).  For example,
+.RS
+.IP
+\fClist\fP
+.RE
+.IP
+lists all sites in the catalog, while
+.RS
+.IP
+\fClist \e.de$\fP
+.RE
+.IP
+lists all German sites.
+.TP
+.BI mail " <address>"
+Mail the result of the last command that produced output (e.g. \fBfind\fP,
+\fBlist\fP) to \fI<address>\fP. This must be a vaid email address.
+.TP
+.BR manpage " [ roff | ascii ]"
+Display the Archie manual page (this file). The optional arguments specify the
+format of the returned document. `roff' specifies UNIX
+.BR troff (1)
+format, while `ascii' specifies plain, preformatted ASCII output. With
+no arguments it defaults to `ascii'.
+.TP
+.B domains
+Asks the current server for the list of the Archie \fIpseudo-domains\fP that
+it supports. See the entry for the \fBmatch_domain\fP variable below. This
+command takes no arguments.  For example,
+.RS
+.IP
+\fCdomains\fP
+.RE
+.IP
+requests the list of pseudo-domains from the server. The result looks (in
+part) something like this:
+.RS
+.sp
+.nf
+africa               Africa               za
+anzac                OZ & New Zealand     au:nz
+asia                 Asia                 kr:hk:sg:jp:cn:my:tw:in
+centralamerica       Central America      sv:gt:hn
+easteurope           Eastern Europe       bg:hu:pl:cs:ro:si:hr
+mideast              Middle East          eg:.il:kw:sa
+northamerica         North America        usa:ca:mx
+scandinavia          Scandinavia          no:dk:se:fi:ee:is
+southamerica         South American       ar:bo:br:cl:co:cr:cu:ec:pe
+usa                  United States        edu:com:mil:gov:us
+westeurope           Western Europe       westeurope1:westeurope2
+world                The World            world1:world2
+.fi
+.sp
+.RE
+.IP
+The first column gives the names of pseduo-domains supported by the
+server. The second gives the ``natural language'' description of the
+pseudo-domain and the third column is the actual definitions of those
+domains. Here, the "asia" domain is comprised of the Domain Name System
+country codes for Korea (`kr'), Hong Kong (`hk'), Singapore (`sg'),
+etc. Pseudo-domains may also be constructed from other pseudo-domains: thus
+one component of the the `northamerica' domain is itself constructed from the
+`usa' pseudo-domain.
+.TP
+.B motd
+Re-display the `message of the day', which is normally printed when the user
+initially logs on to the client (in the case of the interactive interface) or
+at the start of the returned message (in the email interface).
+.TP
+.B servers
+Display a list of all publicly accessible Archie servers worldwide. The names
+of the hosts, their IP addresses and geographical locations are listed.
+.TP
+.BR set " \fI<variable-name>\fP [\fI<value>\fP]"
+Set the specified variable.  Variables are used to control various aspects of
+the way Archie operates; the interpretation of pattern arguments, the format
+of output from various commands, etc.  See the section below on variables for
+a description of each one, as well as the entries for
+.B unset
+and
+.BR show .
+.TP
+.BR show " [\fI<variable-name>\fP ...]"
+Without any argument, display the status of all the user-settable variables,
+including such information as its type (boolean, numeric or string), whether
+or not it is set, and its current value (if its type requires a value).
+Otherwise, show the status of each of the specified arguments.
+.IP
+Example:
+.RS
+.IP
+\fCshow maxhits\fP
+.RE
+.TP
+.BI site " <sitename>"
+This command is currently unimplemented under version 3 of the Archie system.
+.TP
+.BI unset " <variable>"
+Remove any value associated with the specified variable.  This may cause
+counter-intuitive behavior in some cases; for example, if \fBmaxhits\fP is not
+defined by the user, the \fBfind\fP command will print the internal default
+number of matches rather than an unlimited number of matches.
+.TP
+.B version
+Print the current version of the client.
+.SS "Variable Types"
+The behavior of Archie can be modified by certain variables, the values of
+which may be changed using the \fBset\fP command, or removed entirely by the
+\fBunset\fP command.  There are three variable types:
+.TP 15
+.B boolean
+(Set or unset)
+.TP
+.B numeric
+(Integer within a defined range)
+.TP
+.B string
+(String of characters which may or may not be restricted).
+.sp
+If the value of a string variable must contain leading or trailing spaces then
+it should be quoted.  Two ways to quote text are to surround it with a pair of
+double quotes (`"'), or to precede individual characters with a backslash (`\e').
+(A double quote, or a backslash may itself be quoted by preceding it by a
+backslash.)  The resulting value is that of the string with the quotes
+stripped off.
+.sp
+.SS "Numeric Variables"
+.TP
+.B maxhits
+Allow the \fBfind\fP command to generate at most the specified number of
+matches.  The permissible range is from 0 to 1000, with a default value of
+100.  For example, 
+.RS
+.IP
+\fCset maxhits 100\fP
+.RE
+.IP
+halts \fBfind\fP after a total of 100 matches have been found.
+.TP
+.B maxhitspm
+Across all the anonymous FTP archives on the Internet (and even on one single
+anonymous FTP archive) many files will have the same name. For example, if you
+search for a very common filename like `README' you can get hundreds, even
+thousands of matches. You can limit the number of files with the same name
+through this variable. For example,
+.RS
+.IP
+\fCset maxhitspm 100\fP
+.RE
+.IP
+tells the system to list only 100 files with the same name. Note that the
+overall maximum number of files returned is still controlled by the
+\fBmaxhits\fP variable.
+.TP
+.B maxmatch
+This variable will limit the number filenames returned. For example, if
+maxmatch is set to 2 and you perform a substring search for the string `etc',
+and the catalog contains filenames `etca', `betc' and `detc' only the
+filenames `etca' and `betc' will be returned. However, depending on the values
+of maxhitspm and maxhits you will get back a number of actual files with those
+names.
+.IP
+Example:
+.RS
+.IP
+\fCset maxmatch 20\fP
+.RE
+.IP
+.TP
+.B max_split_size
+Approximate maximum size, in bytes, of a file to be mailed to the user.  Any
+output larger than this will be split into pieces of about this size.  This
+can be set by the user, in the range 1024 to ~2Gb, with a default of 51200
+bytes.
+.SS "String Variables"
+.TP
+.B compress
+The kind of data compression the user can specify when mailing back output.
+Currently allowed values are `none' and `compress' (standard UNIX
+.BR compress (1),
+with a default of `none'.
+.TP
+.B encode
+The type of post-compression encoding the user can specify when mailing back
+output.  Currently allowed values are `none' and `uuencode', with a
+default of `none'. Note that this variable is ignored unless compression
+is enabled (via the \fBcompress\fP variable).
+.TP
+.B language
+Allows the user to specify the language in which help, etc. is presented.
+Currently the default value is `english'.
+.TP
+.B mailto
+If the \fBmail\fP command is issued with no arguments, mail the output of the
+last command to the address specified by this string variable. Initially this
+variable is unset.
+.IP
+Example:
+.RS
+.IP
+\fCset mailto user@frobozz.com\fP
+.RE
+.IP
+Conventional Internet addressing styles are understood.  BITNET sites should
+use the convention:
+.RS
+.IP
+\fCuser@sitename.bitnet\fP
+.RE
+.IP
+UUCP addresses can be specified as
+.RS
+.IP
+\fCuser@sitename.uucp\fP
+.RE
+.TP
+.B match_domain
+This variable allows users to restrict the scope of their search based upon
+the Fully Qualified Domain Names (FQDN) of the anonymous FTP sites being
+searched. In this way, the user can specify a colon-separated list of domain
+names which all returned sites must match. Each component in the list is
+taken as the \fIrightmost\fP part of the FQDN. For example,
+.RS
+.IP
+\fCset match_domain ca:internic.net:harvard.edu\fP
+.RE
+.IP
+means that the names of all returned sites must end in `ca' (Canada),
+`internic.net' (sites in the Internet NIC) or `harvard.edu' (sites at
+Harvard University).
+
+While these are all real domain names, listing all possible combinations for
+say, the USA, would quickly become tedious (and if you think that is bad, try
+listing all the countries on the Internet in Europe). To aid in this problem,
+the Archie system has the concept of \fIpseudo-domains\fP to allow users to
+use a shorthand notation when using this facility. These pseudo-domains are
+defined on a server-by-server basis, and you can use the \fIdomains\fP
+command to query your current server for its list of predefined
+pseudo-domains.
+
+A pseudo-domain is a list of real DNS domain names and/or a list of other
+pseudo-domains. For example, the Archie administrator on the server could
+define the pseudo-domain
+.RS
+.IP
+\fCusa\fP
+.sp
+to be
+.sp
+\fCedu:mil:com:gov:us\fP
+.RE
+.IP
+If this definition existed on the server, then you could 
+.RS
+.IP
+\fCset match_domain usa\fP
+.RE
+.IP
+which would be the same as saying 
+.RS
+.IP
+\fCset match_domain edu:mil:com:gov:us\fP
+.RE
+.IP
+In addition, the server administrator may define
+.RS
+.IP
+\fCnorthamerica\fP
+.sp
+to be 
+.sp
+\fCusa:ca:mx\fP
+.RE
+.IP
+meaning that `northamerica' is composed of the pseudo-domain `usa' and
+the real domains `ca' (Canada) and `mx' (Mexico). This process can be
+repeated for 20 levels (more than sufficient for any naming scheme). By using
+the \fBdomains\fP command you can determine which pseudo-domains your current
+server supports.
+.TP
+.B match_path
+Sometimes you only would like your search (using the \fBfind\fP command) to
+look for files or directories with a certain set of names in their full path.
+
+For example, many anonymous FTP site administrators will put software packages
+for the MacIntosh in a path containing the name `mac' or `macintosh'. Another
+example is when a document exists in several formats and you are only looking
+for the PostScript version. You can guess that the file may end in `.ps' or it
+may be in a directory called `ps' or `PostScript'.
+
+This is usually guesswork, but is is useful to have the Archie system only
+look for files or directories with particular components in their path name.
+
+This variable allows you to do this. The arguments are a colon-separated list
+of possible path name components. In the last example above, saying
+.RS
+.IP
+\fCset match_path ps:postscript\fP
+.RE
+.IP
+will restrict the search only to match those files or directories which have
+the strings `ps' or `postscript' in their path.
+
+The comparison is \fIalways\fP case-insensitive (regardless of the value of
+the \fBmatch\fP variable) and there is a logical OR connecting the components
+so that the above statement says: ``find only files which have `ps' OR
+`postscript' in their path''. If either component matches then the condition
+is satisfied.
+.TP
+.B output_format
+Select the way the output of find and list is displayed.  It is user settable,
+with valid values of `machine' (machine readable format), `terse' and
+`verbose', with a default of `verbose'.
+.TP
+.B search
+The type of search done by the \fBfind\fP (or \fBprog\fP) command.  It is user
+settable with a range of `exact', `regex', `sub', `subcase',
+`exact_regex', `exact_sub' and `exact_subcase', with a default of
+`sub'.  (The `exact_\fI<x>\fP' types cause it to try `exact' first, then
+fall back to type \fI<x>\fP if no matches are found).  The values have the
+following meanings:
+.RS
+.TP
+.B exact
+Exact match (the fastest method).  A match occurs if the file (or directory)
+name in the catalog corresponds \fIexactly\fP to the user-specified substring
+(including case).
+.IP
+For example, this type of search could be used to locate all files called
+`xlock.tar.Z'.
+.TP
+.B regex
+Allow user-specified (search) strings to take the form of
+.BR ed (1)
+regular expressions.
+.IP
+Note: unless specifically anchored to the beginning (with `^') or end
+(with `$') of a line,
+.BR ed (1)
+regular expressions (effectively) have `.*' prepended and appended to them.
+For example, it is not necessary to type
+.RS
+.IP
+\fCfind .*xnlock.*\fP
+.RE
+.IP
+because
+.RS
+.IP
+\fCfind xnlock\fP
+.RE
+.IP
+suffices.  In this instance, the
+.B regex
+match is equivalent to a simple substring match.  Those unfamiliar with
+regular expressions should refer to the section entitled
+.SM "REGULAR EXPRESSIONS"
+which appears below.
+.TP
+.B sub
+Substring (case insensitive).  A match occurs if the file (or directory) name
+in the catalog contains the user-specified substring, without regard to case.
+For example, the pattern
+.RS
+.IP
+\fCis\fP
+.RE
+.IP
+matches any of the following:
+.RS
+.IP
+\fCislington
+.br
+this
+.br
+poison\fP
+.RE
+.TP
+.B subcase
+Substring (case sensitive).  As above, but case is significant.  For example,
+the pattern
+.RS
+.IP
+\fCTeX\fP
+.RE
+.IP
+will match
+.RS
+.IP
+\fCLaTeX\fP
+.RE
+.IP
+but neither of the following:
+.RS
+.IP
+\fCLatex
+.br
+TExTroff\fP
+.RE
+.TP
+.B server
+the Prospero server to which the client connects when \fBfind\fP or \fBlist\fP
+commands are invoked.  It is user settable, with a default value of
+`localhost'.
+.TP
+.B sortby
+Set the method of sorting to be applied to output from the \fBfind\fP command.
+Typing the keyboard interrupt character (generally Cntl-C on UNIX hosts)
+aborts a search. This will also dequeue the request from the server.  Unlike
+previous versions of the Archie system, version 3 does not allow partial
+results.  The output phase may be aborted by typing the abort character a
+second time.  The five permitted methods (and their associated reverse orders)
+are:
+.RS
+.TP
+.B none
+Unsorted (default; no reverse order, although
+.B rnone
+is accepted)
+.TP
+.B filename
+Sort files and directories by name, using lexical order (reverse order:
+.BR rfilename )
+.TP
+.B hostname
+Sort on the archive host name, in lexical order (reverse order:
+.BR rhostname )
+.TP
+.B size
+Sort by size, largest files and directories first (reverse order:
+.BR rsize )
+.TP
+.B time
+Sort by modification time, with the most recent file and directory names first
+(reverse order:
+.BR rtime )
+.RE
+.SH "THE INTERACTIVE (TELNET) INTERFACE"
+The interactive interface accepts the following commands and variables in
+addtion to those listed above.
+.SS Commands
+.TP
+.BR stty " [[\fI<option>\fP \fI<character>\fP] ...]"
+This command allows the user to change the interpretation of specified
+characters, in order to match their particular terminal type.  At the moment
+only `erase' is recognized as an \fI<option>\fP.  (Typically,
+\fI<character>\fP is a control character and may be specified as a pair of
+characters (e.g. control-h as `^' followed by `h'), the character
+itself (literal), or as a quoted pair or literal.
+.sp
+Without any arguments the command displays the current values of the
+recognized options.
+.TP
+.BR mail " [\fI<address>\fP]"
+The output of the previous successful command (i.e. an invocation of
+\fBfind\fP or \fBlist\fP that produced output) is mailed to the specified
+electronic mail address. If no \fI<address>\fP is given the contents of the
+\fBmailto\fP variable are used. If this variable is not set then an error
+occurs, and nothing is mailed, although the output is still available to be
+mailed.
+.IP
+Example:
+.RS
+.IP
+\fCmail user1@hello.edu\fP
+.RE
+.IP
+Conventional Internet addressing styles are understood.  BITNET sites should
+use the convention:
+.RS
+.IP
+\fCuser@sitename.bitnet\fP
+.RE
+.IP
+UUCP addresses can be specified as
+.RS
+.IP
+\fCuser@sitename.uucp\fP
+.RE
+.TP
+.B pager
+This command is included only for backward compatibility.  It has the same
+effect as `set pager'.  Its use is discouraged and it will be removed in a
+future release.
+.TP
+.B nopager
+This command is included only for backward compatibility.  It has the same
+effect as `unset pager'.  Its use is discouraged and it will be removed in
+a future release.
+.SS Variables
+.TP
+.B autologout
+Set the length of idle time (in minutes) allowed before automatic logout.  The
+permissible range is between 1 and 300.  The default value is 60.  For example,
+.RS
+.IP
+\fCset autologout 45\fP
+.RE
+.IP
+logs the user out after 45 minutes of idle time.
+.TP
+.B pager
+Filter all output through the default pager.  By default this variable is
+unset.  When using the pager you may also want to set the \fBterm\fP variable
+to your terminal type (see the \fBterm\fP variable).
+.IP
+Example:
+.RS
+.IP
+\fCset pager\fP
+.RE
+.TP
+.B status
+When set, this variable will cause the system to report the position in the
+queue of your request on the server. In addition, it will display the
+\fIestimated\fP time to completion of your request. This estimate is based in
+an average of the amount of times similar queries have taken in the past
+several minutes. The variable also controls the display of a \fIspinner\fP
+during the catalog search, which indicates that we are awaiting results from
+the Prospero server.  This variable is set by default.
+.TP
+.B term
+Specify the type of terminal in use (and optionally, its size in rows and
+columns).  This information is used by the pager.
+.IP
+The usage is:
+.RS
+.IP
+\fCset term \fI<terminal-type>\fP [\fI<#rows>\fP [\fI<#columns>\fP]]\fP
+.RE
+.IP
+The terminal type is mandatory, but the number of rows and columns is
+optional; specify either rows only, or both rows and columns.  The default
+value for this variable is `dumb', with 24 rows and 80 columns. However it
+may be set automatically through the \fBtelnet\fP protocol negotiation.
+.IP
+Examples:
+.RS
+.IP
+\fCset term vt100
+.br
+set term xterm 60
+.br
+set term xterm 24 100\fP
+.SH "THE EMAIL INTERFACE"
+The Archie email interface currently accepts the following commands in
+addition to those listed in the
+.SM COMMANDS
+section above.
+.PP 
+.BI path " <address>"
+is an alias for
+.IP
+\fCset mailto\fP \fI<address>\fP
+.TP
+.B quit
+Ignore any further lines past this point in the mail. This is generally not
+needed, but can be used to prevent the system from interpreting extra text,
+such as signatures, as Archie commands.
+.RE
+.sp
+The `Subject:' line in incoming mail is processed as if it were part of the
+main message body.
+.sp
+A message not containing a valid request will be treated as a \fBhelp\fP
+request.
+.SH "REGULAR EXPRESSIONS"
+Regular expressions follow the conventions of the
+.BR ed (1)
+command, allowing sophisticated pattern matching.  In the following
+discussion, the string containing a regular expression will be called the
+\fIpattern\fP, and the string against which it is to be matched is called the
+\fIreference string\fP.  Regular expressions imbue certain characters with
+special meaning, providing a quoting mechanism to remove this special meaning
+when required.
+.LP
+The rules governing regular expression are:
+.TP
+.B c
+A character
+.B c
+matches itself unless it has been assigned a special meaning as listed below.
+A special character loses its special meaning when preceded by the backslash
+character (`\e').  The exception to this rule is the opening brace
+(`{'), which \fIis\fP special when preceded by a backslash.  Thus,
+although `*' normally has special meaning, the string `\e*'
+matches itself.  For example, the pattern
+.RS
+.IP
+\fCacdef\fP
+.RE
+.IP
+matches any of the following:
+.RS
+.IP
+\fCs83acdeffff
+.br
+acdefsecs
+.br
+acdefsecs\fP
+.RE
+.IP
+but neither of the following:
+.RS
+.IP
+\fCaccdef
+.br
+aacde1f\fP
+.RE
+.IP
+Example:
+.IP
+Normally the characters `*'  and `$' are special, but the pattern
+.RS
+.IP
+\fCa\\*bse\\$\fP
+.RE
+.IP
+acts as above.  Any reference string containing
+.RS
+.IP
+\fCa*bse$\fP
+.RE
+.IP
+as a substring will be flagged as a match.
+.TP
+.B \&.
+A period (known as a \fIwildcard\fP character) matches any character except
+the newline.  For example, the pattern
+.RS
+.IP
+\&\fC....\fP
+.RE
+.IP
+will match any 4 characters in the reference string, except a newline
+character.
+.TP
+.B ^
+A caret (`^') appearing at the beginning of a pattern requires that the
+reference string must \fIstart\fP with the specified pattern (an escaped
+caret, or a caret appearing elsewhere in the pattern, is treated as a
+non-special character).  For example, the pattern
+.RS
+.IP
+\fC^efghi\fP
+.RE
+.IP
+The pattern will match only those reference strings starting with `efghi';
+thus, it will match either of the following:
+.RS
+.IP
+\fCefghi\fP
+.br
+\fCefghijlk\fP
+.RE
+.IP
+but not
+.RS
+.IP
+\fCabcefghi\fP
+.RE
+.TP
+.B $
+A dollar sign (`$') appearing at the end of a pattern requires that the
+pattern appear at the end of a reference string.  An escaped dollar sign, or a
+dollar sign appearing elsewhere, is treated as a regular character.  For
+example, the pattern
+.RS
+.IP
+\fCefghi$\fP
+.RE
+.IP
+will match either of the following:
+.RS
+.IP
+\fCefghi\fP
+\fCabcdefghi\fP
+.RE
+.IP
+but not
+.RS
+.IP
+\fCefghijkl\fP
+.RE
+.TP
+.RI [ <string> ]
+Match any single character within the brackets.  The caret (`^') has a
+special meaning if it is the first character in the series: the pattern will
+match any character \fIother\fP than one in the list.  For example, the
+pattern
+.RS
+.IP
+\fC[^abc]\fP
+.RE
+.IP
+will match any character \fIexcept\fP one of
+.RS
+.IP
+\fCa
+.br
+b
+.br
+c\fP
+.RE
+.IP
+To match a right bracket (`]') in the list, put it first, as in
+.RS
+.IP
+\fC[]ab01]\fP
+.RE
+.IP
+A caret appearing anywhere but the in first position is treated as a regular
+character.
+.IP
+The dash (`\(em') character is special within square brackets.  It is used
+to define a range of ASCII characters to be matched.  For example, the
+pattern
+.RS
+.IP
+\fC[a\(emz]\fP
+.RE
+.IP
+matches any lower case letter.  The dash can be made non-special by placing it
+first or last within the square brackets.  The characters `$', `*' and `.' are
+not special within square brackets.  For example, the pattern
+.RS
+.IP
+\fC[ab01]\fP
+.RE
+.IP
+matches a single occurrence of a character from the set
+.RS
+.IP
+\fCa
+.br
+b
+.br
+0
+.br
+1\fP
+.RE
+.IP
+Example:
+.IP
+The pattern
+.RS
+.IP
+\fC[^ab01]\fP
+.RE
+.IP
+will match any single character other than one from the set
+.RS
+.IP
+\fCa
+.br
+b
+.br
+0
+.br
+1\fP
+.RE
+.IP
+Example:
+.IP
+The pattern
+.RS
+.IP
+\fC[a0\(em9b]\fP
+.RE
+.IP
+matches one of the characters
+.RS
+.IP
+\fCa
+.br
+b\fP
+.RE
+.IP
+or a digit between `0' and `9', inclusive.
+.IP
+Example:
+.IP
+The pattern
+.RS
+.IP
+\fC[^a0\(em9b.$]\fP
+.RE
+.IP
+matches any single character which is not in the set
+.RS
+.IP
+\fCa
+.br
+b
+.br
+\&.
+.br
+$\fP
+.RE
+.IP
+or a digit between `0' and `9', inclusive.
+.TP
+.B *
+Match zero or more occurrences of the immediately preceding regular
+expression.  For example, the pattern
+.RS
+.IP
+\fCa*\fP
+.RE
+.IP
+matches zero or more occurrences of the character
+.RS
+.IP
+\fCa\fP
+.RE
+.IP
+Example:
+.IP
+The pattern
+.RS
+.IP
+\fC[A\(emZ]*\fP
+.RE
+.IP
+matches zero or more occurrences of a capital letter.
+.TP
+.BI \e{ m \e}
+Match exactly \fIm\fP occurrences of a preceding regular expression, where
+\fIm\fP is a non-negative integer between 0 and 255 (inclusive).  For example,
+the pattern
+.RS
+.IP
+\fCab\\{3\\}\fP
+.RE
+.IP
+matches any substring in the reference string consisting of the character
+`a' followed by exactly three `b' characters.
+.TP
+.BI \e{ m ,\e}
+Match at least \fIm\fP occurrences of the preceding regular expression.  For
+example, the pattern
+.RS
+.IP
+\fCab\\{3,\\}\fP
+.RE
+.IP
+matches any substring, in the reference string, of the character `a'
+followed by at least three `b' characters.
+.TP
+.BI \e{ m , n \e}
+Match between \fIm\fP and \fIn\fP occurrences of the preceding regular
+expression (where \fIn\fP is a non-negative integer between 0 and 255, and
+.IR n > m ).
+For example, the pattern
+.RS
+.IP
+\fCab\\{3,5\\}\fP
+.RE
+.IP
+matches any substring, in the reference string, consisting of the character
+`a' followed by at least three, but at most five, `b' characters.
+.SS "Tips for Using Regular Expressions"
+.TP
+1)
+When matching a substring it is not necessary to use the wildcard character
+to match the part of the reference string preceding and following the
+substring.  For example, the pattern
+.RS
+.IP
+\fCabcd\fP
+.RE
+.IP
+will match any reference string containing this pattern.  It is not necessary
+to use
+.RS
+.IP
+\fC\&.*abcd.*\fP
+.RE
+.IP
+as the pattern.
+.TP
+2)
+In order to constrain a pattern to the entire reference string, use the
+construction
+.RS
+.IP
+\fC^\fI<pattern>\fP$\fP
+.RE
+.TP
+3)
+The `[]' operator provides an easy mechanism to obtain case
+insensitivity.  For example, to match the word
+.RS
+.IP
+\fChello\fP
+.RE
+.IP
+regardless of case, use the pattern
+.RS
+.IP
+\fC[Hh][Ee][Ll][Ll][Oo]\fP
+.RE
+.SH "THE ARCHIE DATABASE"
+The Archie catalog subsystem maintains a list of about 1200 Internet anonymous
+.BR ftp (1)
+archive sites of approximately 2.5 million \fIunique\fP filenames, themselves
+containing 200 Gigabytes (that is, 200,000,000,000 bytes) of information. The
+current catalog requires about 400 MB of disk storage.
+.SH "SEE ALSO"
+bitftp (1L),
+ftp(1),
+telnet(1),
+archie(1),
+xarchie(1)
+.SH AUTHORS
+Bunyip Information Systems.
+.br
+Montr\o"\'e"al, Qu\o"\'e"bec, Canada
+.br
+archie-group@bunyip.com
+.sp
+Archie is a registered trademark of Bunyip Information Systems Inc., Canada,
+1990.
+.sp
+Original manual page by R. P. C. Rodgers,
+UCSF School of Pharmacy, San Francisco,
+California 94143 (rodgers@maxwell.mmwb.ucsf.edu),
+Nelson H. F. Beebe (beebe@math.utah.edu),
+and Alan Emtage (bajan@bunyip.com).
+Partial funding contributed by Trevor Hales (hales@mel.dit.cicsiro.au)
+.\" end of file

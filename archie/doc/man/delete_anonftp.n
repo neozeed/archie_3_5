@@ -1,0 +1,118 @@
+.\" Copyright (c) 1992, 1994, 1996 Bunyip Information Systems Inc.
+.\" All rights reserved.  
+.\"	
+.\" Archie 3.5
+.\" August 1996
+.\"	
+.\"	@(#)delete_anonftp.n	
+.\"
+.TH DELETE_ANONFTP N "August 1996"
+
+.SH NAME
+.B delete_anonftp 
+\- delete a site from the Archie anonftp database
+
+.SH SYNOPSIS
+.B delete_anonftp 
+.BI \-H " <hostname>"
+[ 
+.BI \-M " <dir>"
+] [ 
+.BI \-h " <dir>"
+] [ 
+.BI \-p " <port>"
+] [ 
+.BI \-w " <dir>"
+] [ 
+.BI \-t " <tmp>"
+] [
+.B \-v
+] [
+.B \-l
+] [ 
+.BI \-L " <logfile>"
+]
+
+.SH OPTIONS
+.TP
+.BI \-H " <hostname>"
+The fully qualified domain name or IP address, in standard `quad' or `dotted
+decimal' format, of the site to be deleted.  This name must already exist in
+the Archie host database or be resolvable via the Domain Name System. This
+parameter is mandatory.
+.TP
+.BI \-M " <dir>"
+The name of the master Archie database directory. If not specified, the
+program looks in the directory
+.BR ~archie/db ,
+then
+.BR ./db .
+.TP
+.BI \-w " <dir>"
+The name of the directory in which the Archie anonftp catalog resides.  This
+parameter overrides the default catalog name,
+.BR ~archie/db/anonftp ,
+as well as the
+.B \-M
+option.
+.TP
+.BI \-h " <dir>"
+The name of the Archie host database directory. If not specified, the program
+first looks in
+.BR ~archie/db/host_db ,
+then
+.BR ./host_db .
+.TP
+.BI \-p " <port>"
+The port number at the FTP site.  The default value is 21.
+.TP
+.B \-v
+Verbose mode.  Print messages indicating what the program is doing.
+.TP
+.B \-l
+Log messages to the file
+.BR ~archie/logs/archie.log .
+The location of the file may be overridden with the
+.B \-L
+option.  By default, messages are written to
+.IR stderr .
+.TP
+.BI \-L " <logfile>"
+Specify the log file.  For this to have any effect, the
+.B \-l
+option must be specified, as well.  Note that debugging information is also
+written to the log file.
+
+.SH DESCRIPTION
+.B delete_anonftp 
+modifies and inactivates the appropriate entry in the auxiliary 
+host database. The program issues an error message and exits if
+the specified host does not exist in the anonftp catalog. In normal
+operation this program is only invoked by the 
+.BI update_anonftp (n)
+program.
+
+If invoking this program from the command line, care should be taken to insure
+that no other processes are modifying the anonftp catalog.  The exclusive
+locking mechanism provided by the
+.BR update_anonftp (n) 
+program, which invokes 
+.B delete_anonftp 
+in normal operation, will not be available in the command line invocation.
+
+.SH FILES
+~archie/db/host_db/*
+.br
+~archie/db/anonftp/*
+
+.SH "SEE ALSO"
+.BR update_anonftp (n),
+.BR insert_anonftp (n)
+
+.SH AUTHOR
+Bunyip Information Systems.
+.br
+Montr\o"\'e"al, Qu\o"\'e"bec, Canada
+.sp
+Archie is a registered trademark of Bunyip Information Systems Inc., Canada,
+1990.

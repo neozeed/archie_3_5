@@ -1,0 +1,89 @@
+#
+# libparchie module.
+#
+
+#MOD_CFLAGS = -pipe
+MOD_DEBUG  = -g3
+#
+# OLD_FILES is a temporary hack to force the use of old-host_db.h and
+# old-site_file.h in many of the .c files.
+# -DOLD_FILES
+MOD_DEFS   = -DGOPHERINDEX_SUPPORT
+MOD_INCS   = -I$(INCLUDE_MODULE) -I$(PROSPERO_ROOT)/include -I$(STARTDB_MODULE) \
+				   -I$(PATRIE_MODULE) -I$(ARCHSEARCH_MODULE) -I$(STRIDX_MODULE)  \
+           -I$(WEBINDEX_MODULE)/lib -I. -I /archie1/FutureRelease/prospero/SunOS-4.1.4/include
+
+#MOD_WARN   = -Wall -Wtraditional -Wshadow -Wpointer-arith -Wcast-align
+MOD_WARN   =
+
+
+include $(ARCHIE_ROOT)/Makefile.pre
+
+
+SRCS = \
+        archie_catalogs.c          \
+        archie_dbm.c               \
+        archie_dns.c               \
+        archie_inet.c              \
+        archie_prospero.c          \
+        archie_strings.c           \
+        casesrch.c                 \
+        databases.c                \
+        db_ops.c                   \
+        domain.c                   \
+        error.c                    \
+        files.c                    \
+        find_str.c                 \
+        gindexdb_ops.c             \
+        header.c                   \
+        host_db.c                  \
+        host_info.c                \
+        lang_anonftp.c             \
+        lang_hostdb.c              \
+        lang_libarchie.c           \
+        lang_libgopherindex.c      \
+        master.c                   \
+        match.c                    \
+        parchie_cache.c            \
+        parchie_host_dir.c         \
+        parchie_lib.c              \
+        parchie_list_host.c        \
+        parchie_search_files_db.c  \
+        parchie_search_gindex_db.c \
+				restrict.c 							\
+				times.c                    \
+        version.c
+                
+OBJS = \
+        archie_catalogs.o          \
+        archie_dbm.o               \
+        archie_dns.o               \
+        archie_inet.o              \
+        archie_prospero.o          \
+        archie_strings.o           \
+        casesrch.o                 \
+        databases.o                \
+        db_ops.o                   \
+        domain.o                   \
+        error.o                    \
+        files.o                    \
+        find_str.o                 \
+        gindexdb_ops.o             \
+        header.o                   \
+        host_db.o                  \
+        host_info.o                \
+        lang_anonftp.o             \
+        lang_hostdb.o              \
+        lang_libarchie.o           \
+        lang_libgopherindex.o      \
+        master.o                   \
+        match.o                    \
+        parchie_cache.o            \
+        parchie_host_dir.o         \
+        parchie_lib.o              \
+        parchie_list_host.o        \
+        parchie_search_files_db.o  \
+        parchie_search_gindex_db.o \
+				restrict.o							\
+				times.o                    \
+        version.o

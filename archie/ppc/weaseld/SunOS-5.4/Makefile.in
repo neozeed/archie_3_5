@@ -1,0 +1,17 @@
+#
+# ppc/weaseld
+#
+
+#
+# Use GNU's fixed header files.
+#
+SYS_CFLAGS = -u plog -u sindex
+#SYS_DEFS   = -D__USE_FIXED_PROTOTYPES__ -DSOLARIS
+SYS_DEFS   = -DSOLARIS
+SENT_FLAGS = -ffixed-%g2 -ffixed-%g3 -ffixed-%g4
+SYS_LIBS = -lresolv -lsocket -lnsl
+
+include ../Makefile.pre
+include ../Makefile.post
+
+# DO NOT DELETE THIS LINE -- make depend depends on it

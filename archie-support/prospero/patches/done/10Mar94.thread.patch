@@ -1,0 +1,1784 @@
+diff -b -r -c -N 10Mar94/app/ls.c 10Mar94+/app/ls.c
+*** 10Mar94/app/ls.c	Fri Mar 11 05:29:31 1994
+--- 10Mar94+/app/ls.c	Fri Mar 25 20:58:30 1994
+***************
+*** 459,464 ****
+--- 459,465 ----
+  	}
+  	blocks = maxentry = maxlen = 0;
+  	stats = NULL;
++ 	assert(P_IS_THIS_THREAD_MASTER()); /* readdir is MT-Unsafe */
+  	for (cnt = 0; dp = readdir(dirp);) {
+  		/* this does -A and -a */
+  		p = dp->d_name;
+***************
+*** 865,870 ****
+--- 866,872 ----
+  
+  	if(uid == (uid_t) -1) return("-");
+  
++ 	assert(P_IS_THIS_THREAD_MASTER()); /*getpwuid unsafe */
+  	DISABLE_PFS(pwent =  getpwuid(uid));
+  
+  	if (pwent == NULL) {
+***************
+*** 884,889 ****
+--- 886,892 ----
+  
+  	if(gid == (gid_t) -1) return("-");
+  
++ 	assert(P_IS_THIS_THREAD_MASTER());       /*SOLARIS getgrgid MT-Unsafe */
+  	DISABLE_PFS(grent =  getgrgid(gid));
+  
+  	if (grent == NULL) {
+diff -b -r -c -N 10Mar94/lib/ardp/ardp_send.c 10Mar94+/lib/ardp/ardp_send.c
+*** 10Mar94/lib/ardp/ardp_send.c	Fri Mar 11 05:30:23 1994
+--- 10Mar94+/lib/ardp/ardp_send.c	Fri Mar 25 21:07:02 1994
+***************
+*** 168,173 ****
+--- 168,174 ----
+  	}
+  #ifdef OLD_GETHOSTBYNAME
+  	DISABLE_PFS_START();
++ 	assert(P_IS_THIS_THREAD_MASTER());
+          if((host = gethostbyname(dname)) == NULL) {
+  	    DISABLE_PFS_END();
+  	    /* Check if a numeric address */
+***************
+*** 235,240 ****
+--- 236,242 ----
+  
+      /* Determine default udp port to use */
+      DISABLE_PFS_START();
++     assert(P_IS_THIS_THREAD_MASTER()); /*SOLARIS: getservbyname MT-Unsafe */
+      if ((sp = getservbyname(ARDP_DEFAULT_PEER,"udp")) == 0) {
+  	if (pfs_debug >= 10)
+  	    fprintf(stderr, "ardp: udp/%s unknown service - using %d\n", 
+***************
+*** 292,297 ****
+--- 294,300 ----
+  	ardp_init();
+      }
+      /* Find first connection ID */
++     assert(P_IS_THIS_THREAD_MASTER()); /* rand and srand are unsafe */
+      if(next_conn_id == 0) {
+  	srand(pid+time(0));
+  	next_conn_id = rand();
+diff -b -r -c -N 10Mar94/lib/ardp/ardp_srv_ini.c 10Mar94+/lib/ardp/ardp_srv_ini.c
+*** 10Mar94/lib/ardp/ardp_srv_ini.c	Fri Mar 11 05:30:24 1994
+--- 10Mar94+/lib/ardp/ardp_srv_ini.c	Fri Mar 25 20:58:26 1994
+***************
+*** 67,72 ****
+--- 67,73 ----
+      int     		on = 1;
+      int			port_no = 0;
+  
++     assert(P_IS_THIS_THREAD_MASTER()); /*getpwuid MT-Unsafe*/
+      if(*portname == '#') {
+  	sscanf(portname+1,"%d",&port_no);
+  	if(port_no == 0) {
+diff -b -r -c -N 10Mar94/lib/pcompat/scandir.c 10Mar94+/lib/pcompat/scandir.c
+*** 10Mar94/lib/pcompat/scandir.c	Fri Mar 11 05:30:34 1994
+--- 10Mar94+/lib/pcompat/scandir.c	Sun Mar 27 21:04:19 1994
+***************
+*** 60,65 ****
+--- 60,72 ----
+  	long arraysz;
+  	DIR *dirp;
+  
++ #ifdef PFS_THREADS
++     struct {
++         struct dirent a;
++         char b[_POSIX_PATH_MAX];
++     } readdir_result_st;
++     struct dirent *readdir_result = (struct dirent *) &readdir_result_st;
++ #endif
+  	if ((dirp = opendir(dirname)) == NULL)
+  		return(-1);
+  	if (fstat(dirp->dd_fd, &stb) < 0)
+***************
+*** 75,81 ****
+--- 82,94 ----
+  		return(-1);
+  
+  	nitems = 0;
++ 	assert(P_IS_THIS_THREAD_MASTER()); /*SOLARIS: readdir is MT-Unsafe */
++ 
++ #ifdef PFS_THREADS
++ 	while ((d = readdir_r(dirp,readdir_result)) != NULL) {
++ #else
+  	while ((d = readdir(dirp)) != NULL) {
++ #endif
+  		if (select != NULL && !(*select)(d))
+  			continue;	/* just selected names */
+  		/*
+diff -b -r -c -N 10Mar94/lib/pcompat/telldir.c 10Mar94+/lib/pcompat/telldir.c
+*** 10Mar94/lib/pcompat/telldir.c	Fri Mar 11 05:30:35 1994
+--- 10Mar94+/lib/pcompat/telldir.c	Fri Mar 25 20:58:24 1994
+***************
+*** 112,117 ****
+--- 112,118 ----
+  	dirp->dd_bbase = lp->loc_seek;
+  	dirp->dd_loc = 0;
+  	while (dirp->dd_loc < lp->loc_loc) {
++ 	  assert(P_IS_THIS_THREAD_MASTER()); /*SOLARIS: readdir MT-Unsafe */
+  		dp = readdir(dirp);
+  		if (dp == NULL)
+  			break;
+diff -b -r -c -N 10Mar94/lib/pfs/myhost.c 10Mar94+/lib/pfs/myhost.c
+*** 10Mar94/lib/pfs/myhost.c	Fri Mar 11 05:30:47 1994
+--- 10Mar94+/lib/pfs/myhost.c	Fri Mar 25 18:42:14 1994
+***************
+*** 92,98 ****
+--- 92,100 ----
+  #endif
+          gethostname(myhname,sizeof(myhname));
+          /* gethostbyname reads files, so we must disable pfs */
++ 	p_th_mutex_lock(p_th_mutexGETHOSTBYNAME);
+          DISABLE_PFS(current_host = gethostbyname(myhname));
++ 	p_th_mutex_unlock(p_th_mutexGETHOSTBYNAME);
+          strcpy(myhname,current_host->h_name);
+          ucase(myhname);
+  
+diff -b -r -c -N 10Mar94/lib/pfs/p__req.c 10Mar94+/lib/pfs/p__req.c
+*** 10Mar94/lib/pfs/p__req.c	Wed Mar 30 22:24:30 1994
+--- 10Mar94+/lib/pfs/p__req.c	Wed Mar 30 14:49:56 1994
+***************
+*** 279,284 ****
+--- 279,287 ----
+      char *hostaddr = NULL;
+      struct in_addr haddr;
+  
++ #if defined(P_KERBEROS) || defined(P_P_PASSWORD)
++     assert(P_IS_THIS_THREAD_MASTER());   /* Not thread safe yet */
++ #endif
+      CHECK_MEM();
+      auth->principals = NULL;    /* not really needed.  Let's be paranoid. */
+  
+***************
+*** 302,307 ****
+--- 305,311 ----
+      /* Look up server host */
+      /* Not multi-threaded yet because clients not done yet. */
+      CHECK_MEM();
++     assert(P_IS_THIS_THREAD_MASTER());
+      if ((host = gethostbyname(full_hname)) == (struct hostent *) 0) {
+  	if (pfs_debug) 
+  	    fprintf(stderr, "p__get_pauth(): unknown host %s\n",
+***************
+*** 581,586 ****
+--- 587,593 ----
+      int num, entry_exists = 0;
+      char full_hname[255];
+  
++     assert(P_IS_THIS_THREAD_MASTER()); /* Not thread safe yet */
+      /* Convert hostname into canonical form */
+      qsprintf(full_hname, sizeof full_hname, "%s", server_hostname);
+      
+***************
+*** 599,604 ****
+--- 606,612 ----
+      }
+      
+      /* Look up server host */
++     assert(P_IS_THIS_THREAD_MASTER());
+      if ((host = gethostbyname(full_hname)) == (struct hostent *) 0) {
+  	if (pfs_debug) 
+  	    fprintf(stderr, "p__add_acc_req(): unknown host %s\n",
+***************
+*** 653,658 ****
+--- 661,667 ----
+      char *home;
+      static char *psession_filename = NULL;
+  
++     assert(P_IS_THIS_THREAD_MASTER()); /* Not thread safe yet */
+      if (!(psession_filename = stcopy(getenv("PSESSION")))) {
+  	uid = getuid();
+  	if (!(home = getenv("HOME"))) {
+***************
+*** 676,681 ****
+--- 685,691 ----
+  {
+      struct passwd *whoiampw;
+  
++     assert(P_IS_THIS_THREAD_MASTER()); /*getpwuid MT-Unsafe*/
+      DISABLE_PFS(whoiampw = getpwuid(uid));
+      if (whoiampw == 0) {
+  	char tmp_uid_str[100];
+***************
+*** 694,699 ****
+--- 704,710 ----
+      static char *retstr = NULL;
+      int i;
+  
++   assert(P_IS_THIS_THREAD_MASTER()); /* Not thread safe yet */
+      retstr = stcopyr(str, retstr);
+      
+      for (i = 0; retstr[i]; i++)
+diff -b -r -c -N 10Mar94/lib/pfs/p_get_dir.c 10Mar94+/lib/pfs/p_get_dir.c
+*** 10Mar94/lib/pfs/p_get_dir.c	Wed Mar 30 22:24:30 1994
+--- 10Mar94+/lib/pfs/p_get_dir.c	Wed Mar 30 14:49:56 1994
+***************
+*** 55,60 ****
+--- 55,61 ----
+      /* union link expansion.                                       */
+      if(filters && filters->execution_location == FIL_SERVER) {
+          static char * fil_option = NULL;
++       assert(P_IS_THIS_THREAD_MASTER()); /* Not thread safe yet */
+          fil_option = qsprintf_stcopyr(fil_option, "%s+FILTER", options);
+  
+          p__add_req(dqs->preq, "DIRECTORY ASCII %'s\nLIST %s COMPONENTS",
+diff -b -r -c -N 10Mar94/lib/pfs/p_uln_index.c 10Mar94+/lib/pfs/p_uln_index.c
+*** 10Mar94/lib/pfs/p_uln_index.c	Fri Mar 11 05:30:50 1994
+--- 10Mar94+/lib/pfs/p_uln_index.c	Tue Mar 15 17:48:24 1994
+***************
+*** 48,53 ****
+--- 48,54 ----
+      static char *buf = NULL;
+      char *outp;
+      
++   assert(P_IS_THIS_THREAD_MASTER()); /* Not thread safe yet */
+      if (p__bstsize(buf) < strlen(s) + 1) {
+          stfree(buf);
+          buf = stalloc(strlen(s) + 1);
+diff -b -r -c -N 10Mar94/lib/pfs/penviron.c 10Mar94+/lib/pfs/penviron.c
+*** 10Mar94/lib/pfs/penviron.c	Fri Mar 11 05:30:51 1994
+--- 10Mar94+/lib/pfs/penviron.c	Fri Mar 25 21:39:55 1994
+***************
+*** 47,52 ****
+--- 47,53 ----
+      char	*wdfile;
+      char	*wdname;
+  {
++   assert(P_IS_THIS_THREAD_MASTER()); /* Not thread safe yet */
+      if(wdhost) {
+          strcpy(vswork_host,wdhost);
+          setenv("VSWORK_HOST",wdhost,1);
+***************
+*** 64,69 ****
+--- 65,71 ----
+  char * pget_wdhost()
+  {
+      char	*env_st;
++     assert(P_IS_THIS_THREAD_MASTER()); /* Not thread safe yet */
+      if(!*vswork_host && (env_st = getenv("VSWORK_HOST"))) 
+          strcpy(vswork_host,env_st);
+      if(*vswork_host) return(vswork_host);
+***************
+*** 73,78 ****
+--- 75,81 ----
+  char * pget_wdfile()
+      {
+  	char	*env_st;
++     assert(P_IS_THIS_THREAD_MASTER()); /* Not thread safe yet */
+  	if(!*vswork_file && (env_st = getenv("VSWORK_FILE"))) 
+  	    strcpy(vswork_file,env_st);
+  	if(*vswork_file) return(vswork_file);
+***************
+*** 82,87 ****
+--- 85,91 ----
+  char * pget_wd()
+      {
+  	char	*env_st;
++     assert(P_IS_THIS_THREAD_MASTER()); /* Not thread safe yet */
+  	if(!*vswork && (env_st = getenv("VSWORK"))) 
+  	    strcpy(vswork,env_st);
+  	if(*vswork) return(vswork);
+***************
+*** 94,99 ****
+--- 98,104 ----
+      char	*hdfile;
+      char	*hdname;
+       {
++     assert(P_IS_THIS_THREAD_MASTER()); /* Not thread safe yet */
+  	if(hdhost) {
+  	    strcpy(vshome_host,hdhost);
+  	    setenv("VSHOME_HOST",hdhost,1);
+***************
+*** 111,116 ****
+--- 116,122 ----
+  char * pget_hdhost()
+      {
+  	char	*env_st;
++     assert(P_IS_THIS_THREAD_MASTER()); /* Not thread safe yet */
+  	if(!*vshome_host && (env_st = getenv("VSHOME_HOST"))) 
+  	    strcpy(vshome_host,env_st);
+  	if(*vshome_host) return(vshome_host);
+***************
+*** 120,125 ****
+--- 126,132 ----
+  char * pget_hdfile()
+      {
+  	char	*env_st;
++     assert(P_IS_THIS_THREAD_MASTER()); /* Not thread safe yet */
+  	if(!*vshome_file && (env_st = getenv("VSHOME_FILE"))) 
+  	    strcpy(vshome_file,env_st);
+  	if(*vshome_file) return(vshome_file);
+***************
+*** 129,134 ****
+--- 136,142 ----
+  char * pget_hd()
+      {
+  	char	*env_st;
++     assert(P_IS_THIS_THREAD_MASTER()); /* Not thread safe yet */
+  	if(!*vshome && (env_st = getenv("VSHOME"))) 
+  	    strcpy(vshome,env_st);
+  	if(*vshome) return(vshome);
+***************
+*** 140,145 ****
+--- 148,154 ----
+      char	*rdhost;
+      char	*rdfile;
+       {
++     assert(P_IS_THIS_THREAD_MASTER()); /* Not thread safe yet */
+  	if(rdhost) {
+  	    strcpy(vsroot_host,rdhost);
+  	    setenv("VSROOT_HOST",rdhost,1);
+***************
+*** 153,158 ****
+--- 162,168 ----
+  char * pget_rdhost()
+      {
+  	char	*env_st;
++     assert(P_IS_THIS_THREAD_MASTER()); /* Not thread safe yet */
+  	if(!*vsroot_host && (env_st = getenv("VSROOT_HOST"))) 
+  	    strcpy(vsroot_host,env_st);
+  	if(*vsroot_host) return(vsroot_host);
+***************
+*** 162,167 ****
+--- 172,178 ----
+  char * pget_rdfile()
+      {
+  	char	*env_st;
++     assert(P_IS_THIS_THREAD_MASTER()); /* Not thread safe yet */
+  	if(!*vsroot_file && (env_st = getenv("VSROOT_FILE"))) 
+  	    strcpy(vsroot_file,env_st);
+  	if(*vsroot_file) return(vsroot_file);
+***************
+*** 174,179 ****
+--- 185,191 ----
+      char	*dfile;
+      char	*vsnm;
+       {
++     assert(P_IS_THIS_THREAD_MASTER()); /* Not thread safe yet */
+  	if(dhost) {
+  	    strcpy(vsdesc_host,dhost);
+  	    setenv("VSDESC_HOST",dhost,1);
+***************
+*** 191,196 ****
+--- 203,209 ----
+  char * pget_dhost()
+      {
+  	char	*env_st;
++     assert(P_IS_THIS_THREAD_MASTER()); /* Not thread safe yet */
+  	if(!*vsdesc_host && (env_st = getenv("VSDESC_HOST"))) 
+  	    strcpy(vsdesc_host,env_st);
+  	if(*vsdesc_host) return(vsdesc_host);
+***************
+*** 200,205 ****
+--- 213,219 ----
+  char * pget_dfile()
+      {
+  	char	*env_st;
++     assert(P_IS_THIS_THREAD_MASTER()); /* Not thread safe yet */
+  	if(!*vsdesc_file && (env_st = getenv("VSDESC_FILE"))) 
+  	    strcpy(vsdesc_file,env_st);
+  	if(*vsdesc_file) return(vsdesc_file);
+***************
+*** 209,214 ****
+--- 223,229 ----
+  char * pget_vsname()
+      {
+  	char	*env_st;
++     assert(P_IS_THIS_THREAD_MASTER()); /* Not thread safe yet */
+  	if(!*vsname && (env_st = getenv("VSNAME"))) 
+  	    strcpy(vsname,env_st);
+  	if(*vsname) return(vsname);
+***************
+*** 413,418 ****
+--- 428,434 ----
+  		offset;
+  	char *_findenv();
+  
++ 	assert(P_IS_THIS_THREAD_MASTER()); /* Not thread safe yet */
+  	if (*value == '=')			/* no `=' in value */
+  		++value;
+  	l_value = strlen(value);
+diff -b -r -c -N 10Mar94/lib/pfs/pmap_cache.c 10Mar94+/lib/pfs/pmap_cache.c
+*** 10Mar94/lib/pfs/pmap_cache.c	Fri Mar 11 05:30:54 1994
+--- 10Mar94+/lib/pfs/pmap_cache.c	Tue Mar 15 17:48:21 1994
+***************
+*** 118,123 ****
+--- 118,124 ----
+      char	*host, *method, *remote;
+  #endif /*EXECVCACHE*/
+  
++   assert(P_IS_THIS_THREAD_MASTER()); /* Not thread safe yet */
+  #ifdef EXECVCACHE
+      /* should really do this on our own without */
+      /* calling system, but...                   */
+diff -b -r -c -N 10Mar94/lib/pfs/rd_vdir.c 10Mar94+/lib/pfs/rd_vdir.c
+*** 10Mar94/lib/pfs/rd_vdir.c	Fri Mar 11 05:30:57 1994
+--- 10Mar94+/lib/pfs/rd_vdir.c	Tue Mar 15 17:08:41 1994
+***************
+*** 563,569 ****
+  
+  }
+  
+! 
+  static int oldpathlen;
+  #ifndef NDEBUG                  /* for assertions */
+  static char *oldnextcomp;
+--- 563,569 ----
+  
+  }
+  
+! /* These are not thread safe */
+  static int oldpathlen;
+  #ifndef NDEBUG                  /* for assertions */
+  static char *oldnextcomp;
+diff -b -r -c -N 10Mar94/lib/pfs/timetoasn.c 10Mar94+/lib/pfs/timetoasn.c
+*** 10Mar94/lib/pfs/timetoasn.c	Fri Mar 11 05:31:01 1994
+--- 10Mar94+/lib/pfs/timetoasn.c	Fri Mar 25 18:58:36 1994
+***************
+*** 17,23 ****
+  char *
+  p_timetoasn_stcopyr(time_t ourtime, char *target)
+  {
+-     struct tm	*mt;
+  
+      if (p__bstsize(target) < 22) {
+          stfree(target);
+--- 17,22 ----
+***************
+*** 26,35 ****
+      /* This mutexes GMTIME and sprintf.  These are the only 
+         problematic cases. */
+      p_th_mutex_lock(p_th_mutexPFS_TIMETOASN);
+!     mt = gmtime(&ourtime);
+      sprintf(target, "%04d%02d%02d%02d%02d%02dZ",
+               mt->tm_year+1900,mt->tm_mon+1,mt->tm_mday,mt->tm_hour,
+               mt->tm_min,mt->tm_sec);
+      p_th_mutex_unlock(p_th_mutexPFS_TIMETOASN);
+      return target;
+  }    
+--- 25,36 ----
+      /* This mutexes GMTIME and sprintf.  These are the only 
+         problematic cases. */
+      p_th_mutex_lock(p_th_mutexPFS_TIMETOASN);
+!     {
+!     struct tm *mt = gmtime(&ourtime);
+      sprintf(target, "%04d%02d%02d%02d%02d%02dZ",
+               mt->tm_year+1900,mt->tm_mon+1,mt->tm_mday,mt->tm_hour,
+               mt->tm_min,mt->tm_sec);
++     }
+      p_th_mutex_unlock(p_th_mutexPFS_TIMETOASN);
+      return target;
+  }    
+diff -b -r -c -N 10Mar94/lib/pfs/vfsetenv.c 10Mar94+/lib/pfs/vfsetenv.c
+*** 10Mar94/lib/pfs/vfsetenv.c	Fri Mar 11 05:31:03 1994
+--- 10Mar94+/lib/pfs/vfsetenv.c	Tue Mar 15 17:48:17 1994
+***************
+*** 34,39 ****
+--- 34,40 ----
+      static char		vsdesc_file[100];
+      static char		vshome[100];
+  
++     assert(P_IS_THIS_THREAD_MASTER()); /* Not thread safe yet */
+      vdir_init(dir);
+  
+      /* if hostname is "", but there is no definition for VSWORK_HOST */
+diff -b -r -c -N 10Mar94/lib/psrv/dsdir.c 10Mar94+/lib/psrv/dsdir.c
+*** 10Mar94/lib/psrv/dsdir.c	Wed Mar 30 22:24:32 1994
+--- 10Mar94+/lib/psrv/dsdir.c	Wed Mar 30 14:49:49 1994
+***************
+*** 8,22 ****
+  
+  #include <uw-copyright.h>
+  #include <usc-copyr.h>
+  #include <sys/param.h>
+  #include <sys/stat.h>           /* sys/types.h included already */
+  /*    sys/dir.h on SCO_UNIX doesnt define DIR */
+  #include <pmachine.h>
+! #if defined(SCOUNIX) || !defined(USE_SYS_DIR_H)
+  #include <dirent.h>
+  #else
+  #include <sys/dir.h>
+  #endif
+  #include <stdio.h>
+  #include <sgtty.h>
+  #include <string.h>
+--- 8,29 ----
+  
+  #include <uw-copyright.h>
+  #include <usc-copyr.h>
++ 
+  #include <sys/param.h>
+  #include <sys/stat.h>           /* sys/types.h included already */
+  /*    sys/dir.h on SCO_UNIX doesnt define DIR */
+  #include <pmachine.h>
+! #if defined(SCOUNIX) || defined(SOLARIS) || !defined(USE_SYS_DIR_H)
+! #if defined(PFS_THREADS_SOLARIS) && !defined(_REENTRANT)
+! #define _REENTRANT              /* needed to get prototype for readdir_r() */
+! #endif /* defined(PFS_THREADS_SOLARIS) && !defined(_REENTRANT) */
+  #include <dirent.h>
+  #else
+  #include <sys/dir.h>
+  #endif
++ #if defined(SOLARIS)		/* seems true on pand05 */
++ #define SOLARIS_GCC_BROKEN_LIMITS_H
++ #endif
+  #include <stdio.h>
+  #include <sgtty.h>
+  #include <string.h>
+***************
+*** 617,624 ****
+      PATTRIB ca,  na;
+      /* Flush all CACHED attributes on VDIRATL */
+      for (ca = *vdiratlp; ca; ca = ca->next) {
+!         assert(ca->precedence != ATR_PREC_OBJECT); /* should never happen */
+!         if (ca->precedence == ATR_PREC_CACHED) {
+              EXTRACT_ITEM(ca, *vdiratlp);
+              atfree(ca);
+          }
+--- 624,631 ----
+      PATTRIB ca,  na;
+      /* Flush all CACHED attributes on VDIRATL */
+      for (ca = *vdiratlp; ca; ca = ca->next) {
+!         if (ca->precedence == ATR_PREC_CACHED
+! 	    || ca->precedence == ATR_PREC_OBJECT) {
+              EXTRACT_ITEM(ca, *vdiratlp);
+              atfree(ca);
+          }
+***************
+*** 633,638 ****
+--- 640,659 ----
+         macro. */ 
+  }
+  
++ #ifndef SOLARIS_GCC_BROKEN_LIMITS_H
++ #include <limits.h>             /* for _POSIX_PATH_MAX for readdir_result. */
++ #else
++ #ifndef _POSIX_PATH_MAX
++ #undef _LIMITS_H
++ #include "/usr/include/limits.h"
++ /* XXX why on earth is this not defining _POSIX_PATH_MAX?  At any rate,
++    pick a really large number that will certainly work well enough for now. */
++ #ifndef _POSIX_PATH_MAX
++ #define _POSIX_PATH_MAX 2048
++ #endif
++ #endif /* not _POSIX_PATH_MAX */
++ #endif /*  SOLARIS_GCC_BROKEN_LIMITS_H */
++ 
+  /* Return a linked list of files with the VLINK_NATIVE flag set on them. */
+  /* The flags are both always set for now.  They will be useful later if various
+     degrees of #FAST are specified. */
+***************
+*** 646,651 ****
+--- 667,679 ----
+  {
+      DIR			*dirp;
+      struct dirent	*dp;
++ #ifdef PFS_THREADS
++     struct {
++         struct dirent a;
++         char b[_POSIX_PATH_MAX];
++     } readdir_result_st;
++     struct dirent *readdir_result = (struct dirent *) &readdir_result_st;
++ #endif
+      char		*slash;
+      char		vl_hsoname[MAXPATHLEN];
+      VLINK               retval = NULL; /* list of links to return. */
+***************
+*** 661,667 ****
+--- 689,700 ----
+          return NULL;
+      }
+  
++ #ifdef PFS_THREADS
++     for (dp = readdir_r(dirp, readdir_result); dp != NULL; 
++          dp = readdir_r(dirp, readdir_result)) {
++ #else                           /* PFS_THREADS */
+        for (dp = readdir(dirp); dp != NULL; dp = readdir(dirp)) {
++ #endif                          /* PFS_THREADS */
+          canonicalize_prefix(native_dirname, vl_hsoname, sizeof vl_hsoname);
+  
+          /* We must special case unix concept of . and .. */
+diff -b -r -c -N 10Mar94/lib/psrv/dsrfinfo.c 10Mar94+/lib/psrv/dsrfinfo.c
+*** 10Mar94/lib/psrv/dsrfinfo.c	Wed Mar 30 14:51:07 1994
+--- 10Mar94+/lib/psrv/dsrfinfo.c	Fri Mar 25 23:38:43 1994
+***************
+*** 286,293 ****
+          at->value.sequence->token = 
+              qsprintf_stcopyr((char *) NULL, "%d bytes", file_stat->st_size);
+          APPEND_ITEM(at, fi->attributes);
+          /*       short   st_uid;	  /* user-id of	owner       */
+!         ownpw = getpwuid(file_stat->st_uid);
+          if(ownpw) {
+              at = atalloc();
+              at->aname = stcopy("NATIVE-OWNER");
+--- 286,294 ----
+          at->value.sequence->token = 
+              qsprintf_stcopyr((char *) NULL, "%d bytes", file_stat->st_size);
+          APPEND_ITEM(at, fi->attributes);
++ #ifndef PFS_THREADS
+          /*       short   st_uid;	  /* user-id of	owner       */
+!         ownpw = getpwuid(file_stat->st_uid); /* not MT safe */
+          if(ownpw) {
+              at = atalloc();
+              at->aname = stcopy("NATIVE-OWNER");
+***************
+*** 296,305 ****
+              at->value.sequence = tkalloc(ownpw->pw_name);
+              APPEND_ITEM(at, fi->attributes);
+          }
+  
+  
+          /*       short   st_gid;	  /* group-id of owner      */
+!         owngr = getgrgid(file_stat->st_gid);
+          if(owngr) {
+              at = atalloc();
+              at->aname = stcopy("NATIVE-GROUP");
+--- 297,308 ----
+              at->value.sequence = tkalloc(ownpw->pw_name);
+              APPEND_ITEM(at, fi->attributes);
+          }
++ #endif
+  
+  
++ #ifndef PFS_THREADS
+          /*       short   st_gid;	  /* group-id of owner      */
+!         owngr = getgrgid(file_stat->st_gid); /* not MT safe */
+          if(owngr) {
+              at = atalloc();
+              at->aname = stcopy("NATIVE-GROUP");
+***************
+*** 308,313 ****
+--- 311,317 ----
+              at->value.sequence = tkalloc(owngr->gr_name);
+              APPEND_ITEM(at, fi->attributes);
+          }
++ #endif
+  
+          /*       time_t  st_atime;    /* file last access time  */
+  
+diff -b -r -c -N 10Mar94/lib/psrv/dsrobject.c 10Mar94+/lib/psrv/dsrobject.c
+*** 10Mar94/lib/psrv/dsrobject.c	Wed Mar 30 22:24:32 1994
+--- 10Mar94+/lib/psrv/dsrobject.c	Wed Mar 30 14:49:48 1994
+***************
+*** 386,391 ****
+--- 385,393 ----
+          at->value.sequence = tkappend("INTERNET-D", at->value.sequence);
+          at->value.sequence = tkappend(hostname, at->value.sequence);
+          at->value.sequence = tkappend("ASCII", at->value.sequence);
++ #error "This is totally bogus code XXX"
++ 	/* APPEND_ITEM takes a object with next & previous pointers, and
++ 	   its arguments mustnt be something that hurts to evaluate twice*/
+          APPEND_ITEM(qsprintf_stcopyr((char *) NULL,
+                                       "%s%s", AFS_AFTP_GATEWAY, suffix), 
+                      at->value.sequence);
+diff -b -r -c -N 10Mar94/lib/psrv/dsrobject_v6.c 10Mar94+/lib/psrv/dsrobject_v6.c
+*** 10Mar94/lib/psrv/dsrobject_v6.c	Wed Mar 30 22:24:32 1994
+--- 10Mar94+/lib/psrv/dsrobject_v6.c	Wed Mar 30 14:49:47 1994
+  	plog(L_AUTH_ERR, req, "Got an HSONAME outside the part of the \
+***************
+*** 253,258 ****
+--- 253,261 ----
+          at->value.sequence = tkappend("INTERNET-D", at->value.sequence);
+          at->value.sequence = tkappend(hostname, at->value.sequence);
+          at->value.sequence = tkappend("ASCII", at->value.sequence);
++ #error "This is totally bogus code XXX"
++ 	/* APPEND_ITEM takes a object with next & previous pointers, and
++ 	   its arguments mustnt be something that hurts to evaluate twice*/
+          APPEND_ITEM(qsprintf_stcopyr((char *) NULL,
+                                       "%s%s", AFS_AFTP_GATEWAY, suffix), 
+                      at->value.sequence);
+diff -b -r -c -N 10Mar94/lib/psrv/plog.c 10Mar94+/lib/psrv/plog.c
+*** 10Mar94/lib/psrv/plog.c	Fri Mar 11 05:31:14 1994
+--- 10Mar94+/lib/psrv/plog.c	Tue Mar 29 22:01:17 1994
+***************
+*** 32,38 ****
+  /* info on the filename and open file */
+  static char 		*log_name = PSRV_LOGFILE;
+  FILE 			*logfile;
+! static int 		is_open = 0;
+  #if 0
+  /* not currently used */
+  static int		syslog_open = 0;
+--- 32,38 ----
+  /* info on the filename and open file */
+  static char 		*log_name = PSRV_LOGFILE;
+  FILE 			*logfile;
+! static int 		is_open = 0; /* Mutexed below */
+  #if 0
+  /* not currently used */
+  static int		syslog_open = 0;
+***************
+*** 73,83 ****
+  
+  EXTERN_MUTEX_DECL(PSRV_LOG);
+  
+  char *
+  vplog(int type, RREQ req, char *format, va_list ap)
+  {
+      time_t now, systime, svctime, wttime;
+-     struct tm *tm;
+      int	 log_username = 0;
+      int  notfirstfield = 0;
+      char *month_sname();
+--- 73,86 ----
+  
+  EXTERN_MUTEX_DECL(PSRV_LOG);
+  
++ /* Call this if mutexed, but not open */
++ 
++ #define LEAVEOPEN 1
++ 
+  char *
+  vplog(int type, RREQ req, char *format, va_list ap)
+  {
+      time_t now, systime, svctime, wttime;
+      int	 log_username = 0;
+      int  notfirstfield = 0;
+      char *month_sname();
+***************
+*** 95,102 ****
+  	return(*logtxtp);
+  
+      /* get the time */
+!     (void) time(&now);
+!     tm = localtime(&now);
+  
+      svctime = systime = wttime = 0;
+      if(req) {
+--- 98,112 ----
+  	return(*logtxtp);
+  
+      /* get the time */
+! #ifndef NDEBUG
+!     { int retval = 
+! #endif
+! 	time(&now);
+! #ifndef NDEBUG
+!       assert(retval != -1);
+!     }
+! #endif
+! 
+  
+      svctime = systime = wttime = 0;
+      if(req) {
+***************
+*** 118,124 ****
+      *usertxt = '\0';
+  
+      if(req && req->peer_addr.s_addr &&(logtype_array[L_FIELDS]&L_FIELDS_HADDR))
+! 	strcat(usertxt, pr_inet_ntoa(req->peer_addr.s_addr));
+  
+      if(type == L_DIR_UPDATE) {
+  	if(logtype_array[L_FIELDS] & L_FIELDS_USER_U) log_username++;
+--- 128,134 ----
+      *usertxt = '\0';
+  
+      if(req && req->peer_addr.s_addr &&(logtype_array[L_FIELDS]&L_FIELDS_HADDR))
+! 	strncat(usertxt, pr_inet_ntoa(req->peer_addr.s_addr),sizeof(usertxt));
+  
+      if(type == L_DIR_UPDATE) {
+  	if(logtype_array[L_FIELDS] & L_FIELDS_USER_U) log_username++;
+***************
+*** 129,177 ****
+      else if(logtype_array[L_FIELDS] & L_FIELDS_USER_I) log_username++;
+  
+      if(req && req->client_name && *(req->client_name) && log_username) {
+! 	strcat(usertxt, "(");
+! 	strcat(usertxt, req->client_name);
+!  	strcat(usertxt, ")");
+      }
+  
+      if(req && req->peer_sw_id && *(req->peer_sw_id) && 
+         (logtype_array[L_FIELDS] & L_FIELDS_SW_ID)) {
+! 	strcat(usertxt, "[");
+! 	strcat(usertxt, req->peer_sw_id);
+!  	strcat(usertxt, "]");
+      }
+  
+      if(req && (logtype_array[L_FIELDS] & L_FIELDS_PORT)){
+  	qsprintf(fieldtxt, sizeof fieldtxt, "[udp/%d]", PEER_PORT(req));
+! 	strcat(usertxt, fieldtxt);
+      }
+  
+      if(req && req->cid &&(logtype_array[L_FIELDS] & L_FIELDS_CID)) {
+  	qsprintf(fieldtxt, sizeof fieldtxt, "[cid=%d]", ntohs(req->cid));
+! 	strcat(usertxt, fieldtxt);
+      }
+  
+      if(req && (logtype_array[L_FIELDS] & L_FIELDS_STIME) &&
+         ((systime>=L_SYSTIME_THRESHOLD) || (svctime>=L_SVCTIME_THRESHOLD) ||
+  	(wttime>=L_WTTIME_THRESHOLD))) {
+! 	strcat(usertxt, "[");
+  	if(wttime >= L_WTTIME_THRESHOLD) {
+! 	    if(notfirstfield++) strcat(usertxt, ",");
+  	    qsprintf(fieldtxt, sizeof fieldtxt, "%d:%02dwt", wttime / 60, wttime % 60);
+! 	    strcat(usertxt, fieldtxt);
+  	}
+  	if(svctime >= L_SVCTIME_THRESHOLD) {
+! 	    if(notfirstfield++) strcat(usertxt, ",");
+  	    qsprintf(fieldtxt, sizeof fieldtxt,
+                       "%d:%02dsvc", svctime / 60, svctime % 60);
+! 	    strcat(usertxt, fieldtxt);
+  	}
+  	if(systime >= L_SYSTIME_THRESHOLD) {
+! 	    if(notfirstfield++) strcat(usertxt, ",");
+  	    qsprintf(fieldtxt, sizeof fieldtxt, "%d:%02dsys", systime / 60, systime % 60);
+! 	    strcat(usertxt, fieldtxt);
+  	}
+! 	strcat(usertxt, "]");
+      }
+  
+  #ifdef P_LOGTO_SYSLOG
+--- 139,187 ----
+      else if(logtype_array[L_FIELDS] & L_FIELDS_USER_I) log_username++;
+  
+      if(req && req->client_name && *(req->client_name) && log_username) {
+! 	strncat(usertxt, "(",sizeof(usertxt));
+! 	strncat(usertxt, req->client_name,sizeof(usertxt));
+!  	strncat(usertxt, ")",sizeof(usertxt));
+      }
+  
+      if(req && req->peer_sw_id && *(req->peer_sw_id) && 
+         (logtype_array[L_FIELDS] & L_FIELDS_SW_ID)) {
+! 	strncat(usertxt, "[",sizeof(usertxt));
+! 	strncat(usertxt, req->peer_sw_id,sizeof(usertxt));
+!  	strncat(usertxt, "]",sizeof(usertxt));
+      }
+  
+      if(req && (logtype_array[L_FIELDS] & L_FIELDS_PORT)){
+  	qsprintf(fieldtxt, sizeof fieldtxt, "[udp/%d]", PEER_PORT(req));
+! 	strncat(usertxt, fieldtxt,sizeof(usertxt));
+      }
+  
+      if(req && req->cid &&(logtype_array[L_FIELDS] & L_FIELDS_CID)) {
+  	qsprintf(fieldtxt, sizeof fieldtxt, "[cid=%d]", ntohs(req->cid));
+! 	strncat(usertxt, fieldtxt,sizeof(usertxt));
+      }
+  
+      if(req && (logtype_array[L_FIELDS] & L_FIELDS_STIME) &&
+         ((systime>=L_SYSTIME_THRESHOLD) || (svctime>=L_SVCTIME_THRESHOLD) ||
+  	(wttime>=L_WTTIME_THRESHOLD))) {
+! 	strncat(usertxt, "[",sizeof(usertxt));
+  	if(wttime >= L_WTTIME_THRESHOLD) {
+! 	    if(notfirstfield++) strncat(usertxt, ",",sizeof(usertxt));
+  	    qsprintf(fieldtxt, sizeof fieldtxt, "%d:%02dwt", wttime / 60, wttime % 60);
+! 	    strncat(usertxt, fieldtxt,sizeof(usertxt));
+  	}
+  	if(svctime >= L_SVCTIME_THRESHOLD) {
+! 	    if(notfirstfield++) strncat(usertxt, ",",sizeof(usertxt));
+  	    qsprintf(fieldtxt, sizeof fieldtxt,
+                       "%d:%02dsvc", svctime / 60, svctime % 60);
+! 	    strncat(usertxt, fieldtxt,sizeof(usertxt));
+  	}
+  	if(systime >= L_SYSTIME_THRESHOLD) {
+! 	    if(notfirstfield++) strncat(usertxt, ",",sizeof(usertxt));
+  	    qsprintf(fieldtxt, sizeof fieldtxt, "%d:%02dsys", systime / 60, systime % 60);
+! 	    strncat(usertxt, fieldtxt,sizeof(usertxt));
+  	}
+! 	strncat(usertxt, "]",sizeof(usertxt));
+      }
+  
+  #ifdef P_LOGTO_SYSLOG
+***************
+*** 186,232 ****
+      /* If not printing to file return */
+      if (! (logtype_array[type] & PLOG_TOFILE_ENABLED)) return(*logtxtp);
+  
+      p_th_mutex_lock(p_th_mutexPSRV_LOG);
+      if (!is_open) {
+! 	if ((logfile = fopen(log_name,"a")) != NULL)
+  	    is_open = 1;
+      }
+  
+      if (is_open) {
+  	/* print the log entry */
+  #ifndef PFS_THREADS
+! 	fprintf(logfile,"%2d-%s-%02d %02d:%02d:%02d ",tm->tm_mday,
+! 		month_sname(tm->tm_mon + 1),tm->tm_year,
+! 		tm->tm_hour, tm->tm_min, tm->tm_sec);
+! 	fprintf(logfile,"%s%s%s\n", usertxt, (*usertxt ? " - " : ""), *logtxtp);
+  #else
+!         AUTOSTAT_CHARPP(bufp);
+          *bufp = qsprintf_stcopyr(*bufp, "%d-%s-%d %d:%d:%d %s%s%s\n", 
+                                   tm->tm_mday,
+  		month_sname(tm->tm_mon + 1),tm->tm_year,
+  		tm->tm_hour, tm->tm_min, tm->tm_sec,
+                  usertxt, (*usertxt ? " - " : ""), *logtxtp);
+          fputs(*bufp, logfile);
+  #endif
+      }
+      /* even if the primary logfile couldn't be opened, go ahead and log to
+  	the manual (additional) logfile. */
+      if(plog_additional_outfile) {
+  #ifndef PFS_THREADS
+!         fprintf(plog_additional_outfile, 
+!                 "%s%s%s\n", usertxt, (*usertxt ? " - " : ""), *logtxtp);
+  #else
+          AUTOSTAT_CHARPP(bufp);
+          *bufp = qsprintf_stcopyr(*bufp, "%s%s%s\n",
+                                   usertxt, (*usertxt ? " - " : ""), *logtxtp);
+          fputs(*bufp, plog_additional_outfile);
+  #endif
+!         fflush(plog_additional_outfile);
+      }
+  
+!     (void) fclose(logfile);
+      is_open = 0;
+      p_th_mutex_unlock(p_th_mutexPSRV_LOG);
+      return(*logtxtp);
+  
+  }
+--- 196,274 ----
+      /* If not printing to file return */
+      if (! (logtype_array[type] & PLOG_TOFILE_ENABLED)) return(*logtxtp);
+  
++ #ifndef LEAVEOPEN
+        p_th_mutex_lock(p_th_mutexPSRV_LOG);
++ #endif
+      if (!is_open) {
+! #ifdef LEAVEOPEN
+!       p_th_mutex_lock(p_th_mutexPSRV_LOG);
+! #endif
+!       if (!is_open) {  /* Check still open, now we have mutex*/
+! 	if ((logfile = fopen(log_name,"a")) != NULL) {
+  	  is_open = 1;
+  	}
++       }
++ #ifdef LEAVEOPEN
++       p_th_mutex_unlock(p_th_mutexPSRV_LOG);
++ #endif
++     }
+  
+      if (is_open) {
++ 
+  	/* print the log entry */
++         AUTOSTAT_CHARPP(bufp);
+  #ifndef PFS_THREADS
+! 	struct tm *tm = localtime(&now);
+  #else
+!         struct tm tmstruc;
+! 	struct tm *tm = &tmstruc;
+! 	localtime_r(&now, tm);
+! #endif
+          *bufp = qsprintf_stcopyr(*bufp, "%d-%s-%d %d:%d:%d %s%s%s\n", 
+                                   tm->tm_mday,
+  		month_sname(tm->tm_mon + 1),tm->tm_year,
+  		tm->tm_hour, tm->tm_min, tm->tm_sec,
+                  usertxt, (*usertxt ? " - " : ""), *logtxtp);
++ #ifndef NDEBUG
++ 	{ int retval =
++ #endif
+  	    fputs(*bufp, logfile);
++ #ifndef NDEBUG
++ 	    assert(retval == strlen(*bufp));
++       }
+  #endif
+      }
+      /* even if the primary logfile couldn't be opened, go ahead and log to
+  	the manual (additional) logfile. */
+      if(plog_additional_outfile) {
+  #ifndef PFS_THREADS
+!         zz(fprintf(plog_additional_outfile, 
+!                 "%s%s%s\n", usertxt, (*usertxt ? " - " : ""), *logtxtp));
+  #else
+          AUTOSTAT_CHARPP(bufp);
+          *bufp = qsprintf_stcopyr(*bufp, "%s%s%s\n",
+                                   usertxt, (*usertxt ? " - " : ""), *logtxtp);
++ #ifndef NDEBUG
++ 	{ int retval = 
++ #endif
+          fputs(*bufp, plog_additional_outfile);
++ #ifndef NDEBUG
++ 	  assert(retval == strlen(*bufp));
++ 	}
++ #endif
+  #endif
+!         zz(fflush(plog_additional_outfile));
+      }
+  
+! #ifndef LEAVEOPEN
+!     if (is_open) {
+!       zz(fclose(logfile));
+        is_open = 0;
++     }
+      p_th_mutex_unlock(p_th_mutexPSRV_LOG);
++ #else
++     zz(fflush(logfile));
++ #endif /*LEAVEOPEN*/
+      return(*logtxtp);
+  
+  }
+diff -b -r -c -N 10Mar94/lib/psrv/retrieve_fp.c 10Mar94+/lib/psrv/retrieve_fp.c
+*** 10Mar94/lib/psrv/retrieve_fp.c	Fri Mar 11 05:31:15 1994
+--- 10Mar94+/lib/psrv/retrieve_fp.c	Wed Mar 30 14:49:44 1994
+***************
+*** 44,50 ****
+      int			retval;
+  
+      assert(P_IS_THIS_THREAD_MASTER()); /* not yet converted. Not used currently
+!                                           either.  */
+      if(firsttime++ == 0) {
+          h_ent = gethostbyname(hostname);
+          strcpy(thishost,h_ent->h_name);
+--- 44,50 ----
+      int			retval;
+  
+      assert(P_IS_THIS_THREAD_MASTER()); /* not yet converted. Not used currently
+!                                           either. gethostbyname MT-Unsafe  */
+      if(firsttime++ == 0) {
+          h_ent = gethostbyname(hostname);
+          strcpy(thishost,h_ent->h_name);
+diff -b -r -c -N 10Mar94/lib/psrv/wais_gw/futil.c 10Mar94+/lib/psrv/wais_gw/futil.c
+*** 10Mar94/lib/psrv/wais_gw/futil.c	Wed Mar 30 14:51:07 1994
+--- 10Mar94+/lib/psrv/wais_gw/futil.c	Fri Mar 25 20:58:21 1994
+***************
+*** 476,481 ****
+--- 476,482 ----
+  
+  #include <pwd.h>  
+  
++   assert(MASTER_IS_ONLY_UNTHREAD); /*getpwuid MT-Unsafe*/
+    struct passwd *pwent = getpwuid(getuid());
+    strncpy(answer,pwent->pw_name,200);
+    strncat(answer,"@",200);
+***************
+*** 535,540 ****
+--- 536,542 ----
+    if (!directoryP(dir))
+      return(NULL);
+  
++   assert(P_IS_THIS_THREAD_MASTER()); /* random is MT-Unsafe */
+    while (true)
+      { sprintf(fullName,"%s/%s%ld.%ld",dir,root,getpid(),random() % 10000);
+       if ((f = safeFOpen(fullName,"r")) == NULL)
+diff -b -r -c -N 10Mar94/lib/psrv/wais_gw/ietftype_parse.c 10Mar94+/lib/psrv/wais_gw/ietftype_parse.c
+*** 10Mar94/lib/psrv/wais_gw/ietftype_parse.c	Fri Mar 11 05:31:36 1994
+--- 10Mar94+/lib/psrv/wais_gw/ietftype_parse.c	Tue Mar 15 17:44:54 1994
+***************
+*** 75,80 ****
+--- 75,81 ----
+  	    tt1("wais",waistype);
+  	    if (stcaseequal(tag,"prospero")) {
+  	    	PATTRIB at=ietftype_atput(thistype,"OBJECT-INTERPRETATION");
++ 		assert(P_IS_THIS_THREAD_MASTER());
+  		for(cp=strtok(value,"/");cp != NULL; cp=strtok(NULL,"/"))
+  			tkappend(cp,at->value.sequence);
+  	    }
+diff -b -r -c -N 10Mar94/lib/psrv/wais_gw/inface.c 10Mar94+/lib/psrv/wais_gw/inface.c
+*** 10Mar94/lib/psrv/wais_gw/inface.c	Fri Mar 11 05:31:37 1994
+--- 10Mar94+/lib/psrv/wais_gw/inface.c	Mon Mar 28 21:51:59 1994
+***************
+*** 30,35 ****
+--- 30,36 ----
+  #include <stdlib.h>           /* For malloc and free */
+  
+  extern char *unixerrstr(void);
++ static char Err_Connect[]="WAIS gateway unable to connect to: %s(%s)";
+  
+  #define CHARS_PER_PAGE 10000 /* number of chars retrieved in each request */
+  #define RETURN(val)	{retval = val; goto cleanup; }
+***************
+*** 134,140 ****
+  	  strcpy(service, Z39_50_SERVICE); /* default */
+  	if ((connection = connectToServer(server_name,atoi(service))) == NULL){ 
+  	  	p_err_string = qsprintf_stcopyr(p_err_string,
+! 		     "Error opening connection to %s via service %s.",
+  		     server_name, service);
+  	    RETURN(NULL);
+  	  }
+--- 135,141 ----
+  	  strcpy(service, Z39_50_SERVICE); /* default */
+  	if ((connection = connectToServer(server_name,atoi(service))) == NULL){ 
+  	  	p_err_string = qsprintf_stcopyr(p_err_string, 
+! 						Err_Connect,
+  		     server_name, service);
+  	    RETURN(NULL);
+  	  }
+***************
+*** 154,161 ****
+  		     message_length,
+  		     connection,
+  		     userInfo)) <= 0) {
+!     p_err_string = qsprintf_stcopyr(p_err_string,
+! 	     "Error opening connection to %s via service %s.",
+  	     server_name, service);
+  	RETURN(NULL);
+    }
+--- 155,161 ----
+  		     message_length,
+  		     connection,
+  		     userInfo)) <= 0) {
+!     p_err_string = qsprintf_stcopyr(p_err_string, Err_Connect,
+  	     server_name, service);
+  	RETURN(NULL);
+    }
+***************
+*** 184,192 ****
+    }
+  
+    readSearchResponseAPDU(&query_response, response_message + HEADER_LENGTH);
+-   freeSearchResponseAPDU( query_response);
+    query_response_info = 
+      ((WAISSearchResponse *)query_response->DatabaseDiagnosticRecords);
+    RETURN (query_response_info);
+  
+  cleanup:
+--- 184,192 ----
+    }
+  
+    readSearchResponseAPDU(&query_response, response_message + HEADER_LENGTH);
+    query_response_info = 
+      ((WAISSearchResponse *)query_response->DatabaseDiagnosticRecords);
++   freeSearchResponseAPDU( query_response);
+    RETURN (query_response_info);
+  
+  cleanup:
+***************
+*** 267,274 ****
+  	if (service[0] == '\0')
+  	  strcpy(service, Z39_50_SERVICE); /* default */
+  	if ((connection = connectToServer(server_name,atoi(service))) == NULL) 
+! 	  { p_err_string = qsprintf_stcopyr(p_err_string,
+! 		     "Error opening connection to %s via service %s.",
+  		     server_name, service);
+  	    RETURN (NULL);
+  	  }
+--- 267,273 ----
+  	if (service[0] == '\0')
+  	  strcpy(service, Z39_50_SERVICE); /* default */
+  	if ((connection = connectToServer(server_name,atoi(service))) == NULL) 
+! 	  { p_err_string = qsprintf_stcopyr(p_err_string, Err_Connect,
+  		     server_name, service);
+  	    RETURN (NULL);
+  	  }
+***************
+*** 288,295 ****
+  		     message_length,
+  		     connection,
+  		     userInfo)) <= 0) {
+!     p_err_string = qsprintf_stcopyr(p_err_string,
+! 	     "Error opening connection to %s via service %s.",
+  	     server_name, service);
+      RETURN(NULL);
+    }
+--- 287,293 ----
+  		     message_length,
+  		     connection,
+  		     userInfo)) <= 0) {
+!     p_err_string = qsprintf_stcopyr(p_err_string, Err_Connect,
+  	     server_name, service);
+      RETURN(NULL);
+    }
+***************
+*** 403,410 ****
+  	if (service[0] == '\0')
+  	  strcpy(service, Z39_50_SERVICE); /* default */
+  	if ((connection = connectToServer(server_name,atoi(service))) == NULL) 
+! 	  { p_err_string = qsprintf_stcopyr(p_err_string,
+! 		     "Error opening connection to %s via service %s.",
+  		     server_name, service);
+  	    RETURN (-1);
+  	  }
+--- 401,407 ----
+  	if (service[0] == '\0')
+  	  strcpy(service, Z39_50_SERVICE); /* default */
+  	if ((connection = connectToServer(server_name,atoi(service))) == NULL) 
+! 	  { p_err_string = qsprintf_stcopyr(p_err_string, Err_Connect,
+  		     server_name, service);
+  	    RETURN (-1);
+  	  }
+***************
+*** 424,431 ****
+  		     message_length,
+  		     connection,
+  		     userInfo)) <= 0) {
+!     p_err_string = qsprintf_stcopyr(p_err_string,
+! 	     "Error opening connection to %s via service %s.",
+  	     server_name, service);
+      RETURN(-1);
+    }
+--- 421,427 ----
+  		     message_length,
+  		     connection,
+  		     userInfo)) <= 0) {
+!     p_err_string = qsprintf_stcopyr(p_err_string, Err_Connect,
+  	     server_name, service);
+      RETURN(-1);
+    }
+diff -b -r -c -N 10Mar94/lib/psrv/wais_gw/source.c 10Mar94+/lib/psrv/wais_gw/source.c
+*** 10Mar94/lib/psrv/wais_gw/source.c	Fri Mar 11 05:31:41 1994
+--- 10Mar94+/lib/psrv/wais_gw/source.c	Fri Mar 25 20:58:20 1994
+***************
+*** 486,492 ****
+    /* Note result is returned in global Source_items */
+    struct dirent **list;
+    int i, j;
+! 
+    if ((j = scandir(directory, &list, issfile, alphasort)) < 0) {
+        PrintStatus(STATUS_INFO, STATUS_HIGH, "Error on open of source directory: %s.\n", directory);
+        return;
+--- 486,492 ----
+    /* Note result is returned in global Source_items */
+    struct dirent **list;
+    int i, j;
+!   assert(P_IS_THIS_THREAD_MASTER());
+    if ((j = scandir(directory, &list, issfile, alphasort)) < 0) {
+        PrintStatus(STATUS_INFO, STATUS_HIGH, "Error on open of source directory: %s.\n", directory);
+        return;
+***************
+*** 530,535 ****
+--- 530,536 ----
+    Source source;
+    struct dirent **list;
+  
++   assert(P_IS_THIS_THREAD_MASTER());
+    if ((j = scandir(directory, &list, NULL, NULL)) < 0) {
+      return;
+    }
+diff -b -r -c -N 10Mar94/lib/psrv/wais_gw/ustubs.c 10Mar94+/lib/psrv/wais_gw/ustubs.c
+*** 10Mar94/lib/psrv/wais_gw/ustubs.c	Fri Mar 11 05:31:42 1994
+--- 10Mar94+/lib/psrv/wais_gw/ustubs.c	Fri Mar 25 21:53:11 1994
+***************
+*** 47,52 ****
+--- 49,55 ----
+  long 
+  random(void)
+  { 
++   assert(P_IS_THIS_THREAD_MASTER()); /*SOLARIS: rand, srand & random MT-Unsafe */
+    return(rand());
+  }
+  
+***************
+*** 54,59 ****
+--- 57,63 ----
+  long 
+  srandom(unsigned long seed)
+  { 
++   assert(P_IS_THIS_THREAD_MASTER()); /*SOLARIS: rand, srand & random MT-Unsafe */
+    srand(seed);
+    return(0);
+  }
+diff -b -r -c -N 10Mar94/lib/psrv/wais_gw/zprot.c 10Mar94+/lib/psrv/wais_gw/zprot.c
+*** 10Mar94/lib/psrv/wais_gw/zprot.c	Fri Mar 11 05:31:48 1994
+--- 10Mar94+/lib/psrv/wais_gw/zprot.c	Tue Mar 15 17:44:52 1994
+***************
+*** 662,667 ****
+--- 662,668 ----
+  	    {			
+  	      char *tok;
+  	      buf = readString(&databaseNames,buf);
++ 	      assert(P_IS_THIS_THREAD_MASTER());
+  	      tok = strtok(databaseNames,DB_DELIMITER);
+  	      numItems = 0;
+  	      while (tok != NULL)
+***************
+*** 689,694 ****
+--- 690,696 ----
+  		}
+  	      else		
+  		{ char* esTok = NULL;
++ 		  assert(P_IS_THIS_THREAD_MASTER()); /* strtok thread unsafe */
+  		  tok = strtok(elements,ES_DELIMITER_1); 
+  		  esTok = strtok(NULL,ES_DELIMITER_2); 
+  		  numItems = 0;
+diff -b -r -c -N 10Mar94/lib/psrv/wais_gw/ztype1.c 10Mar94+/lib/psrv/wais_gw/ztype1.c
+*** 10Mar94/lib/psrv/wais_gw/ztype1.c	Fri Mar 11 05:31:48 1994
+--- 10Mar94+/lib/psrv/wais_gw/ztype1.c	Tue Mar 15 17:44:51 1994
+***************
+*** 187,192 ****
+--- 187,193 ----
+      { case DT_AttributeList:
+  	buf = readString(&attributeList,buf);
+  	buf = readAny(&term,buf);
++ 	assert(P_IS_THIS_THREAD_MASTER()); /* strtok is thread unsafe */
+  	use = strtok(attributeList,AT_DELIMITER);
+  	relation = strtok(NULL,AT_DELIMITER);
+  	position = strtok(NULL,AT_DELIMITER);
+diff -b -r -c -N 10Mar94/misc/regex.c 10Mar94+/misc/regex.c
+*** 10Mar94/misc/regex.c	Wed Mar 30 14:51:09 1994
+--- 10Mar94+/misc/regex.c	Wed Mar 23 16:34:48 1994
+***************
+*** 186,191 ****
+--- 186,193 ----
+   * 
+   */
+  
++ #include <pfs_threads.h>
++ 
+  #define MAXDFA  1024
+  #define MAXTAG  10
+  
+***************
+*** 719,725 ****
+--- 721,729 ----
+  	return(lp);
+  }
+  
++ #ifdef PFS_THREADS
+  extern p_th_mutex p_th_mutexREGEX;
++ #endif
+  
+  static int
+  re_comp_exec(char *temp, char *s)
+diff -b -r -c -N 10Mar94/server/dirsrv.c 10Mar94+/server/dirsrv.c
+*** 10Mar94/server/dirsrv.c	Wed Mar 30 22:24:33 1994
+--- 10Mar94+/server/dirsrv.c	Wed Mar 30 14:49:40 1994
+***************
+*** 53,59 ****
+  /*#define MASTER_IS_ONLY_SUBTHREAD */ /* DEBUGGING ONLY */
+  
+  #ifdef PFS_THREADS
+! #define DIRSRV_SUB_THREAD_COUNT	9 /* # of sub-threads we're using in dirsrv. */
+  /* Must be less than P_MAX_NUM_THREADS, since need one thread for dirsrv. . */
+  #if DIRSRV_SUB_THREAD_COUNT >= P_MAX_NUM_THREADS
+  #error DIRSRV_SUB_THREAD_COUNT too big.
+--- 53,59 ----
+  /*#define MASTER_IS_ONLY_SUBTHREAD */ /* DEBUGGING ONLY */
+  
+  #ifdef PFS_THREADS
+! #define DIRSRV_SUB_THREAD_COUNT	60 /* # of sub-threads we're using in dirsrv. */
+  /* Must be less than P_MAX_NUM_THREADS, since need one thread for dirsrv. . */
+  #if DIRSRV_SUB_THREAD_COUNT >= P_MAX_NUM_THREADS
+  #error DIRSRV_SUB_THREAD_COUNT too big.
+***************
+*** 192,198 ****
+      char		*envv;  /* Temp pointer to environment variable */
+  
+      time_t 		now;
+-     struct tm 		*tm;
+      static int dirsrv_internal_error_handler();
+      extern int fseek();         /* RHS of assignment. */
+      extern int dQmaxlen;
+--- 192,197 ----
+***************
+*** 512,523 ****
+  
+      /* Note our start time */
+      (void) time(&now);
+!     assert(P_IS_THIS_THREAD_MASTER());
+!     tm = gmtime(&now);          /* save since parent thread. */
+      sprintf(st_time_str,"%2d-%s-%02d %02d:%02d:%02d UTC",tm->tm_mday,
+               month_sname(tm->tm_mon + 1),tm->tm_year,
+               tm->tm_hour, tm->tm_min, tm->tm_sec);
+! 
+  
+      /* Eventually, we will only set up and bind a port if one    */
+      /* wasn't already passed to us using the -p option.  Until   */
+--- 511,525 ----
+  
+      /* Note our start time */
+      (void) time(&now);
+!     assert(P_IS_THIS_THREAD_MASTER()); /* gmtime unsafe */
+!     p_th_mutex_lock(p_th_mutexPFS_TIMETOASN);
+!     {
+!     struct tm 	*tm= gmtime(&now);          /* safe since parent thread. */
+      sprintf(st_time_str,"%2d-%s-%02d %02d:%02d:%02d UTC",tm->tm_mday,
+               month_sname(tm->tm_mon + 1),tm->tm_year,
+               tm->tm_hour, tm->tm_min, tm->tm_sec);
+!     }
+!     p_th_mutex_unlock(p_th_mutexPFS_TIMETOASN);
+  
+      /* Eventually, we will only set up and bind a port if one    */
+      /* wasn't already passed to us using the -p option.  Until   */
+***************
+*** 555,560 ****
+--- 557,564 ----
+          printf("%s started, PORT=%d\n", prog, port_no);
+      }
+      
++     set_restart_params(fault_count+1, port_no);
++ 
+      plog(L_STATUS,NOREQ,
+  #ifdef PFS_THREADS
+  	 "Startup - %sPID: %d, Root: %s, Shadow: %s, Security: %s, Aftpdir: %s, %s%s%sNum-Subthreads: %d, Host: %s", 
+***************
+*** 627,635 ****
+--- 631,641 ----
+              /* If pthread_create() ever fails, we have no way to recover, and
+                 might as well consider it a fatal error. */
+  #ifdef MASTER_IS_ONLY_SUBTHREAD
++             req_count++;
+              dirsrv(curr_req);
+  #else
+  #if 1
++             req_count++;
+  	    if (p_th_create_detached(new_thread, dirsrv, curr_req))
+  		abort();
+              /* If p_th_create_detached ever fails, we have no good way to 
+***************
+*** 683,689 ****
+      CHECK_MEM();
+      --subthread_count;
+      ++free_subthread_count;
+! #endif
+  }
+  
+  /* dirsrv4real() returns a SUCCESS or FAILURE code that is currently unused.
+--- 703,709 ----
+      CHECK_MEM();
+      --subthread_count;
+      ++free_subthread_count;
+! #endif /*PFS_THREADS*/
+  }
+  
+  /* dirsrv4real() returns a SUCCESS or FAILURE code that is currently unused.
+***************
+*** 1284,1290 ****
+  #endif
+  #endif DIRSRV_EXPLAIN_LAST_RESTART
+  
+!     restart_server(++fault_count,estring);
+      abort();
+  }
+  
+--- 1304,1310 ----
+  #endif
+  #endif DIRSRV_EXPLAIN_LAST_RESTART
+  
+!     restart_server(fault_count,estring);
+      abort();
+  }
+  
+***************
+*** 1305,1310 ****
+--- 1325,1331 ----
+      }
+  
+      (void) open("/dev/null", 0, 0);
++     assert(P_IS_THIS_THREAD_MASTER()); /*SOLARIS: dup2 MT-Unsafe */
+      (void) dup2(0, 1);
+      (void) dup2(0, 2);
+  
+***************
+*** 1410,1416 ****
+      static int been_here_before = 0; 
+      char estring[400];
+  
+!     if (been_here_before++ < 5) {
+          plog(L_FAILURE, NOREQ,
+               "Internal error in file %s, line %d: %s", file, line, mesg);
+          if (mflag) 
+--- 1431,1437 ----
+      static int been_here_before = 0; 
+      char estring[400];
+  
+!     if (been_here_before++ < 5 || is_out_of_memory) {
+          plog(L_FAILURE, NOREQ,
+               "Internal error in file %s, line %d: %s", file, line, mesg);
+          if (mflag) 
+diff -b -r -c -N 10Mar94/server/pstart.c 10Mar94+/server/pstart.c
+*** 10Mar94/server/pstart.c	Fri Mar 11 05:30:05 1994
+--- 10Mar94+/server/pstart.c	Fri Mar 25 21:16:59 1994
+***************
+*** 23,28 ****
+--- 23,29 ----
+  #include <unistd.h>         /* getuid etc */
+   
+  #include <pserver.h>
++ #include <pfs.h>		/* For qsscanf */
+  #include <pprot.h>
+  
+  
+***************
+*** 67,72 ****
+--- 68,74 ----
+         the privileged port ; real uid of root isn't enough (bug fixed,
+         sw@isi.edu, 1 Sept. 1993). */
+      if(!alternate_portnum && euid == 0) {
++       assert(P_IS_THIS_THREAD_MASTER()); /*getpwuid MT-Unsafe*/
+          if ((sp = getservbyname("prospero", "udp")) == 0) 
+              s_in.sin_port = htons((ushort) PROSPERO_PORT);
+          else s_in.sin_port = sp->s_port;
+diff -b -r -c -N 10Mar94/server/restart_srv.c 10Mar94+/server/restart_srv.c
+*** 10Mar94/server/restart_srv.c	Fri Mar 11 05:30:05 1994
+--- 10Mar94+/server/restart_srv.c	Tue Mar 29 12:52:52 1994
+***************
+*** 26,62 ****
+  
+  #include <pparse.h>
+  #include "dirsrv.h"
+  
+  /* NOTE: For SOLARIS, this must NOT be <signal.h> which we override
+     in ../include/signal.h so that sigset_t gets defined.
+     This is unfortunately neccessary since we are POSIX_SIGNAL
+     compliant, but not in general (yet) POSIX compliant */
+! #include "signal.h"	/* for SIG_SETMASK & sigset_t*/
+  
+  /*
+   * restart server restarts the server by calling exec.  Before
+   * restarting, it logs the current statisitcs which would otherwise
+   * be lost.
+   */
+  void
+! restart_server(fcount,estring)
+!     int		fcount;		/* Failure count */
+!     char	*estring;	/* Error string  */
+  {
+-     char	*dsargv[50]; /* Args to dirsrv          */
+-     int		dsargc = 0;  /* Count of args to dirsrv */
+      static int	still_going = 0; /* set if restart attempt in progress */
+      int		f;
+  
+      if(still_going > 10) exit(1);  /* It's the energizer rabbit */
+  
+      alarm(0);			/*Make sure we dont get interrupted*/
+  
+!     if(still_going++ == 0) {       /* If first time through     */
+  	/* Log statistics before we forget them on restart */
+  	log_server_stats();
+  	close_plog();
+      }
+  
+      /* Close all files except stdin, stdout, and stderr */
+      /* which should still be /dev/null, and in_port     */
+--- 26,86 ----
+  
+  #include <pparse.h>
+  #include "dirsrv.h"
++ #include <sockettime.h>
+  
+  /* NOTE: For SOLARIS, this must NOT be <signal.h> which we override
+     in ../include/signal.h so that sigset_t gets defined.
+     This is unfortunately neccessary since we are POSIX_SIGNAL
+     compliant, but not in general (yet) POSIX compliant */
+! #include <posix_signal.h>	/* for SIG_SETMASK & sigset_t*/
+  
+  /*
+   * restart server restarts the server by calling exec.  Before
+   * restarting, it logs the current statisitcs which would otherwise
+   * be lost.
+   */
++ #ifndef NDEBUG
++ int attemptRestart = 0;
++ #endif
++ 
++ static char * in_port_str = NULL;
++ static char * fcount_str = NULL;
+  void
+! set_restart_params(int fcount, int inport)
+! {
+!   assert(P_IS_THIS_THREAD_MASTER());
+!   in_port_str = qsprintf_stcopyr(in_port_str, "-p%d", inport);
+!   fcount_str = qsprintf_stcopyr(fcount_str, "-F%d",
+!                                  (fcount < 99999 ? fcount : 99999));
+! 
+! }
+! 
+! void
+! restart_server(int fcount, char *estring)
+  {
+      static int	still_going = 0; /* set if restart attempt in progress */
+      int		f;
++     char	*dsargv[50]; /* Args to dirsrv          */
++     int	        dsargc = 0;  /* Count of args to dirsrv */
++ 
+  
++ #ifndef NDEBUG
++     attemptRestart = 1;		    /* Set a flag so can debug things */	
++ #endif
+      if(still_going > 10) exit(1);  /* It's the energizer rabbit */
+  
++ #ifdef TIMEOUT_APPROACH
+      alarm(0);			/*Make sure we dont get interrupted*/
++ #endif
+  
+!     if(still_going++ == 0 || is_out_of_memory) { 
+!       /* If first time through     */
+!       if (!(p_th_mutex_trylock(p_th_mutexPSRV_LOG))) {
+  	/* Log statistics before we forget them on restart */
+  	log_server_stats();
+  	close_plog();
+        }
++     }
+  
+      /* Close all files except stdin, stdout, and stderr */
+      /* which should still be /dev/null, and in_port     */
+***************
+*** 65,75 ****
+  	if(f != in_port) (void) close(f);
+      }
+  
+      dsargv[dsargc++] = "dirsrv"; 
+  
+      /* Port to listen on */
+      if(in_port >= 0) {
+! 	dsargv[dsargc++] = qsprintf_stcopyr((char *) NULL, "-p%d", in_port);
+      }
+      if(portname) {
+  	dsargv[dsargc++] = "-p";
+--- 89,101 ----
+  	if(f != in_port) (void) close(f);
+      }
+  
++     /*dsargv now built at startup in set_restart_params */
++ 
+      dsargv[dsargc++] = "dirsrv"; 
+  
+      /* Port to listen on */
+      if(in_port >= 0) {
+! 	dsargv[dsargc++] = in_port_str;
+      }
+      if(portname) {
+  	dsargv[dsargc++] = "-p";
+***************
+*** 82,90 ****
+      }
+  
+      if(fcount > 0) {
+! 	dsargv[dsargc++] = 
+!                 qsprintf_stcopyr((char *) NULL, "-F%d",
+!                                  (fcount < 99999 ? fcount : 99999));
+      }
+  
+      dsargv[dsargc++] = "-h";
+--- 108,114 ----
+      }
+  
+      if(fcount > 0) {
+! 	dsargv[dsargc++] = fcount_str;
+      }
+  
+      dsargv[dsargc++] = "-h";
+diff -b -r -c -N 10Mar94/user/archie.c 10Mar94+/user/archie.c
+*** 10Mar94/user/archie.c	Fri Mar 11 05:30:08 1994
+--- 10Mar94+/user/archie.c	Fri Mar 25 20:58:15 1994
+***************
+*** 504,509 ****
+--- 504,510 ----
+      /* First time called, set localtime */
+      if(!presenttime) {
+  	(void) time(&now);
++ 	assert(P_IS_THIS_THREAD_MASTER());
+  	presenttime = localtime(&now);
+      }
+  
+diff -b -r -c -N 10Mar94/user/menu/objects.c 10Mar94+/user/menu/objects.c
+*** 10Mar94/user/menu/objects.c	Fri Mar 11 05:31:19 1994
+--- 10Mar94+/user/menu/objects.c	Fri Mar 25 20:58:11 1994
+***************
+*** 388,393 ****
+--- 388,394 ----
+      }
+      if (pid == 0) { 
+          /* Child process */
++       assert(P_IS_THIS_THREAD_MASTER());	/* SOLARIS: dup2 MT-Unsafe */
+  	if (dup2(fd, 0) == -1) {
+  	    fprintf(stderr, 
+                      "%s: dup2(fd,0) failed.  This should *never* happen.\n",
+diff -b -r -c -N 10Mar94/user/padmin.c 10Mar94+/user/padmin.c
+*** 10Mar94/user/padmin.c	Fri Mar 11 05:30:10 1994
+--- 10Mar94+/user/padmin.c	Fri Mar 25 20:58:14 1994
+***************
+*** 206,211 ****
+--- 206,212 ----
+      struct passwd *whoiampw;
+      int uid;
+      /* find out who we are */
++     assert(P_IS_THIS_THREAD_MASTER());
+      DISABLE_PFS(whoiampw = getpwuid(uid = getuid()));
+      if (whoiampw == 0) {
+          static char tmp_uid_str[100];
+diff -b -r -c -N 10Mar94/user/pfsinit 10Mar94+/user/pfsinit
+*** 10Mar94/user/pfsinit	Wed Mar 30 14:51:15 1994
+diff -b -r -c -N 10Mar94/user/pfsinit+ 10Mar94+/user/pfsinit+
+diff -b -r -c -N 10Mar94/user/vcache/cmds.c 10Mar94+/user/vcache/cmds.c
+*** 10Mar94/user/vcache/cmds.c	Fri Mar 11 05:31:22 1994
+--- 10Mar94+/user/vcache/cmds.c	Fri Mar 25 22:13:32 1994
+***************
+*** 52,59 ****
+   * auto-login, if possible.
+   */
+  void
+! setpeer(hostn)
+! 	char *hostn;
+  {
+  	char *host, *hookup();
+  
+--- 52,58 ----
+   * auto-login, if possible.
+   */
+  void
+! setpeer(char *hostn)
+  {
+  	char *host, *hookup();
+  
+diff -b -r -c -N 10Mar94/user/vcache/ftp.c 10Mar94+/user/vcache/ftp.c
+*** 10Mar94/user/vcache/ftp.c	Fri Mar 11 05:31:22 1994
+--- 10Mar94+/user/vcache/ftp.c	Fri Mar 25 23:04:47 1994
+***************
+*** 45,50 ****
+--- 45,51 ----
+  #include <perrno.h>
+  #include "vcache_macros.h"
+  
++ #include <pfs.h>		/* For quick_connect */
+  #include <implicit_fixes.h>
+  
+  #ifdef SOLARIS
+***************
+*** 97,102 ****
+--- 98,104 ----
+  		(void) strncpy(hostnamebuf, host, sizeof(hostnamebuf)-1);
+  	}
+  	else {
++ 	        assert(P_IS_THIS_THREAD_MASTER());
+  		hp = gethostbyname(host);
+  		if (hp == NULL) {
+  			ERRSYS("Unknown host %s:%s %s", host);
+***************
+*** 195,200 ****
+--- 197,203 ----
+  	char *myhstnm, username[120], password[120], account[120];
+  	struct passwd *whoiampw;
+  
++ 	assert(P_IS_THIS_THREAD_MASTER()); /* getpwuid MT-Unsafe */
+  	DISABLE_PFS(whoiampw = getpwuid(getuid()));
+  
+  	user = pass = acct = 0;
+***************
+*** 460,467 ****
+                                     old formula VLINKS uses #defines. */
+  #endif
+  int
+! recvrequest(cmd, local, remote, mode)
+! 	char *cmd, *local, *remote, *mode;
+  {
+  	FILE *fout, *din = 0, *mypopen();
+  	int (*closefunc)(), mypclose(), fclose();
+--- 463,469 ----
+                                     old formula VLINKS uses #defines. */
+  #endif
+  int
+! recvrequest(char *cmd, char *local, char *remote, char *mode)
+  {
+  	FILE *fout, *din = 0, *mypopen();
+  	int (*closefunc)(), mypclose(), fclose();
+diff -b -r -c -N 10Mar94/user/vcache/pclose.c 10Mar94+/user/vcache/pclose.c
+*** 10Mar94/user/vcache/pclose.c	Wed Mar 30 14:51:08 1994
+--- 10Mar94+/user/vcache/pclose.c	Fri Mar 25 21:25:04 1994
+***************
+*** 16,21 ****
+--- 16,22 ----
+  
+  #include <pmachine.h>
+  #include <implicit_fixes.h>
++ #include <pfs_threads.h>	/* For P_IS_THIS_THREAD_MASTER */
+  
+  #define	tst(a,b)	(*mode == 'r'? (b) : (a))
+  #define	RDR	0
+***************
+*** 55,60 ****
+--- 56,62 ----
+  		/* myside and hisside reverse roles in child */
+  		(void) close(myside);
+  		if (hisside != tst(0, 1)) {
++ 		  assert(P_IS_THIS_THREAD_MASTER()); /* SOLARIS: dup2 MT-Unsafe */
+  			(void) dup2(hisside, tst(0, 1));
+  			(void) close(hisside);
+  		}

@@ -1,0 +1,39 @@
+#
+# Anonftp/lib  module.
+#
+
+#MOD_CFLAGS = -ansi -pedantic -pipe 
+MOD_DEBUG  = -g3
+#MOD_DEBUG  = -pg -g3
+MOD_WARN   = -Wall -Wtraditional -Wshadow -Wpointer-arith -Wcast-align 
+MOD_INCS   = \
+              -I$(INCLUDE_MODULE)        \
+              -I$(PROSPERO_ROOT)/include \
+              -I$(PATRIE_MODULE)         \
+              -I$(ARCHSEARCH_MODULE)     \
+              -I$(STARTDB_MODULE)        \
+              -I$(STRIDX_MODULE)         \
+              -I$(WEBINDEX_MODULE)/lib   \
+              -I.
+MOD_LIBS   = \
+              -L$(ANONFTP_MODULE)/lib/$(SYSTYPE)  -lanonftp    \
+              -L$(ARCHSEARCH_MODULE)/$(SYSTYPE)   -larchsearch \
+              -L$(LIBARCHIE_MODULE)/$(SYSTYPE)    -larchie     \
+              -L$(STRIDX_MODULE)/$(SYSTYPE)       -larchstridx \
+              -L$(HOSTDB_MODULE)/$(SYSTYPE)       -lhostdb     \
+              -L$(PATRIE_MODULE)/$(SYSTYPE)       -lpatrie     \
+              -L$(STARTDB_MODULE)/$(SYSTYPE)      -lstartdb    \
+              -L$(WEBINDEX_MODULE)/lib/$(SYSTYPE) -lwebindex
+  
+
+include $(ARCHIE_ROOT)/Makefile.pre
+
+
+SRCS = \
+        cgi-client.c
+
+OBJS = \
+        cgi-client.o
+
+EXES = \
+        cgi-client

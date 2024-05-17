@@ -1,0 +1,7 @@
+#
+# include
+#
+
+# nothing to do, yet.
+all_clean all_depend all_newsys clean depend newsys:
+	:

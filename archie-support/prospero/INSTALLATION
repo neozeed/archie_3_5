@@ -1,0 +1,6 @@
+This release may be built as a client and server, or as a client only.
+If building the client and server, please refer to INSTALLATION_s.
+
+If building the client only, you should move Makefile_u to Makefile.
+You may then remove the directories server and lib/psrv.  You should
+then refer to the file INSTALLATION_u.

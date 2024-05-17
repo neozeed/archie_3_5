@@ -1,0 +1,29 @@
+#
+# webindex/tools module.
+#
+
+#
+# Put this first to override the FORCE target in the included make file.
+#
+all: $(EXES)
+
+
+include $(ARCHIE_ROOT)/Makefile.post
+
+
+extern_urls: \
+              $(LIBARCHIE_MODULE)/$(SYSTYPE)/libarchie.a \
+              $(HOSTDB_MODULE)/$(SYSTYPE)/libhostdb.a \
+              $(WEBINDEX_MODULE)/lib/$(SYSTYPE)/libwebindex.a \
+              $(OBJS)
+	$(CC) $(CFLAGS) -o $@ $(OBJS) $(MOD_LIBS) $(SYS_LIBS)
+
+extern_urls_ndbm: \
+              $(LIBARCHIE_MODULE)/$(SYSTYPE)/libarchie.a \
+              $(HOSTDB_MODULE)/$(SYSTYPE)/libhostdb.a \
+              $(WEBINDEX_MODULE)/lib/$(SYSTYPE)/libwebindex.a \
+              $(OBJS)
+	$(CC) $(CFLAGS) -o $@ $(OBJS) $(MOD_LIBS) $(SYS_LIBS_0)
+
+clean:
+	rm -f *.o $(EXES) core

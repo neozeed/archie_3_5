@@ -1,0 +1,12 @@
+#
+# lib/re-posix/SunOS-5.4
+#
+
+include ../Makefile.pre
+
+RANLIB = :
+
+include ../Makefile.post
+
+
+# DO NOT DELETE THIS LINE -- make depend depends on it

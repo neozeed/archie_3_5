@@ -1,0 +1,48 @@
+#
+# Anonftp/lib  module.
+#
+
+#MOD_CFLAGS = -ansi -pedantic -pipe
+#MOD_CFLAGS = -traditional  -pipe
+MOD_DEBUG  = -g3
+MOD_WARN   = -Wall -Wshadow -Wpointer-arith -Wcast-align \
+             -Wnested-externs -Wstrict-prototypes
+
+MOD_INCS = -I$(INCLUDE_MODULE) -I$(PROSPERO_ROOT)/include -I.
+
+include $(ARCHIE_ROOT)/Makefile.pre
+
+
+INCS = \
+	lang_libwebindex.h\
+	webindexdb_ops.h \
+	sub_header.h        web.h\
+	lang_weblib.h       sub_header_def.h    
+
+
+SRCS = \
+	lang_libwebindex.c\
+	webindexdb_ops.c \
+	sub_header.c
+
+OBJS = \
+	lang_libwebindex.o\
+	webindexdb_ops.o \
+	sub_header.o
+
+EXES = \
+	libwebindex.a
+
+
+
+
+
+
+
+
+
+
+
+
+
+

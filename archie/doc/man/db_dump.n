@@ -1,0 +1,99 @@
+.\" Copyright (c) 1992, 1994, 1996 Bunyip Information Systems Inc.
+.\" All rights reserved.  
+.\"	
+.\" Archie 3.5
+.\" August 1996
+.\"	
+.\"	@(#)db_dump.n	
+.\"
+.TH DB_DUMP N "August 1996"
+
+.SH NAME
+.B db_dump
+\- dump the list of available sites, in the database, in ASCII format.
+
+.SH SYNOPSIS
+.B db_dump 
+[
+.BI \-H " <hostname>"
+] [
+.BI \-d " <database>"
+] [ 
+.BI \-M " <dir>"
+] [
+.BI \-h " <dir>"
+] [ 
+.B \-v
+] [ 
+.B \-l 
+] [
+.BI \-L " <logfile>"
+]
+
+.SH DESCRIPTION
+.B db_dump 
+prints a brief message about each site indexed in any database.
+The information includes host name, port number, IP address and the site index
+number.  The site index number is the number by which the site is known to
+the database.
+.B db_dump
+is useful for a quick listing of the database in question.
+
+.SH OPTIONS
+.TP
+.BI \-H " <hostname>"
+The host name of the site about which you want statistics.
+.TP
+.BI \-M " <dir>"
+The name of the master Archie database directory. If not
+specified, the program looks in the directory
+.BR ~archie/db ,
+then
+.BR ./db .
+.TP
+.BI \-d " <database>"
+The catalog about which to print information.
+By default, the program will examine all available catalogs listed in
+.BR ~archie/etc/catalogs.cf .
+.TP
+.BI \-h " <dir>"
+The name of the Archie host database directory. If not
+specified, the program will first try
+.BR ~archie/db/host_db ,
+then
+.BR ./host_db .
+.TP
+.B \-v
+Verbose mode.  Print messages indicating what the program is
+doing.
+.TP
+.B \-l
+Log messages to the file
+.BR ~archie/logs/archie.log .
+The location of the file may be overridden with the
+.B \-L 
+option.  By default, messages are written to
+.IR stderr .
+.TP
+.BI \-L " <logfile>"
+Specify the log file.  For this to have any effect, the
+.B \-l 
+option must be specified, as well.  Note that debugging
+information is also written to the log file.
+
+.SH FILES
+~archie/db/\fI<db-name>\fP/*
+
+.SH SEE ALSO
+.BR db_stats (n)
+
+.SH AUTHOR
+Bunyip Information Systems.
+.br
+Montr\o"\'e"al, Qu\o"\'e"bec, Canada
+.sp
+Archie is a registered trademark of Bunyip Information Systems Inc., Canada,
+1990.
+
+
+

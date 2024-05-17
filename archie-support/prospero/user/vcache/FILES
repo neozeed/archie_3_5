@@ -1,0 +1,15 @@
+FILES
+Makefile
+aftpget.c
+cmds.c
+ftp.c
+ftp.h
+ftp_var.h
+gopherget.c
+main.c
+pclose.c
+ruserpass.c
+telnet.h
+vcache.c
+vcache.h
+vcache_macros.h

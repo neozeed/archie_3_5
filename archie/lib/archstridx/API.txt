@@ -1,0 +1,180 @@
+Types:
+
+  struct arch_stridx_handle *handle;
+
+
+Includes:
+
+  #include "patrie.h"
+  #include "archstridx.h"
+
+
+Libraries:
+
+  cc foo.c -larchstridx -lpatrie
+
+
+Functions:
+
+  The functions return 0 if they encounter an error, otherwise they return 1.
+  An error is something that prevents a function from working at all (e.g a
+  required file can't be opened, etc.)  Failing to find a key in the database
+  is not considered an error.
+
+
+  int archAppendKey(struct arch_stridx_handle *handle,
+                    const char *key,
+                    unsigned long *start)
+
+      Append a key (string) to the strings file associated with `handle'.  The
+      offset of the key is returned through `start'.  An exact search for
+      `key' will now return the new start.  (If the key already exists in the
+      database this function will return its start without appending a new
+      copy.)
+      
+
+  int archBuildStrIdx(struct arch_stridx_handle *h)
+
+      Build a new PaTrie index, covering the entire strings file.  The index
+      is constructed in new files, which replace the existing version only if
+      no errors were encountered.
+      
+
+  void archCloseStrIdx(struct arch_stridx_handle **handle)
+
+      Close the database associated with `**handle', and set `*handle' to 0.
+      
+
+  int archCreateStrIdx(const char *dbdir,
+                       int indexType,
+                       struct arch_stridx_handle **handle)
+
+      Create a new archie database, wiping out any existing database.  `dbdir'
+      is the directory in which the database files will be created.
+      `indexType' has one of the two values ARCH_INDEX_CHARS or
+      ARCH_INDEX_WORDS, which determine whether the index will be searchable
+      by any substring, or just by word prefixes.
+
+
+  int archGetIndexedSize(struct arch_stridx_handle *h, long *sz)
+
+      NEW
+
+      Return, through `sz', the number of bytes, in the strings file, that
+      have been indexed.
+
+
+  int archGetStateString(struct arch_stridx_handle *h, char **str)
+
+      Return, through `str', a string representation of the current search
+      state.  In particular, an error occurs if no search has been performed.
+      The routine allocated the memory for the string; the caller is
+      responsible for freeing it.
+
+
+  int archSetStateFromString(struct arch_stridx_handle *h, const char *str)
+
+      Set the current search state from the encoded represention in `str'.
+
+
+  int archGetString(struct arch_stridx_handle *handle,
+                    long offset,
+                    char **str)
+
+      Return a malloc()ed copy of the newline terminated string occuring at
+      `offset' bytes into the strings file.  The caller is responsible for
+      freeing the copy.
+
+
+  int archGetMoreStarts(struct arch_stridx_handle *h,
+                        unsigned long maxhits,
+                        unsigned long *nhits,
+                        unsigned long start[])
+
+      Return more starts fulfilling the conditions of the previous search.  At
+      most `maxhits' starts will be returned -- the exact number returned is
+      given by `*nhits'.  If `*nhits' is less than `maxhits' then all matching
+      starts have been returned.  The array, `starts', holds the offsets of
+      the first character of the matching strings; it must contain at least
+      `maxhits' elements.
+  
+      
+  int archGetStringsFileSize(struct arch_stridx_handle *h, long *sz)
+
+      NEW
+
+      Return, through `sz', the number of bytes in the strings file.
+
+
+  int archOpenStrIdx(const char *dbdir,
+                     int mode,
+                     struct arch_stridx_handle **handle)
+
+      Return a pointer to an `arch_stridx_handle' structure, corresponding to
+      the strings database.  `dbdir' is the directory in which the database
+      files exist.  `mode' indicates how the database will be used.  It may
+      have one of these values: ARCH_STRIDX_APPEND, ARCH_STRIDX_BUILD, or
+      ARCH_STRIDX_SEARCH.
+
+      
+  void archPrintStats(struct arch_stridx_handle *handle)
+
+      Print out information on the number of keys appended to the database,
+      and the number that were already contained in the database.
+
+
+  int archUpdateStrIdx(struct arch_stridx_handle *handle)
+
+      This function currently does nothing.  It always returns 1.
+
+
+  int archSearchExact(struct arch_stridx_handle *handle,
+                      const char *key,
+                      unsigned long *start,
+                      int *found)
+
+      Search for the exact `key' in the strings file.  If found, its offset
+      will be returned through `*start', and `*found' will be set to 1,
+      otherwise `*found' will be set to 0.
+
+
+  int archSearchRegex(struct arch_stridx_handle *handle,
+                      const char *key,
+                      int case_sens,
+                      unsigned long maxhits,
+                      unsigned long *nhits,
+                      unsigned long starts[])
+
+      Search the strings file for strings matching the egrep(1)-style regular
+      expression in `key'.  At most `maxhits' strings will be returned -- the
+      exact number found is indicated by `*nhits'.  The array, `starts',
+      contains the offsets of the matching strings; it contain at least
+      `maxhits' elements.
+      
+
+  int archSearchSub(struct arch_stridx_handle *handle,
+                    const char *key,
+                    int case_sens,
+                    unsigned long maxhits,
+                    unsigned long *nhits,
+                    unsigned long starts[])
+
+      CHANGED.
+
+      Search the strings file for strings matching the substring in `key'.  At
+      most `maxhits' starts will be returned -- the exact number returned is
+      given by `*nhits'.  The array, `starts', holds the offsets of the first
+      character of the matching strings; it must contain at least `maxhits'
+      elements.
+
+
+  int archSetBuildMaxMem(struct arch_stridx_handle *h, size_t mem)
+
+      Set the maximum amount of memory to allocate for the PaTrie index
+      building phase.
+
+
+  int archSetTempDir(struct arch_stridx_handle *h, const char *newdir)
+
+      Set the temporary directory, used in the construction of the PaTrie
+      index, to `newdir'.

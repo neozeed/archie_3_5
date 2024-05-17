@@ -1,0 +1,15 @@
+#
+# clients
+#
+
+BIN_DIRS = \
+	cgi  \
+	email  \
+	mail_back_end \
+	telnet
+
+
+DIRS = \
+	$(BIN_DIRS)
+
+include $(ARCHIE_ROOT)/Makefile.multi

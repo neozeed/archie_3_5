@@ -1,0 +1,16 @@
+#
+# Patrie module.
+#
+
+all: $(EXES)
+
+include $(ARCHIE_ROOT)/Makefile.post
+
+
+libwebindex.a: $(OBJS)
+	$(AR) r $@ $?
+	$(RANLIB) $@
+
+
+clean:
+	rm -f *.o $(EXES) core

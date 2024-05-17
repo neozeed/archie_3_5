@@ -1,0 +1,108 @@
+.TH __USERVER__ 1 "8 September 1994"
+.SH NAME
+__SERVER__ \- convert between __PROTO__ and Prospero protocols
+
+.SH SYNOPSIS
+.B __SERVER__ [\fB\-acl \fIacl\-file\fR]
+[\fB\-config \fItcl\-script\fR] [\fB\-debug\fR]
+[\fB\-emesg \fIfile\fR] [\fB\-log \fIlog\-file\fR]
+[\fB\-pdebug \fInum\fR] [\fB\-phost \fIhost\fR]
+[\fB\-port \fInum\fR] [\fB\-proot \fIprosp\-root\fR]
+[\fB\-stay\fR] [\fB\-user \fIname\fR]
+
+.SH DESCRIPTION
+.LP
+.B __SERVER__
+serves the contents of a Prospero File System directory tree, while giving
+the appearance, to __PROTO__ clients, of an ordinary __PROTO__ server.  When
+started without arguments \fB__SERVER__\fR listens on port __PORT__ (officially
+assigned to __PROTO__), and treats the root of the Prospero tree as the main
+__PROTO__ menu.
+
+.SH OPTIONS
+.LP
+.TP 5n
+.B \-acl \fIacl\-file\fR
+Access control list.
+.IR acl\-file
+contains a list of network and host addresses, one per line, which
+limits the sites that may access the server.  All addresses must be
+in dotted decimal format, and no other type of line may appear in the
+file.  Network addresses may be abreviated; for example, `8' refers
+to the network `8.0.0.0'.
+
+.TP 5n
+.B \-config \fItcl\-script\fR
+Execute \fItcl\-script\fR upon start\-up.  Sending SIGUSR1 to the parent
+process will cause the script to be re\-executed.  This code is still under
+development, so the exact effect of executing the script is not yet
+defined.
+
+.TP 5n
+.B \-debug
+Write debugging information to \fIstderr\fR.  Note that in normal
+operation, as a daemon, \fIstderr\fR is not attached to any file,
+so any ouput to it will be lost.  (See below for information on the
+\fB\-log\fR and \fB\-stay\fR options.)  The \fB\-debug\fR option is
+normally used for debugging.
+
+.TP 5n
+.B \-emesg \fIfile\fR
+Where to log special messages.
+Special messages, as opposed to those written to a log file, are normally
+sent to the console.  They may be directed to the file or device given
+by the \fIfile\fR argument.  This option is normally used for debugging.
+
+.TP 5n
+.B \-log \fIlog\-file\fR
+Log debugging information to a file.
+\fIstderr\fR is connected to the file given as the argument.  This
+allows debugging information to be saved when running as a daemon.
+This option is normally used for debugging.
+
+.TP 5n
+.B \-pdebug \fInum\fR
+Print Prospero debugging information to \fIstderr\fR.  The Prospero
+libraries use the numeric argument as a debug level.  This option is
+normally used for debugging.
+
+.TP 5n
+.B \-phost \fIhost\fR
+The argument is the name of the host on which the Prospero directory
+tree resides.  The default is \fIlocalhost\fR.
+
+.TP 5n
+.B \-port \fInum\fR
+The numeric argument is the port on which to listen for connections from
+__PROTO__ clients.  The default is __PORT__.
+
+.TP 5n
+.B \-proot \fIprosp\-root\fR
+The argument is the name of the Prospero virtual directory which is to
+appear as the root of the __PROTO__ directory tree.  The default is the
+root of the Prospero virtual directory tree.
+
+.TP 5n
+.B \-stay
+Stay in the foreground.  The server will not background itself, as it
+would when started normally.  If the \fB\-debug\fR option is specified,
+debugging information will be sent to \fIstderr\fR, unless overridden by
+the \fB\-log\fR option.  The \fB\-stay\fR option is normally used for
+debugging.
+
+.TP 5n
+.B \-user \fIname\fR
+.B __SERVER__
+will attempt to change both its real and effective user IDs to that of
+the specified user, which may be either a name or a number.  Normally,
+this is used only when the daemon is started by root.
+
+.SH SEE ALSO
+Documentation provided with the Prospero distribution,
+.br
+Documentation provided with the __PROTO__ distribution.
+
+.SH AUTHOR
+Bunyip Information Systems
+.br
+Montr\o"\'e"al, Qu\o"\'e"bec, Canada

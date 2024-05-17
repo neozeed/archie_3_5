@@ -1,0 +1,23 @@
+include ../Makefile.pre
+
+#
+# In /usr/include/NLregexp.h an unsigned char * is subtracted
+# from a char *.  Gcc refuses to compile this, so we use IBM's
+# compiler for this library.
+#
+
+CC         = cc
+MOD_CFLAGS =
+MOD_OPT    =
+MOD_WARN   =
+MOD_DEBUG  =
+
+SYS_DEBUG = -g
+SYS_DEFS  = -DAIX
+SYS_OPT   = -O2
+
+SENT_FLAGS = -ffixed-%g2 -ffixed-%g3 -ffixed-%g4
+
+include ../Makefile.post
+
+# DO NOT DELETE THIS LINE -- make depend depends on it

@@ -1,0 +1,141 @@
+Revised again: 6/18/93, 11:20 am
+
+COLLATION-ORDER is a new LINK attribute of type SEQUENCE in the
+ATTRIBUTE namespace.
+
+In this document, where I specify sequences, spaces separate tokens
+within a sequence, just as they do in the Prospero protocol.
+
+. NUMERIC
+
+For the GOPHER implementation, the value will always be either 
+        NUMERIC ... 
+or
+        LAST NUMERIC ...        
+
+.. NUMERIC <1st-number> <2nd-number> <3rd-number> ... <nth-number>
+
+Multiple instances of these are ordered with lower numbers coming
+before higher ones.  One sorts on the <1st-number> field.  If the
+<1st-number> fields of two vlinks are equal, then the <2nd-number>
+field is exampined, and so on.  All items with a COLLATION-ORDER
+attribute with NUMERIC as the 1st field will come before other menu
+items.  The <number> fields are arbitrary integers; clients are not
+required to properly handle integers that cannot be represented in the
+customary 32 bit 2s-complement representation.
+
+If a number not present in a field, this is considered to come before
+all other numbers.  Therefore,
+        NUMERIC 1
+comes before
+        NUMERIC 1 3
+Another way of saying this is that if one value of the COLLATION-ORDER
+is a proper prefix of another, the shorter item comes first.
+
+If inappropriate values are present in a numeric
+field (for example, the ASCII string 'foo'), then the ordering is
+undefined.  Thus, 
+        NUMERIC 1 
+        NUMERIC foo
+is just as valid an ordering as
+        NUMERIC foo
+        NUMERIC 1
+
+.. LAST NUMERIC  <1st-number> <2nd-number> <3rd-number> ... <nth-number>
+
+All items with a COLLATION-ORDER attribute of this form come after all
+other items in the menu/directory.  These are ordered just as with the
+NUMERIC collation-order attribute; just as with the NUMERIC
+collation-order attribute, smaller numbers go closer toward the front
+of the menu and larger towards the end.  
+
+. ASCII
+
+        ASCII  <major-key-string> <minor-key-string>
+                <even-more-minor-key-string>  ...
+        LAST ASCII  <major-key-string> <minor-key-string>
+                <even-more-minor-key-string>  ...
+
+This works like NUMERIC, but 'preceeding in ASCII collating sequence
+comes earlier' replaces 'lower numbers coming before higher ones' in
+the above discussion.
+
+. Conflicting Values for COLLATION-ORDER ATTRIBUTE:
+
+If two items have the same value for the COLLATION-ORDER attribute,
+then they will be sorted normally, in accordance with the usual
+directory sorting procedure.  For now, this means sorting them in
+increasing order by the ASCII values of their NAME-COMPONENT fields.
+Eventually, when the DIRECTORY-ORDERING attribute is implemented, this will
+change.  (The DIRECTORY-ORDERING attribute and its interactions with
+COLLATION-ORDER are documented separately, and we do not need to
+concern ourselves with it for now.)  If two items have equal sort
+keys, order should be preserved.
+
+. ASCII/NUMERIC precedence
+
+If a directory contains some links with NUMERIC COLLATION-ORDER and
+others with ASCII collation-order defined, then the NUMERIC comes
+before the ASCII.  This is an arbitrary choice.  If a directory
+contains some links with LAST NUMERIC and others with LAST ASCII, then
+LAST NUMERIC precedes LAST ASCII.
+
+<A nice move being made in gopherspace is to support -ve numbers, ordered
+ last, after elements with no ordering specified - Mitra>
+
+. Marginal cases
+
+A COLLATION-ORDER attribute with a zero-length sequence as its value
+is treated as if the COLLATION-ORDER were not defined at all and is
+sorted appropriately.  It follows from this that simply "LAST" is an
+acceptable order as well.  Any items with 'LAST' defined as the
+collation order go after items with LAST NUMERIC or LAST ASCII.  
+Note that simply "LAST" fits the model since it goes at the end, but
+is then sorted compared to others as if no collation-order was
+specified.
+
+LAST without arguments comes after all other LAST's.  If there are
+multiple LAST's without arguments, they are considered unordered, and
+order between them is based on other criteria (eventually directorey
+ordering if available, and if not, the order should be preserved (i.e.
+the order they were in before sorting.
+
+
+
+.  Implementation notes for Kwynn
+
+The COLLATION-ORDER attribute will be examined within the m_get_menu()
+function.  m_get_menu will call get_vdir() with the GVD_NOSORT flag.
+It will then call a special function (which Kwynn will write) to sort
+the VLINKs returned by get_vdir().  Kwynn should look at the source to
+the vl_insert(), and probably wants to insert links by calling
+vl_insert() with the VLI_NOSORT option.
+
+Don't bother implementing ASCII collation order for now.  Don't bother
+implementing LAST by itself.
+
+Kwynn should write this sorting function with an eye to it possibly
+becoming a part of the PFS library.  When Kwynn he has time, he should
+run the interface to his function by me and then write some library
+documentation for it to go into the PFS library manual.  Depending on
+when this happens and on future discussions, we may also make this
+function the default sorting routine used by vl_insert(); this must be
+discussed.  
+
+Kwynn should also look at the sorting function in aq_query.c, with an
+eye to his sorting function being something that we could drop into
+aq_query.c as an alternative function.
+The sort function Kwynn implements should be order preserving.  This
+will lets us run multiple sort functions on the data; first for the
+minor key and then for the major key.  How about taking an argument to
+the sort function that is the directory ordering field for the
+directory. Ignore the field for now. -bcn. 
+
+
+Yout sort ordering function should be in two parts, the sort code, and
+a comparison function.  The comparison function should be the only
+place all these rules are encoded, and should be fairly
+straightforward.  Doing comparisons one token at a time, maintaining
+perhaps one bit of state indicating whether the previous token seen
+was "LAST".
+

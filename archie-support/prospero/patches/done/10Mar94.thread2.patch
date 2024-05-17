@@ -1,0 +1,1457 @@
+diff -b -r -c -N 10Mar94.all/lib/ardp/Makefile 10Mar94+/lib/ardp/Makefile
+*** 10Mar94.all/lib/ardp/Makefile	Mon Apr 18 16:11:15 1994
+--- 10Mar94+/lib/ardp/Makefile	Wed Apr 13 21:51:53 1994
+***************
+*** 34,39 ****
+--- 34,40 ----
+  	ardp_srv_ini.c \
+  	ardp_xmit.c \
+  	dnscache_alloc.c \
++ 	flocks.c \
+  	hostname2adr.c \
+  	p__th_self_num.c \
+  	unixerrstr.c \
+***************
+*** 61,66 ****
+--- 62,68 ----
+  	ardp_srv_ini.o \
+  	ardp_xmit.o \
+  	dnscache_alloc.o \
++ 	flocks.o \
+  	hostname2adr.o \
+  	p__th_self_num.o \
+  	unixerrstr.o \
+diff -b -r -c -N 10Mar94.all/lib/ardp/flocks.c 10Mar94+/lib/ardp/flocks.c
+*** 10Mar94.all/lib/ardp/flocks.c	Fri Mar 11 05:30:25 1994
+--- 10Mar94+/lib/ardp/flocks.c	Sun Apr 17 20:54:22 1994
+***************
+*** 4,12 ****
+  	 prospero/alpha.5.2a+/lib/pfs/flalloc */
+  
+  #include <pfs.h>
+! #include "filelock.h"
+  #include "mitra_macros.h"
+! #define Channel_Illegal 0;
+  
+  static FILELOCK	lfree = NULL;		/* Free filelocks */
+  /* These are global variables which will be read by dirsrv.c
+--- 4,14 ----
+  	 prospero/alpha.5.2a+/lib/pfs/flalloc */
+  
+  #include <pfs.h>
+! #include <plog.h>
+! #include "flocks.h"
+! 
+  #include "mitra_macros.h"
+! extern p_th_mutex p_th_mutexFILES;
+  
+  static FILELOCK	lfree = NULL;		/* Free filelocks */
+  /* These are global variables which will be read by dirsrv.c
+***************
+*** 14,20 ****
+  
+  int		filelock_count = 0;
+  int		filelock_max = 0;
+! 
+  
+  /************* Standard routines to alloc, free and copy *************/
+  /*
+--- 16,24 ----
+  
+  int		filelock_count = 0;
+  int		filelock_max = 0;
+! int             filelock_open = 0;
+! int             filelock_open_max = 0;
+! FILELOCK        filelock_locked = NULL;
+  
+  /************* Standard routines to alloc, free and copy *************/
+  /*
+***************
+*** 31,38 ****
+      FILELOCK	fl;
+      
+      TH_STRUC_ALLOC(filelock,FILELOCK,fl);
+!     name = NULL;
+!     readers = NULL
+      return(fl);
+  }
+  
+--- 35,42 ----
+      FILELOCK	fl;
+      
+      TH_STRUC_ALLOC(filelock,FILELOCK,fl);
+!     fl->name = NULL;
+!     fl->readers = 0;
+      return(fl);
+  }
+  
+***************
+*** 45,52 ****
+  void
+  filelock_free(FILELOCK fl)
+  {
+!     stfree(name); name = NULL;
+!     readers = 0;
+      TH_STRUC_FREE(filelock, FILELOCK, fl);
+  }
+  
+--- 49,56 ----
+  void
+  filelock_free(FILELOCK fl)
+  {
+!     stfree(fl->name); fl->name = NULL;
+!     fl->readers = 0;
+      TH_STRUC_FREE(filelock, FILELOCK, fl);
+  }
+  
+***************
+*** 66,75 ****
+--- 70,210 ----
+  }
+  
+  void
++ filelock_unreaders(FILELOCK flock)
++ {
++   /* Assumes p_th_mutexFILES is locked already */
++   assert(flock->readers > 0);
++   if (!(--flock->readers)) {
++     EXTRACT_ITEM(flock,filelock_locked);
++     filelock_free(flock);
++   }
++ }	
++ 
++ void
++ filelock_unwriters(FILELOCK flock)
++ {
++   /* Assumes p_th_mutexFILES is locked already */
++  assert(flock->readers  == -1);
++  EXTRACT_ITEM(flock, filelock_locked);
++  filelock_free(flock);
++ }
++ 
++ void
+  filelock_freespares()
+  /* This is used for filelocks to free up space in the child */
+  {
+  	TH_FREESPARES(filelock,FILELOCK);
+  }
+  
++ void
++ filelock_release(const char *filename, int readonly)
++ {
++   FILELOCK flock;
++   p_th_mutex_lock(p_th_mutexFILES);
++   flock = filelock_locked;
++   FIND_FNCTN_LIST(flock, name, filename, stequal);
++   assert(flock);   /* it better be locked */
++   if (readonly) {
++     filelock_unreaders(flock);      /* May destroy flock */
++   } else {
++     filelock_unwriters(flock);	/* May destroy flock */
++   }
++   filelock_open--;
++   p_th_mutex_unlock(p_th_mutexFILES);
++ }
++ 
++ int
++ locked_fclose_A(FILE *afile, const char *filename, int readonly)
++ {
++   int retval;
++   /* Assumes already obtained filelock for filename */
++   retval = fclose(afile);
++    /* At least on solaris, this can return an error for no apparent reason */
++ #if 0
++   assert(!retval);
++ #endif
++   filelock_release(filename, readonly);
++   return(retval);
++ }
++ 
++ void
++ filelock_obtain(const char *filename, int readonly)
++ {
++   FILELOCK(flock);
++   for (;;) {
++     p_th_mutex_lock(p_th_mutexFILES);
++     flock = filelock_locked;
++     FIND_FNCTN_LIST(flock, name, filename,stequal);
++     if (!flock) { /* didnt find a matching lock */
++       flock = filelock_alloc();
++       flock->name = stcopy(filename);
++       flock->readers = 0;
++       APPEND_ITEM(flock,filelock_locked);
++     }
++     /* Found, or created a matching lock */
++     if (readonly) {
++       if (flock->readers >= 0) {
++ 	flock->readers++;
++ 	break;
++       }
++        /* Drops thru here, if we want it readonly, but someone else writing*/
++     } else {
++       if (flock->readers == 0) {
++ 	flock->readers = -1;      /* Special code for writer */
++ 	break;
++       }
++       /* Drops thru here, if we want to write, but someone else 
++ 	 is reading/writing */
++     }
++     /* At this point we cant lock it, so unlock mutex, wait, and try again*/
++     p_th_mutex_unlock(p_th_mutexFILES);
++     plog(L_QUEUE_INFO,NOREQ, "Waiting for filelock for %s", filename, 0);
++     sleep(1);     /* Maybe too long */
++   } /*for*/
++   if (++filelock_open > filelock_open_max) {
++     filelock_open_max = filelock_open;
++   }
++   /* break is always done with mutex locked */
++   p_th_mutex_unlock(p_th_mutexFILES);
++ }
++ 
++ 
++ FILE *
++ locked_fopen(const char *filename, const char *mode)
++ {
++   FILELOCK flock;
++   FILE *retval;
++   int readonly = stequal(mode,"r");
++   filelock_obtain(filename,readonly); /* Will wait till available */
++   if (!(retval = fopen(filename,mode))) {
++     filelock_release(filename, readonly);
++   }
++   return retval;
++ }
++ 
++ /* Suuitable sequence for creating a file via a temporary 
++    filelock_obtain(filename,FALSE);
++    if (!(afile = locked_fopen(tmpfilename, "w")) )
++            filelock_release(filename,FALSE);
++    written stuff to the file - retval set if fails
++    return(locked_fclose_and_rename(afile, tmpfilename, filenam,retvale));
++ */
++    
++ int
++ locked_fclose_and_rename(
++ 			FILE *afile, /* Open "w" temporary file */
++ 			const char *tmpfilename, /* Name of temp file */
++ 			const char *filename, /* Name desired */
++ 			int retval) /* FALSE if ok to rename, TRUE cleanup*/
++ {
++ 
++   if (fflush(afile) || ferror(afile)) { retval = PFAILURE; }
++   if (locked_fclose_A(afile, tmpfilename, FALSE)) { retval = PFAILURE; }
++   if (!retval) {		/* Dont attempt to rename if failed */
++     if (rename(tmpfilename, filename)) { retval = PFAILURE; }
++   }
++   unlink(tmpfilename);
++   filelock_release(filename,FALSE);
++   return(retval);
++ }
+  
+diff -b -r -c -N 10Mar94.all/lib/ardp/flocks.h 10Mar94+/lib/ardp/flocks.h
+*** 10Mar94.all/lib/ardp/flocks.h	Fri Mar 11 05:30:25 1994
+--- 10Mar94+/lib/ardp/flocks.h	Wed Apr 13 19:20:16 1994
+***************
+*** 8,14 ****
+  	int	consistency;
+  #endif
+  	char    *name;
+! 	int     readers;
+  	struct	filelock	*next;
+  	struct	filelock	*previous;
+  };
+--- 8,15 ----
+  	int	consistency;
+  #endif
+  	char    *name;
+! 	int     readers;        /* -1 for writing */
+! /* Note we dont keep the fileno here since each locker opens seperately*/
+  	struct	filelock	*next;
+  	struct	filelock	*previous;
+  };
+diff -b -r -c -N 10Mar94.all/lib/ardp/p__th_self_num.c 10Mar94+/lib/ardp/p__th_self_num.c
+*** 10Mar94.all/lib/ardp/p__th_self_num.c	Mon Apr 18 16:09:52 1994
+--- 10Mar94+/lib/ardp/p__th_self_num.c	Wed Apr 13 21:27:13 1994
+***************
+*** 117,150 ****
+  
+  extern p_th_mutex p_th_mutexFILES;
+  
+- FILE *
+- locked_fopen(const char *a,const char *b)
+- {
+-   FILE *retval;
+- 
+-   p_th_mutex_lock(p_th_mutexFILES);
+-   retval = fopen(a,b);
+-   if (!retval) {
+-     p_th_mutex_unlock(p_th_mutexFILES);
+-   }
+-   return(retval);
+- }
+- 
+- int 
+- locked_fclose(FILE *a)
+- {
+-   int retval;
+- 
+-   retval = fclose(a);
+-   p_th_mutex_unlock(p_th_mutexFILES);
+-   return (retval);
+- }
+- void
+- locked_clear(FILE *a)
+- {
+-   p_th_mutex_unlock(p_th_mutexFILES);
+- }
+- 
+  #ifndef NDEBUG
+  char mutex_locked_msg[] = "Mutex %s locked\n";
+  #endif
+--- 117,122 ----
+diff -b -r -c -N 10Mar94.all/lib/pfs/internal_err.c 10Mar94+/lib/pfs/internal_err.c
+*** 10Mar94.all/lib/pfs/internal_err.c	Mon Apr 18 16:09:52 1994
+--- 10Mar94+/lib/pfs/internal_err.c	Wed Apr 13 21:30:26 1994
+***************
+*** 33,38 ****
+  int
+  fout_of_memory(const char file[], int line) {
+    is_out_of_memory++;
+!   finternal_error(file, line, "Out of Memory");
+  }
+  
+--- 33,38 ----
+  int
+  fout_of_memory(const char file[], int line) {
+    is_out_of_memory++;
+!   return finternal_error(file, line, "Out of Memory");
+  }
+  
+diff -b -r -c -N 10Mar94.all/lib/psrv/dsdir.c 10Mar94+/lib/psrv/dsdir.c
+*** 10Mar94.all/lib/psrv/dsdir.c	Mon Apr 18 16:11:03 1994
+--- 10Mar94+/lib/psrv/dsdir.c	Sun Apr 17 20:22:44 1994
+***************
+*** 163,180 ****
+          INPUT_ST in_st;
+          INPUT in = &in_st;
+          if(tmp = wholefiletoin(vfs_dir, in)) {
+! 	    locked_fclose(vfs_dir);
+  	    plog(L_DIR_ERR,NOREQ,"%s",p_err_string);
+              return tmp;
+  	}
+  	VLDEBUGBEGIN;
+          return_value = indsrdir_v5(in, vfs_dirname, dir, ul);
+  	VLDEBUGDIR(dir);
+  	VLDEBUGEND;
+-         if (ferror(vfs_dir) || return_value) vfs_dir_problem++;
+          /* What it means when indsrdir_v5 returns an error is not fully
+             clearly defined. */
+!         if(locked_fclose(vfs_dir)) vfs_dir_problem++;
+      } else     /* Note that this directory is entirely native */
+          (dir->inc_native = VDIN_ONLYREAL);
+  
+--- 163,181 ----
+          INPUT_ST in_st;
+          INPUT in = &in_st;
+          if(tmp = wholefiletoin(vfs_dir, in)) {
+! 	    locked_fclose_A(vfs_dir, vfs_dirname, TRUE);
+  	    plog(L_DIR_ERR,NOREQ,"%s",p_err_string);
+              return tmp;
+  	}
++         if (ferror(vfs_dir)) vfs_dir_problem++;
++         if (locked_fclose_A(vfs_dir, vfs_dirname, TRUE)) vfs_dir_problem++;
+  	VLDEBUGBEGIN;
+          return_value = indsrdir_v5(in, vfs_dirname, dir, ul);
+  	VLDEBUGDIR(dir);
+  	VLDEBUGEND;
+          /* What it means when indsrdir_v5 returns an error is not fully
+             clearly defined. */
+! 	if (return_value) vfs_dir_problem++;
+      } else     /* Note that this directory is entirely native */
+          (dir->inc_native = VDIN_ONLYREAL);
+  
+***************
+*** 435,465 ****
+  
+  
+      /* Write the contents of the VFS directory */
+!     if((vfs_dir = locked_fopen(tmp_vfs_dirname,"w")) != NULL) {
+! #define RETURN(rv) { retval = rv; goto cleanup; }
+! 
+          fdswdir_v5(vfs_dir, dir);
+!         if (fflush(vfs_dir) || ferror(vfs_dir)) {
+!             fclose(vfs_dir);
+!             unlink(tmp_vfs_dirname);
+!             RETURN(PFAILURE);
+!         }
+!         if(fclose(vfs_dir)) {
+!             unlink(tmp_vfs_dirname);
+!             RETURN(PFAILURE);
+!         }
+!         /* This takes advantage of the reliable rename() system call. */
+!         if (rename(tmp_vfs_dirname, vfs_dirname)) {
+!             unlink(tmp_vfs_dirname);
+!             RETURN(PFAILURE);
+!         }
+!         RETURN(PSUCCESS);
+! cleanup:
+! 	locked_clear(vfs_dir);
+  	return(retval);
+  	
+-     }
+-     else RETURNPFAILURE;
+  }
+  
+  static void dump_links(OUTPUT out, VLINK cur_link);
+--- 436,451 ----
+  
+  
+      /* Write the contents of the VFS directory */
+!     filelock_obtain(vfs_dirname,FALSE); /* Make sure can write original */
+!     if((vfs_dir = locked_fopen(tmp_vfs_dirname,"w")) == NULL) {
+!       filelock_release(vfs_dirname,FALSE); 
+!       return(PFAILURE);
+!     }
+      fdswdir_v5(vfs_dir, dir);
+!     retval = locked_fclose_and_rename(vfs_dir, tmp_vfs_dirname,
+! 				     vfs_dirname,FALSE);
+      return(retval);
+  	
+  }
+  
+  static void dump_links(OUTPUT out, VLINK cur_link);
+diff -b -r -c -N 10Mar94.all/lib/psrv/dsrfinfo.c 10Mar94+/lib/psrv/dsrfinfo.c
+*** 10Mar94.all/lib/psrv/dsrfinfo.c	Mon Apr 18 16:10:34 1994
+--- 10Mar94+/lib/psrv/dsrfinfo.c	Fri Apr 15 19:35:17 1994
+***************
+*** 149,159 ****
+      if(pfs_fi != NULL) {
+  #define RETURN(rv) { retval = (rv); goto cleanup ; }
+          char *line, *next_word;
+!         if(tmp = wholefiletoin(pfs_fi, in)) {
+! 	  locked_fclose(pfs_fi);
+  	    plog(L_DIR_ERR,NOREQ,"%s",p_err_string);
+-             return tmp;
+  	}
+          while(in_nextline(in)) {
+              if (in_line(in, &line, &next_word)) {
+  		/* If we cant even parse it, dont try and switch on it */
+--- 149,160 ----
+      if(pfs_fi != NULL) {
+  #define RETURN(rv) { retval = (rv); goto cleanup ; }
+          char *line, *next_word;
+!         tmp = wholefiletoin(pfs_fi, in);
+! 	if (tmp) {
+  	  plog(L_DIR_ERR,NOREQ,"%s",p_err_string);
+  	}
++ 	locked_fclose_A(pfs_fi, pfs_fi_name, TRUE);
++ 	if (tmp) return tmp;
+          while(in_nextline(in)) {
+              if (in_line(in, &line, &next_word)) {
+  		/* If we cant even parse it, dont try and switch on it */
+***************
+*** 230,236 ****
+  	    /*default will skip on to next line - prob reasonable*/
+              }
+          }
+-         locked_fclose(pfs_fi);
+  
+  #if 0                           /* This code is inconsistent; was murdered from
+                                     older working code */
+--- 231,236 ----
+***************
+*** 397,403 ****
+      goto startover;
+  
+  cleanup:
+- 	    locked_fclose(pfs_fi);
+  	    return retval;
+  }
+  
+--- 397,402 ----
+diff -b -r -c -N 10Mar94.all/lib/psrv/dswfinfo.c 10Mar94+/lib/psrv/dswfinfo.c
+*** 10Mar94.all/lib/psrv/dswfinfo.c	Fri Mar 11 05:31:12 1994
+--- 10Mar94+/lib/psrv/dswfinfo.c	Thu Apr 14 20:29:01 1994
+***************
+*** 30,36 ****
+                                     this file and in dsrfinfo.c */
+  
+  /* Forward definitions */
+! static FILE *open_shadow_outfile(char nm[]);
+  static int write_data(FILE * outf, PFILE fi);
+  
+  /* Logs errors to plog() and returns an error code. */
+--- 30,36 ----
+                                     this file and in dsrfinfo.c */
+  
+  /* Forward definitions */
+! static FILE *open_shadow_outfile_A(char nm[], char **shadow_fnamep);
+  static int write_data(FILE * outf, PFILE fi);
+  
+  /* Logs errors to plog() and returns an error code. */
+***************
+*** 39,62 ****
+  {
+      int     retval;
+      FILE *outf;
+  
+      assert(fi);	/* write_data cant handle null fi*/
+!     if (outf = open_shadow_outfile(nm)) {
+          retval = write_data(outf, fi);
+      } else {
+          return perrno;
+      }
+!     locked_fclose(outf);
+      return retval;
+  }
+      
+  
+  static FILE *
+! open_shadow_outfile(char nm[])
+  {
+      char        real_fname[MAXPATHLEN];     /* Filename after expansion  */
+!     char	shadow_fname[MAXPATHLEN];   /* max. length unix filename */ 
+!     char	shadow_dirname[MAXPATHLEN]; /* directory we create.      */
+      char        *sp;                        /* pointer to slash          */
+      FILE        *outf;
+      
+--- 39,62 ----
+  {
+      int     retval;
+      FILE *outf;
++     AUTOSTAT_CHARPP(shadow_fnamep);
+  
+      assert(fi);	/* write_data cant handle null fi*/
+!     if (outf = open_shadow_outfile_A(nm,shadow_fnamep)) {
+          retval = write_data(outf, fi);
+      } else {
+          return perrno;
+      }
+!     locked_fclose_A(outf, *shadow_fnamep, FALSE);
+      return retval;
+  }
+      
+  
+  static FILE *
+! open_shadow_outfile_A(char nm[], char **shadow_fnamep)
+  {
+      char        real_fname[MAXPATHLEN];     /* Filename after expansion  */
+!     char        shadow_dirname[MAXPATHLEN]; /* directory we create */
+      char        *sp;                        /* pointer to slash          */
+      FILE        *outf;
+      
+***************
+*** 70,79 ****
+      /* Is the shadow file a directory? */
+      if ((stat(real_fname, file_stat) == 0)  || (*nm != '/')) {
+          if ((file_stat->st_mode & S_IFDIR) || (*nm != '/')) {
+!             qsprintf(shadow_fname, sizeof shadow_fname, 
+                       "%s%s/%s", shadow, real_fname, dirshadow);
+          } else {
+!             qsprintf(shadow_fname, sizeof shadow_fname,
+                       "%s%s", shadow, real_fname);
+          }
+      } else {
+--- 70,79 ----
+      /* Is the shadow file a directory? */
+      if ((stat(real_fname, file_stat) == 0)  || (*nm != '/')) {
+          if ((file_stat->st_mode & S_IFDIR) || (*nm != '/')) {
+!             *shadow_fnamep = qsprintf_stcopyr(*shadow_fnamep,
+                       "%s%s/%s", shadow, real_fname, dirshadow);
+          } else {
+!             *shadow_fnamep = qsprintf_stcopyr(*shadow_fnamep, 
+                       "%s%s", shadow, real_fname);
+          }
+      } else {
+***************
+*** 82,94 ****
+          perrno = PFAILURE;
+  	return NULL;
+      }
+!     strcpy(shadow_dirname, shadow_fname);
+      assert(sp = rindex(shadow_dirname, '/')); /* must be true. */
+      *sp = '\0';
+      mkdirs(shadow_dirname);
+!     if ((outf = locked_fopen(shadow_fname, "w")) == NULL) {
+          plog(L_DATA_FRM_ERR, NOREQ, "Couldn't open the output data file %s", 
+!              shadow_fname);
+          perrno = PFAILURE;
+      }
+      return outf;
+--- 82,94 ----
+          perrno = PFAILURE;
+  	return NULL;
+      }
+!     strcpy(shadow_dirname, *shadow_fnamep);
+      assert(sp = rindex(shadow_dirname, '/')); /* must be true. */
+      *sp = '\0';
+      mkdirs(shadow_dirname);
+!     if ((outf = locked_fopen(*shadow_fnamep, "w")) == NULL) {
+          plog(L_DATA_FRM_ERR, NOREQ, "Couldn't open the output data file %s", 
+!              *shadow_fnamep);
+          perrno = PFAILURE;
+      }
+      return outf;
+diff -b -r -c -N 10Mar94.all/lib/psrv/dswobject.c 10Mar94+/lib/psrv/dswobject.c
+*** 10Mar94.all/lib/psrv/dswobject.c	Mon Apr 18 16:11:03 1994
+--- 10Mar94+/lib/psrv/dswobject.c	Sun Apr 17 20:22:43 1994
+***************
+*** 76,122 ****
+  
+  #if (OBJECT_VNO == 6)
+  static int write_data(FILE * outf, P_OBJECT ob);
+! static FILE *open_shadow_outfile(char nm[], char **tmp_objshadownamep,
+                                       char **objshadownamep);
+  static size_t canonicalize_prefix(char *native_name, char canon_buf[], size_t canon_bufsiz);
+  static size_t nativize_prefix(char *hsoname, char native_buf[], size_t native_bufsiz);
+  extern int dswobject(char hsonametype[], char hsoname[], P_OBJECT ob)
+  {
+      static int write_data(FILE * outf, P_OBJECT ob);
+!     char *tmp_objshadowname, *objshadowname;
+      int     retval;
+      FILE *outf;
+  
+      assert(strequal(hsonametype, "ASCII"));
+!     if (outf = open_shadow_outfile(hsoname, &tmp_objshadowname, &objshadowname)) {
+!         retval = write_data(outf, ob);
+!     } else {
+!         return perrno;
+!     }
+!     if(retval || ferror(outf)) {
+!         fclose(outf);
+!         unlink(tmp_objshadowname);
+!         RETURNPFAILURE;
+!     }
+!     if (fclose(outf)) {
+!         unlink(tmp_objshadowname);
+!         RETURNPFAILURE;
+      }
+        
+!     /* This takes advantage of the reliable rename() system call. */
+!     if (rename(tmp_objshadowname, objshadowname)) {
+!         unlink(tmp_objshadowname);
+!         RETURNPFAILURE;
+!     }
+!     return(PSUCCESS);
+  }
+  
+  /* XXX This routine will have to be changed. XXX BAD XXX */
+  static FILE *
+! open_shadow_outfile(char nm[], char **tmp_objshadowname, char **objshadowname)
+  {
+      char        real_fname[MAXPATHLEN];     /* Filename after expansion  */
+-     char	shadow_fname[MAXPATHLEN];   /* max. length unix filename */ 
+      char	shadow_dirname[MAXPATHLEN]; /* directory we create.      */
+      char        *sp;                        /* pointer to slash          */
+      FILE        *outf;
+--- 76,111 ----
+  
+  #if (OBJECT_VNO == 6)
+  static int write_data(FILE * outf, P_OBJECT ob);
+! static FILE *open_shadow_outfile_A(char nm[], char *shadow_fname,
+                                       char **objshadownamep);
+  static size_t canonicalize_prefix(char *native_name, char canon_buf[], size_t canon_bufsiz);
+  static size_t nativize_prefix(char *hsoname, char native_buf[], size_t native_bufsiz);
+  extern int dswobject(char hsonametype[], char hsoname[], P_OBJECT ob)
+  {
+      static int write_data(FILE * outf, P_OBJECT ob);
+!     char *objshadowname;
+      int     retval;
+      FILE *outf;
++     char shadow_fname[MAXPATHLEN];
+  
+      assert(strequal(hsonametype, "ASCII"));
+!     filelock_obtain(objshadowname,FALSE); /* Obtain write lock on rel dir */
+!     if (!(outf = 
+! 	  open_shadow_outfile_A(hsoname, &shadow_fname, &objshadowname)))
+!       { filelock_release(objshadowname, FALSE);
+! 	return(perrno);
+        }
+     
+!     retval = write_data(outf, ob);
+!     retval = locked_fclose_and_rename(outf, shadow_fname, objshadowname,retval);
+!     return(retval);
+  }
+  
+  /* XXX This routine will have to be changed. XXX BAD XXX */
+  static FILE *
+! open_shadow_outfile_A(char nm[], char *shadow_fname, char **objshadowname)
+  {
+      char        real_fname[MAXPATHLEN];     /* Filename after expansion  */
+      char	shadow_dirname[MAXPATHLEN]; /* directory we create.      */
+      char        *sp;                        /* pointer to slash          */
+      FILE        *outf;
+diff -b -r -c -N 10Mar94.all/lib/psrv/named_acl.c 10Mar94+/lib/psrv/named_acl.c
+*** 10Mar94.all/lib/psrv/named_acl.c	Mon Apr 18 16:09:20 1994
+--- 10Mar94+/lib/psrv/named_acl.c	Sun Apr 17 20:22:41 1994
+***************
+*** 43,56 ****
+      if (!fp) return DIRSRV_NOT_FOUND;
+      if (wholefiletoin(fp, in)) {
+  	plog(L_DIR_ERR,NOREQ,"%s",p_err_string);
+!         locked_fclose(fp);
+          RETURNPFAILURE;
+      }
+      tmp = in_acl(in, waclp);
+      if(tmp)
+          plog(L_DATA_FRM_ERR, NOREQ, "Bad NAMED ACL info format %s: %s",
+               *filenamep, p_err_string);
+!     if (locked_fclose(fp) && !tmp) {
+          plog(L_DATA_FRM_ERR, NOREQ, "Error closing NAMED ACL file %s", 
+               *filenamep);
+          RETURNPFAILURE;
+--- 43,56 ----
+      if (!fp) return DIRSRV_NOT_FOUND;
+      if (wholefiletoin(fp, in)) {
+  	plog(L_DIR_ERR,NOREQ,"%s",p_err_string);
+!         locked_fclose_A(fp,*filenamep,TRUE);
+          RETURNPFAILURE;
+      }
+      tmp = in_acl(in, waclp);
+      if(tmp)
+          plog(L_DATA_FRM_ERR, NOREQ, "Bad NAMED ACL info format %s: %s",
+               *filenamep, p_err_string);
+!     if (locked_fclose_A(fp,*filenamep, TRUE) && !tmp) {
+          plog(L_DATA_FRM_ERR, NOREQ, "Error closing NAMED ACL file %s", 
+               *filenamep);
+          RETURNPFAILURE;
+***************
+*** 74,79 ****
+--- 74,80 ----
+      *filenamep = qsprintf_stcopyr(*filenamep, "%s/%s/%s", security, 
+                                  NAMED_ACL_SECURITY_SUBDIR, t_name);
+      *tmpfilenamep = qsprintf_stcopyr(*tmpfilenamep, "%s.TMP", *filenamep);
++     filelock_obtain(*filenamep,FALSE); /* Obtain write lock on rel dir */
+      fp = locked_fopen(*tmpfilenamep, "w");
+      if (!fp) {
+          char *sp;
+***************
+*** 87,103 ****
+              *sp = '/';
+              fp = locked_fopen(*tmpfilenamep, "w");
+          }
+!         if (!fp) RETURNPFAILURE;
+      }
+      filetoout(fp, out);
+      out_acl(out, wacl);
+!     if (ferror(fp)) {
+!         locked_fclose(fp);
+!         RETURNPFAILURE;
+!     }
+!     if (locked_fclose(fp)) RETURNPFAILURE;
+!     rename(*tmpfilenamep, *filenamep);
+!     return PSUCCESS;
+  }
+  
+  
+--- 88,101 ----
+              *sp = '/';
+              fp = locked_fopen(*tmpfilenamep, "w");
+          }
+!         if (!fp) {
+! 	  filelock_release(*filenamep,FALSE);
+! 	  return(PFAILURE);
+! 	}
+        }
+      filetoout(fp, out);
+      out_acl(out, wacl);
+!     return(locked_fclose_and_rename(fp, *tmpfilenamep,*filenamep,FALSE));
+  }
+  
+  
+diff -b -r -c -N 10Mar94.all/lib/psrv/ppasswd.c 10Mar94+/lib/psrv/ppasswd.c
+*** 10Mar94.all/lib/psrv/ppasswd.c	Mon Apr 18 16:11:03 1994
+--- 10Mar94+/lib/psrv/ppasswd.c	Sun Apr 17 20:59:29 1994
+***************
+*** 48,54 ****
+  	}
+      }
+  
+!     (void) locked_fclose(passwd_fp);
+      return p_pwd;
+  }
+  
+--- 48,54 ----
+  	}
+      }
+  
+!     (void) locked_fclose_A(passwd_fp,PSRV_PW_FILE, TRUE);
+      return p_pwd;
+  }
+  
+***************
+*** 73,79 ****
+  	if (chmod(PSRV_PW_FILE, 0600)) {
+  	    if (pfs_debug) 
+  		perror("Could not change permissions of passwd file");
+! 	    locked_fclose(passwd_fp);
+  	    RETURNPFAILURE;
+  	}
+  	fprintf(passwd_fp, "# Prospero Server Password File.\n");
+--- 73,79 ----
+  	if (chmod(PSRV_PW_FILE, 0600)) {
+  	    if (pfs_debug) 
+  		perror("Could not change permissions of passwd file");
+! 	    locked_fclose_A(passwd_fp,PSRV_PW_FILE,FALSE);
+  	    RETURNPFAILURE;
+  	}
+  	fprintf(passwd_fp, "# Prospero Server Password File.\n");
+***************
+*** 100,106 ****
+      fprintf(passwd_fp, "%-32s %-32s\n", 
+  	    p_pwd->principal, p_pwd->encrypted_passwd);
+  
+!     (void) locked_fclose(passwd_fp);
+      return PSUCCESS;
+  }
+  
+--- 100,106 ----
+      fprintf(passwd_fp, "%-32s %-32s\n", 
+  	    p_pwd->principal, p_pwd->encrypted_passwd);
+  
+!     (void) locked_fclose_A(passwd_fp,PSRV_PW_FILE,FALSE);
+      return PSUCCESS;
+  }
+  
+***************
+*** 178,197 ****
+      char tmp_filename[255];
+      int found = 0;
+  
+      if (!get_ppw_entry(principal))
+  	RETURNPFAILURE;
+  
+      if (!(passwd_fp = locked_fopen(PSRV_PW_FILE, "r")))
+  	RETURNPFAILURE;
+- 
+      qsprintf(tmp_filename, sizeof(tmp_filename), "%s_tmp", PSRV_PW_FILE);
+      if (!(tmp_fp = locked_fopen(tmp_filename, "w"))) {
+! 	if (pfs_debug) {
+  	    fprintf(stderr, "Could not create temporary file %s\n",
+  		    tmp_filename);
+- 	  if (passwd_fp) locked_fclose(passwd_fp);
+- 	RETURNPFAILURE;
+      }
+      }
+  
+      while (fgets(line, sizeof(line), passwd_fp)) {
+--- 178,200 ----
+      char tmp_filename[255];
+      int found = 0;
+  
++     assert(P_IS_THIS_THREAD_MASTER());
++     /* XXX !! This is MT-UNSAFE, two writers will totally screw up the 
++        pw file, needs mutexing*/
++ 
+      if (!get_ppw_entry(principal))
+  	RETURNPFAILURE;
+  
+      if (!(passwd_fp = locked_fopen(PSRV_PW_FILE, "r")))
+  	RETURNPFAILURE;
+      qsprintf(tmp_filename, sizeof(tmp_filename), "%s_tmp", PSRV_PW_FILE);
+      if (!(tmp_fp = locked_fopen(tmp_filename, "w"))) {
+! 	if (pfs_debug) { /* Old code was hosed, only closed if pfs_debug set*/
+  	  fprintf(stderr, "Could not create temporary file %s\n",
+  		  tmp_filename);
+  	}
++ 	if (passwd_fp) locked_fclose_A(passwd_fp,PSRV_PW_FILE,TRUE);
++ 	RETURNPFAILURE;
+      }
+  
+      while (fgets(line, sizeof(line), passwd_fp)) {
+***************
+*** 201,208 ****
+  	    fputs(line, tmp_fp);
+      }
+  
+!     (void) locked_fclose(tmp_fp);
+!     (void) locked_fclose(passwd_fp);
+      
+      if (rename(tmp_filename, PSRV_PW_FILE)) {
+  	unlink(tmp_filename);
+--- 204,211 ----
+  	    fputs(line, tmp_fp);
+      }
+  
+!     (void) locked_fclose_A(tmp_fp,tmp_filename,FALSE);
+!     (void) locked_fclose_A(passwd_fp,PSRV_PW_FILE,TRUE);
+      
+      if (rename(tmp_filename, PSRV_PW_FILE)) {
+  	unlink(tmp_filename);
+***************
+*** 242,248 ****
+  	    printf("%s\n", princ_name);
+      }
+  
+!     (void) locked_fclose(passwd_fp);
+  
+      return PSUCCESS;
+  }
+--- 245,251 ----
+  	    printf("%s\n", princ_name);
+      }
+  
+!     (void) locked_fclose_A(passwd_fp,PSRV_PW_FILE,TRUE);
+  
+      return PSUCCESS;
+  }
+diff -b -r -c -N 10Mar94.all/lib/psrv/wais_gw/futil.c 10Mar94+/lib/psrv/wais_gw/futil.c
+*** 10Mar94.all/lib/psrv/wais_gw/futil.c	Mon Apr 18 16:10:35 1994
+--- 10Mar94+/lib/psrv/wais_gw/futil.c	Mon Apr 18 14:32:32 1994
+***************
+*** 45,51 ****
+  /* Shared by all threads */
+  static long numFilesCurrentlyOpen = 0;
+  static long maxNumFilesOpenAtOneTime = 0;
+! 
+  FILE*
+  doSafeFOpen(char* filename,char* mode)
+  {
+--- 45,51 ----
+  /* Shared by all threads */
+  static long numFilesCurrentlyOpen = 0;
+  static long maxNumFilesOpenAtOneTime = 0;
+! #if 0
+  FILE*
+  doSafeFOpen(char* filename,char* mode)
+  {
+***************
+*** 76,82 ****
+    else
+      return(0L);
+  }
+! 
+  /*---------------------------------------------------------------------------*/
+  
+  long 
+--- 76,82 ----
+    else
+      return(0L);
+  }
+! #endif
+  /*---------------------------------------------------------------------------*/
+  
+  long 
+***************
+*** 154,160 ****
+  }
+  
+  /*---------------------------------------------------------------------------*/
+! 
+  long 
+  readBytes(long n,FILE* stream)
+  {
+--- 154,160 ----
+  }
+  
+  /*---------------------------------------------------------------------------*/
+! #ifdef NEVERDEFINEDUNUSED
+  long 
+  readBytes(long n,FILE* stream)
+  {
+***************
+*** 163,176 ****
+    long i;
+  
+    for (i = 0; i < n; i++)
+!    { ch = fgetc(stream);
+       if (ch == EOF)
+        return(EOF);
+       answer = (answer << 8) + (unsigned char)ch;
+    }
+    return(answer);
+  }
+! 
+  /*---------------------------------------------------------------------------*/
+  
+  long 
+--- 163,176 ----
+    long i;
+  
+    for (i = 0; i < n; i++)
+!    { ch = fgetc(stream);	/* Note - no timeout */
+       if (ch == EOF)
+        return(EOF);
+       answer = (answer << 8) + (unsigned char)ch;
+    }
+    return(answer);
+  }
+! #endif
+  /*---------------------------------------------------------------------------*/
+  
+  long 
+***************
+*** 371,381 ****
+  #ifdef THINK_C  
+  
+   { FILE* f;
+!    f = safeFOpen(filename,"r");
+     if (f == NULL)
+       return(false);
+     else
+!     { safeFClose(f);
+        return(true);
+      }
+   }
+--- 371,381 ----
+  #ifdef THINK_C  
+  
+   { FILE* f;
+!    f = locked_fopen(filename,"r");
+     if (f == NULL)
+       return(false);
+     else
+!     { locked_fclose_A(f,filename,TRUE);
+        return(true);
+      }
+   }
+***************
+*** 415,425 ****
+    FILE *stream = NULL;
+    if (filename == NULL)
+      return(false);
+!   stream = safeFOpen(filename,"a");
+    if (stream == NULL)
+      return(false);
+    else
+!     { safeFClose(stream);
+        return(true);
+      }
+  }
+--- 415,425 ----
+    FILE *stream = NULL;
+    if (filename == NULL)
+      return(false);
+!   stream = locked_fopen(filename,"a");
+    if (stream == NULL)
+      return(false);
+    else
+!     { locked_fclose_A(stream,filename,FALSE);
+        return(true);
+      }
+  }
+***************
+*** 489,495 ****
+  }
+  #endif /*NOTUSEDANDNOTTHREADSAFE*/
+  /*---------------------------------------------------------------------------*/
+! 
+  boolean 
+  readStringFromFile(FILE* stream,char* array,long arrayLength)
+  {
+--- 489,495 ----
+  }
+  #endif /*NOTUSEDANDNOTTHREADSAFE*/
+  /*---------------------------------------------------------------------------*/
+! #ifdef NOTUSEDANDNOTIMEOUTONREAD
+  boolean 
+  readStringFromFile(FILE* stream,char* array,long arrayLength)
+  {
+***************
+*** 498,504 ****
+  
+    array[0] = '\0';
+    while (true)
+!    { ch = fgetc(stream);
+       if(ch == EOF)
+        { array[count] = '\0';
+  	return(false);
+--- 498,504 ----
+  
+    array[0] = '\0';
+    while (true)
+!    { ch = fgetc(stream);	/* Note no timeout */
+       if(ch == EOF)
+        { array[count] = '\0';
+  	return(false);
+***************
+*** 515,523 ****
+        array[count++] = ch;
+     }
+  }
+! 
+  /*---------------------------------------------------------------------------*/
+! 
+  FILE* 
+  openTempFile(char* dir,char* root,char* fullName,char* mode)
+  /* given dir and mode, return a file pointer to the file, fullName is the
+--- 515,524 ----
+        array[count++] = ch;
+     }
+  }
+! #endif
+  /*---------------------------------------------------------------------------*/
+! /* Probably works, but unused */
+! #if 0 
+  FILE* 
+  openTempFile(char* dir,char* root,char* fullName,char* mode)
+  /* given dir and mode, return a file pointer to the file, fullName is the
+***************
+*** 539,553 ****
+    assert(P_IS_THIS_THREAD_MASTER()); /* random is MT-Unsafe */
+    while (true)
+     { sprintf(fullName,"%s/%s%ld.%ld",dir,root,getpid(),random() % 10000);
+!      if ((f = safeFOpen(fullName,"r")) == NULL)
+        { /* no file there to read, we're ok */
+! 	return(safeFOpen(fullName,mode));
+        }
+       else
+!        safeFClose(f);
+     }
+  }
+! 
+  /*---------------------------------------------------------------------------*/
+  
+  void 
+--- 540,554 ----
+    assert(P_IS_THIS_THREAD_MASTER()); /* random is MT-Unsafe */
+    while (true)
+      { sprintf(fullName,"%s/%s%ld.%ld",dir,root,getpid(),random() % 10000);
+!      if ((f = locked_fopen(fullName,"r")) == NULL)
+        { /* no file there to read, we're ok */
+! 	return(locked_fopen(fullName,mode));
+        }
+       else
+!        locked_fclose(f,fullName,TRUE);
+     }
+  }
+! #endif
+  /*---------------------------------------------------------------------------*/
+  
+  void 
+diff -b -r -c -N 10Mar94.all/lib/psrv/wais_gw/futil.h 10Mar94+/lib/psrv/wais_gw/futil.h
+*** 10Mar94.all/lib/psrv/wais_gw/futil.h	Fri Mar 11 05:31:36 1994
+--- 10Mar94+/lib/psrv/wais_gw/futil.h	Wed Apr 13 20:57:02 1994
+***************
+*** 41,56 ****
+     utilities.  They should be called through the macros rather than
+     actually calling the functions themselves 
+   */
+  #define safeFOpen(name,mode)	       doSafeFOpen((name),(mode))
+  #define safeFClose(file)	       { doSafeFClose((FILE*)(file)); \
+  					 (file) = NULL;}
+  #define safeFSeek(file,offset,whereFrom)                              \
+                                         doSafeFSeek((file),(offset),(whereFrom))
+  #define safeFTell(file)	               doSafeFTell((file))
+  #define safeRename(path1,path2)	       doSafeRename((path1),(path2))
+! 
+  FILE*	doSafeFOpen(char* fileName,char* mode);
+  long	doSafeFClose(FILE* file);
+  long 	doSafeFSeek(FILE* file,long offset,long wherefrom);
+  long 	doSafeFTell(FILE* file);
+  
+--- 41,60 ----
+     utilities.  They should be called through the macros rather than
+     actually calling the functions themselves 
+   */
++ /* Replaced by locked_{fopen,fclose} */
++ #if 0
+  #define safeFOpen(name,mode)	       doSafeFOpen((name),(mode))
+  #define safeFClose(file)	       { doSafeFClose((FILE*)(file)); \
+  					 (file) = NULL;}
++ #endif
+  #define safeFSeek(file,offset,whereFrom)                              \
+                                         doSafeFSeek((file),(offset),(whereFrom))
+  #define safeFTell(file)	               doSafeFTell((file))
+  #define safeRename(path1,path2)	       doSafeRename((path1),(path2))
+! #if 0
+  FILE*	doSafeFOpen(char* fileName,char* mode);
+  long	doSafeFClose(FILE* file);
++ #endif
+  long 	doSafeFSeek(FILE* file,long offset,long wherefrom);
+  long 	doSafeFTell(FILE* file);
+  
+***************
+*** 83,89 ****
+--- 87,95 ----
+  /* miscellanious routines */
+  char *currentUserName(void);
+  boolean readStringFromFile(FILE* stream,char* array,long array_length);
++ #if 0
+  FILE* openTempFile(char* dir,char* root,char* fullName,char* mode);
++ #endif
+  void growFile(FILE* file,long len);
+  
+  /*-------------------------------------------------------------------------- */
+diff -b -r -c -N 10Mar94.all/lib/psrv/wais_gw/source.c 10Mar94+/lib/psrv/wais_gw/source.c
+*** 10Mar94.all/lib/psrv/wais_gw/source.c	Mon Apr 18 16:10:35 1994
+--- 10Mar94+/lib/psrv/wais_gw/source.c	Mon Apr 18 14:51:20 1994
+***************
+*** 341,347 ****
+    asource->directory = s_strdup(directory);
+  
+    result = ReadSource(asource, fp);
+!   locked_fclose(fp);
+    return(result);
+  }
+  
+--- 341,347 ----
+    asource->directory = s_strdup(directory);
+  
+    result = ReadSource(asource, fp);
+!   locked_fclose_A(fp,pathname,TRUE);
+    return(result);
+  }
+  
+***************
+*** 517,523 ****
+  /* read all the sources from a directory.  If test is true, only files ending
+     in .src are valid
+     */
+! /*
+  static void
+  ReadSourceDirectory(directory, test)
+  char *directory;
+--- 517,525 ----
+  /* read all the sources from a directory.  If test is true, only files ending
+     in .src are valid
+     */
+! 
+! /* Not used */
+! #if !defined(IN_RMG)
+  static void
+  ReadSourceDirectory(directory, test)
+  char *directory;
+***************
+*** 552,558 ****
+  	  source->name = s_strdup(list[i]->d_name);
+  	  source->directory = s_strdup(directory);
+  	  ReadSource(source, fp);
+! 	  locked_fclose(fp);
+  	  if(Last->thisSource == NULL)
+  	    Last->thisSource = source;
+  	  else {
+--- 554,560 ----
+  	  source->name = s_strdup(list[i]->d_name);
+  	  source->directory = s_strdup(directory);
+  	  ReadSource(source, fp);
+! 	  locked_fclose_A(fp,filename,TRUE);
+  	  if(Last->thisSource == NULL)
+  	    Last->thisSource = source;
+  	  else {
+***************
+*** 566,572 ****
+    }
+    free((char *)list);
+  }
+! */
+  void WriteSource(directory, source, overwrite)
+       char *directory;
+       Source source;
+--- 568,575 ----
+    }
+    free((char *)list);
+  }
+! #endif
+! 
+  void WriteSource(directory, source, overwrite)
+       char *directory;
+       Source source;
+***************
+*** 582,588 ****
+      if ((fp = locked_fopen(filename, "r")) != NULL) {
+        PrintStatus(STATUS_INFO, STATUS_HIGH, 
+  		  "File %s exists, click again to overwrite.\n", filename);
+!       locked_fclose(fp);
+        return;
+      }
+    
+--- 585,591 ----
+      if ((fp = locked_fopen(filename, "r")) != NULL) {
+        PrintStatus(STATUS_INFO, STATUS_HIGH, 
+  		  "File %s exists, click again to overwrite.\n", filename);
+!       locked_fclose_A(fp,filename,TRUE);
+        return;
+      }
+    
+***************
+*** 634,640 ****
+  	    command_name, current_user_name(), printable_time());
+  
+    fprintf(fp, "\n)");
+!   locked_fclose(fp);
+  }
+  SourceList
+  makeSourceList(source, rest)		
+--- 637,643 ----
+  	    command_name, current_user_name(), printable_time());
+  
+    fprintf(fp, "\n)");
+!   locked_fclose_A(fp,filename,FALSE);
+  }
+  SourceList
+  makeSourceList(source, rest)		
+diff -b -r -c -N 10Mar94.all/lib/psrv/wais_gw/waislog.c 10Mar94+/lib/psrv/wais_gw/waislog.c
+*** 10Mar94.all/lib/psrv/wais_gw/waislog.c	Fri Mar 11 05:31:44 1994
+--- 10Mar94+/lib/psrv/wais_gw/waislog.c	Wed Apr 13 20:54:20 1994
+***************
+*** 63,69 ****
+       else if (logToStdout(logFile))
+         log = stdout;
+       else
+!        log = safeFOpen(logFile,"a");
+       
+       if (log) 
+        {
+--- 63,69 ----
+       else if (logToStdout(logFile))
+         log = stdout;
+       else
+!        log = locked_fopen(logFile,"a");
+       
+       if (log) 
+        {
+***************
+*** 75,81 ****
+  	fflush(log);
+  	
+  	if (logToStderr(logFile) == false && logToStdout(logFile) == false)
+! 	  safeFClose(log);
+  
+        }
+     }
+--- 75,81 ----
+  	fflush(log);
+  	
+  	if (logToStderr(logFile) == false && logToStdout(logFile) == false)
+! 	  locked_fclose(log,logFile,FALSE);
+  
+        }
+     }
+diff -b -r -c -N 10Mar94.all/lib/psrv/wais_gw/wutil.c 10Mar94+/lib/psrv/wais_gw/wutil.c
+*** 10Mar94.all/lib/psrv/wais_gw/wutil.c	Fri Mar 11 05:31:47 1994
+--- 10Mar94+/lib/psrv/wais_gw/wutil.c	Wed Apr 13 20:54:18 1994
+***************
+*** 1717,1723 ****
+    doc_text[0] = 0;
+    doc_text[1] = 0;
+  
+!   fptr = safeFOpen("twais_template.txt", "r");
+    if (fptr == NULL ) {
+      printf(" unable to open story text file \n");
+      return;
+--- 1717,1723 ----
+    doc_text[0] = 0;
+    doc_text[1] = 0;
+  
+!   fptr = locked_fopen("twais_template.txt", "r");
+    if (fptr == NULL ) {
+      printf(" unable to open story text file \n");
+      return;
+***************
+*** 1728,1734 ****
+    story_buff = s_malloc( story.size +1);
+    if ( story_buff == NULL) {
+      printf(" insufficient memory\n");
+!     safeFClose( fptr);
+      return;
+    }
+  
+--- 1728,1734 ----
+    story_buff = s_malloc( story.size +1);
+    if ( story_buff == NULL) {
+      printf(" insufficient memory\n");
+!     locked_fclose( fptr,"twais_template.txt",TRUE);
+      return;
+    }
+  
+***************
+*** 1770,1776 ****
+    freeSearchResponseAPDU(response);
+  
+    s_free(story_buff);
+!   safeFClose(fptr);
+  
+  }				
+  
+--- 1770,1776 ----
+    freeSearchResponseAPDU(response);
+  
+    s_free(story_buff);
+!   locked_fclose( fptr,"twais_template.txt",TRUE);
+  
+  }				
+  
+diff -b -r -c -N 10Mar94.all/server/Makefile 10Mar94+/server/Makefile
+*** 10Mar94.all/server/Makefile	Mon Apr 18 16:11:20 1994
+--- 10Mar94+/server/Makefile	Sat Apr 16 18:32:16 1994
+***************
+*** 7,13 ****
+  SRV_LIB	= ../lib/psrv/libpsrv.a
+  RDP_LIB  = ../lib/ardp/libardp.a
+  LIBS     = ../lib/fsu_pthreads/lib/libpthreads.a
+! ARDPNEEDSSRV = -u ${COMPILER_PREPENDS_C_SYMBOLS_WITH_UNDERSCORE}plog -u ${COMPILER_PREPENDS_C_SYMBOLS_WITH_UNDERSCORE}pafree
+  ARDPNEEDSPFS =
+  
+  #DB_LIBS= ../lib/psrv/archie2/libpsarchie.a 
+--- 7,13 ----
+  SRV_LIB	= ../lib/psrv/libpsrv.a
+  RDP_LIB  = ../lib/ardp/libardp.a
+  LIBS     = ../lib/fsu_pthreads/lib/libpthreads.a
+! ARDPNEEDSSRV = -u ${COMPILER_PREPENDS_C_SYMBOLS_WITH_UNDERSCORE}plog -u ${COMPILER_PREPENDS_C_SYMBOLS_WITH_UNDERSCORE}pafree -u${COMPILER_PREPENDS_C_SYMBOLS_WITH_UNDERSCORE}stequal
+  ARDPNEEDSPFS =
+  
+  #DB_LIBS= ../lib/psrv/archie2/libpsarchie.a 
+diff -b -r -c -N 10Mar94.all/server/dirsrv.c 10Mar94+/server/dirsrv.c
+*** 10Mar94.all/server/dirsrv.c	Mon Apr 18 16:11:04 1994
+--- 10Mar94+/server/dirsrv.c	Wed Apr 13 23:00:28 1994
+***************
+*** 75,80 ****
+--- 75,81 ----
+  extern int vlink_max,   pattrib_max,   acl_max,      pfile_max;
+  extern int rreq_max,    ptext_max,     string_max,   token_max;
+  extern int pauth_max,   opt_max,       filter_max,   p_object_max;
++ extern int filelock_open, filelock_open_max;
+  #ifdef PSRV_GOPHER_GW
+  extern int glink_count, glink_max;
+  #endif
+***************
+*** 1063,1068 ****
+--- 1064,1071 ----
+                     subthread_count + free_subthread_count, subthread_count, 
+                     subthread_max, free_subthread_count);
+  #endif
++ 	    replyf(req,"  Files: %d(%d)open\n",
++ 		   filelock_open,filelock_open_max);
+              replyf(req," Memory: %d(%d)vlink %d(%d)pattrib %d(%d)acl \
+  %d(%d)pfile %d(%d)rreq %d(%d)ptext\n",
+                     vlink_count,vlink_max,pattrib_count,pattrib_max,
+diff -b -r -c -N 10Mar94.all/server/shadowcvt.c 10Mar94+/server/shadowcvt.c
+*** 10Mar94.all/server/shadowcvt.c	Mon Apr 18 16:11:04 1994
+--- 10Mar94+/server/shadowcvt.c	Wed Apr 13 20:54:22 1994
+***************
+*** 95,101 ****
+          if ((out = locked_fopen(outfile, "w")) == NULL) {
+              fprintf(stderr," Couldn't open output file %s;aborting \
+  execution!\n", outfile);
+! 	    locked_fclose(in);
+              exit(1);
+          }
+          if(cvt_dir(infile, in, outfile, out)) {
+--- 95,101 ----
+          if ((out = locked_fopen(outfile, "w")) == NULL) {
+              fprintf(stderr," Couldn't open output file %s;aborting \
+  execution!\n", outfile);
+! 	    locked_fclose_A(in,infile,TRUE);
+              exit(1);
+          }
+          if(cvt_dir(infile, in, outfile, out)) {
+***************
+*** 104,111 ****
+          } else {
+              numconv++;
+          }
+!         locked_fclose(in);
+!         locked_fclose(out);
+      }
+      exit(0);
+  }
+--- 104,111 ----
+          } else {
+              numconv++;
+          }
+!         locked_fclose_A(in,infile,TRUE);
+!         locked_fclose_A(out,outfile,FALSE);
+      }
+      exit(0);
+  }

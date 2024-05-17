@@ -1,0 +1,18 @@
+/.cvsignore/1.1.1.1/Thu Mar 18 16:50:59 1999//
+/FILES/1.1.1.1/Thu Mar 18 16:50:59 1999//
+/Makefile.in/1.1.1.1/Thu Mar 18 16:50:59 1999//
+/api.c/1.1.1.1/Thu Mar 18 16:50:59 1999//
+/bub.c/1.1.1.1/Thu Mar 18 16:50:59 1999//
+/comp.c/1.1.1.1/Thu Mar 18 16:50:59 1999//
+/config.h/1.1.1.1/Thu Mar 18 16:51:00 1999//
+/io_util.c/1.1.1.1/Thu Mar 18 16:51:00 1999//
+/item_desc.c/1.1.1.1/Thu Mar 18 16:51:00 1999//
+/line.c/1.1.1.1/Thu Mar 18 16:51:00 1999//
+/main.c/1.1.1.1/Thu Mar 18 16:51:00 1999//
+/menu.c/1.1.1.1/Thu Mar 18 16:51:00 1999//
+/menu.h/1.1.1.1/Thu Mar 18 16:51:00 1999//
+/objects.c/1.1.1.1/Thu Mar 18 16:51:00 1999//
+/objects.h/1.1.1.1/Thu Mar 18 16:51:00 1999//
+/p_menu.h/1.1.1.1/Thu Mar 18 16:51:00 1999//
+/search.c/1.1.1.1/Thu Mar 18 16:51:00 1999//
+D

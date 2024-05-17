@@ -1,0 +1,162 @@
+#
+# clients/telnet
+#
+
+MOD_CFLAGS = \
+              -pipe                                                              \
+              -u ${COMPILER_PREPENDS_C_SYMBOLS_WITH_UNDERSCORE}plog              \
+              -u ${COMPILER_PREPENDS_C_SYMBOLS_WITH_UNDERSCORE}sindex            \
+              -u ${COMPILER_PREPENDS_C_SYMBOLS_WITH_UNDERSCORE}search_site_index
+MOD_DEBUG  = -g3 
+MOD_WARN   = -Wall -Wshadow -Wpointer-arith -Wcast-align 
+MOD_DEFS   = -DTELNET_CLIENT 
+MOD_INCS = \
+            -I$(INCLUDE_MODULE)        \
+            -I$(STRIDX_MODULE)         \
+            -I$(ARCHSEARCH_MODULE)     \
+            -I$(STARTDB_MODULE)        \
+            -I$(WEBINDEX_MODULE)/lib   \
+            -I$(PATRIE_MODULE)         \
+            -I$(PROSPERO_ROOT)/include \
+            -I.
+# If only editline worked properly, sigh... use input.o in its place.
+#MOD_LIBS   = ... -L../editline -ledit
+MOD_LIBS = \
+            -L$(LIBARCHIE_MODULE)/$(SYSTYPE)    -larchie     \
+            -L$(PROSPERO_ROOT)/lib/psrv         -lpsrv       \
+            -L$(PROSPERO_ROOT)/lib/pfs          -lpfs        \
+            -L$(PROSPERO_ROOT)/lib/filters      -lfilter     \
+            -L$(PROSPERO_ROOT)/lib/ardp         -lardp       \
+            -L$(LIBPARCHIE_MODULE)/$(SYSTYPE)   -lparchie    \
+            -L$(LIBPSARCHIE_MODULE)/$(SYSTYPE)  -lpsarchie   \
+            -L$(ARCHSEARCH_MODULE)/$(SYSTYPE)   -larchsearch \
+            -L$(STARTDB_MODULE)/$(SYSTYPE)      -lstartdb    \
+            -L$(STRIDX_MODULE)/$(SYSTYPE)       -larchstridx \
+            -L$(PATRIE_MODULE)/$(SYSTYPE)       -lpatrie     \
+            -L$(WEBINDEX_MODULE)/lib/$(SYSTYPE) -lwebindex   \
+            -lcurses -ltermcap
+
+
+include $(ARCHIE_ROOT)/Makefile.pre
+
+
+ENGLISH_SRCS = english-language-strings.c
+FRENCH_SRCS = french-language-strings.c
+
+ENGLISH_OBJS = english-language-strings.o
+FRENCH_OBJS  = french-language-strings.o
+
+
+INCS = \
+        alarm.h          \
+        ansi_compat.h    \
+        arch_query.h     \
+        archie.h         \
+        argv.h           \
+        client_defs.h    \
+        client_structs.h \
+        commands.h       \
+        commands_lang.h  \
+        debug.h          \
+        domains.h        \
+        extern.h         \
+        find.h           \
+        fork_wait.h      \
+        generic_find.h   \
+        get_types.h      \
+        get_types_lang.h \
+        help.h           \
+        input.h          \
+        lang.h           \
+        list.h           \
+        macros.h         \
+        mail.h           \
+        mail_lang.h      \
+        mailarchie.h     \
+        misc.h           \
+        misc_ansi_defs.h \
+        mode.h           \
+        mode_lang.h      \
+        pager.h          \
+        parchie.h        \
+        prosp.h          \
+        rmem.h           \
+        signals.h        \
+        strmap.h         \
+        style_lang.h     \
+        tellwait.h       \
+        terminal.h       \
+        terminal_lang.h  \
+        unixcompat.h     \
+        vars.h           \
+        vars_lang.h      \
+        version.h        \
+        version_lang.h   \
+        whatis.h
+
+SRCS = \
+        alarm.c         \
+        arch_query.c    \
+        archie.c        \
+        argv.c          \
+        commands.c      \
+        domains.c       \
+        debug.c         \
+        find.c          \
+        fork_wait.c     \
+        generic_find.c  \
+        get_types.c     \
+        help.c          \
+        input.c         \
+        lang.c          \
+        list.c          \
+        mail.c          \
+        misc.c          \
+        mode.c          \
+        pager.c         \
+        prospquery.c    \
+        rmem.c          \
+        signals.c       \
+        strmap.c        \
+        tellwait.c      \
+        terminal.c      \
+        unixcompat.c    \
+        vars.c          \
+        version.c       \
+        whatis.c        \
+        $(ENGLISH_SRCS)
+
+OBJS = \
+        alarm.o         \
+        arch_query.o    \
+        archie.o        \
+        argv.o          \
+        commands.o      \
+        domains.o       \
+        debug.o         \
+        find.o          \
+        fork_wait.o     \
+        generic_find.o  \
+        get_types.o     \
+        help.o          \
+        input.o         \
+        lang.o          \
+        list.o          \
+        mail.o          \
+        misc.o          \
+        mode.o          \
+        pager.o         \
+        prospquery.o    \
+        rmem.o          \
+        signals.o       \
+        strmap.o        \
+        tellwait.o      \
+        terminal.o      \
+        unixcompat.o    \
+        vars.o          \
+        version.o       \
+        whatis.o        \
+        $(ENGLISH_OBJS)
+
+EXES = \
+        telnet-client

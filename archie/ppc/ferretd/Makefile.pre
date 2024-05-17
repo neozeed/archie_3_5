@@ -1,0 +1,69 @@
+#
+# ppc/ferretd
+#
+
+PDIR  = $(PROSPERO_ROOT)
+MDIR  = $(PDIR)/user/menu
+
+#
+# All recognized defines...
+# -DDEBUG -DSOME_MISSING_PROTOS -DCOOK
+# -DUNAUTH_MESG="\"Sorry, only NEARnet customers have access to this service.\n\""
+#
+MOD_DEFS   = -DDEBUG -DNO_TCL
+MOD_DEBUG  = -g3
+MOD_INCS   = -I$(PPC_MODULE)/lib -I$(PDIR)/include -I$(MDIR) -I$(ARCHIE_ROOT)/include
+MOD_WARN   = -Wall -Wtraditional -Wshadow -Wpointer-arith -Wcast-align \
+             -Wnested-externs
+
+
+include $(ARCHIE_ROOT)/Makefile.pre
+
+
+INCS = \
+        aprint.h        \
+        authorization.h \
+        contents.h      \
+        http.h          \
+        image_map.h     \
+        polygon.h       \
+        print_results.h \
+        request.h       \
+        search.h        \
+        url.h
+
+SRCS = \
+        _prog.c         \
+        authorization.c \
+        contents.c      \
+        file_type.c     \
+        http.c          \
+        image_map.c     \
+        polygon.c       \
+        print_anon.c    \
+        print_gopher.c  \
+        print_results.c \
+        print_sites.c   \
+        print_wais.c    \
+        request.c       \
+        search.c        \
+        url.c
+
+OBJS = \
+        _prog.o         \
+        authorization.o \
+        contents.o      \
+        file_type.o     \
+        http.o          \
+        image_map.o     \
+        polygon.o       \
+        print_anon.o    \
+        print_gopher.o  \
+        print_results.o \
+        print_sites.o   \
+        print_wais.o    \
+        request.o       \
+        search.o        \
+        url.o
+
+EXES = ferretd

@@ -1,0 +1,20 @@
+#
+# libparchie module.
+#
+
+
+all: libparchie.a
+
+
+include $(ARCHIE_ROOT)/Makefile.post
+
+
+libparchie.a: $(OBJS)
+	$(AR) r $@ $?
+	$(RANLIB) $@
+
+version.o: 
+	$(CC) $(CFLAGS) -c -DCOMPILED_DATE="\"`date`\"" ../version.c
+
+clean:
+	rm -f *.o libparchie.a core

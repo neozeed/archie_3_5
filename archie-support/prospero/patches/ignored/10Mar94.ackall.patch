@@ -1,0 +1,45 @@
+diff -b -r -c -N 10Mar94.all/include/pserver.h 10Mar94+/include/pserver.h
+*** 10Mar94.all/include/pserver.h	Tue Apr 26 16:33:28 1994
+--- 10Mar94+/include/pserver.h	Tue Apr 26 20:09:36 1994
+***************
+*** 524,526 ****
+--- 524,532 ----
+  
+  #define DNSCACHE_MAX 300
+  
++ /*
++  * If ACKOWLEDGE_ALL_PACKETS is defined, then ardp_accept will acknowledge
++  * all packets, otherwise it just acknowledges ones if the queue is long
++  * this may be usefull on really busy servers where response is unpredicatable
++  */
++ #define ACKNOWLEDGE_ALL_PACKETS
+diff -b -r -c -N 10Mar94.all/lib/ardp/ardp_accept.c 10Mar94+/lib/ardp/ardp_accept.c
+*** 10Mar94.all/lib/ardp/ardp_accept.c	Tue Apr 26 15:37:58 1994
+--- 10Mar94+/lib/ardp/ardp_accept.c	Tue Apr 26 20:10:43 1994
+***************
+*** 628,639 ****
+         databases may want to have this command defined too. */
+      ardp_rwait(nreq,900,nreq->inf_queue_pos,nreq->inf_sys_time); 
+  #endif
+- 
+  #ifdef PFS_THREADS
+      if((nreq->inf_queue_pos > (P_MAX_NUM_THREADS + 3)) &&
+!        (nreq->inf_queue_pos < 100)) {
+        ardp_rwait(nreq,0,nreq->inf_queue_pos,nreq->inf_sys_time); 
+-     }
+  #endif
+  
+      goto check_for_more;
+--- 628,639 ----
+         databases may want to have this command defined too. */
+      ardp_rwait(nreq,900,nreq->inf_queue_pos,nreq->inf_sys_time); 
+  #endif
+  #ifdef PFS_THREADS
++ #ifndef ACKNOWLEDGE_ALL_PACKETS
+      if((nreq->inf_queue_pos > (P_MAX_NUM_THREADS + 3)) &&
+!        (nreq->inf_queue_pos < 100)) 
+! #endif
+        ardp_rwait(nreq,0,nreq->inf_queue_pos,nreq->inf_sys_time); 
+  #endif
+  
+      goto check_for_more;

@@ -1,0 +1,38 @@
+#
+# Host DB module.
+#
+
+#MOD_CFLAGS = -ansi -pedantic -pipe
+MOD_DEBUG  = -g3
+MOD_WARN   = -Wall -Wtraditional -Wshadow -Wpointer-arith -Wcast-align \
+             -Wstrict-prototypes -Wnested-externs
+
+MOD_INCS = -I$(ARCHIE_ROOT)/include -I$(STARTDB_MODULE) -I.
+
+
+include $(ARCHIE_ROOT)/Makefile.pre
+
+
+INCS = \
+        lang_hostdb.h
+
+SRCS = \
+        databases.c       \
+        domain.c          \
+        holder.c          \
+        host_db.c         \
+        host_info.c       \
+        host_inter.c      \
+        lang_hostdb.c     \
+        ops.c
+
+
+OBJS = \
+        databases.o       \
+        domain.o          \
+        holder.o          \
+        host_db.o         \
+        host_info.o       \
+        host_inter.o      \
+        lang_hostdb.o     \
+        ops.o

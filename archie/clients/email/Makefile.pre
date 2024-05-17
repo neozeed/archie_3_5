@@ -1,0 +1,30 @@
+#
+# clients/email
+#
+
+#MOD_CFLAGS = -ansi -pedantic -pipe
+#MOD_CFLAGS = -pipe
+MOD_DEBUG  = -g3
+MOD_WARN   = -Wall -Wtraditional -Wshadow -Wpointer-arith -Wcast-align \
+             -Wstrict-prototypes -Wnested-externs
+MOD_INCS = -I$(ARCHIE_ROOT)/include -I$(PROSPERO_ROOT)/include -I.
+MOD_LIBS = -L$(LIBARCHIE_MODULE)/$(SYSTYPE) -larchie
+
+
+include $(ARCHIE_ROOT)/Makefile.pre
+
+
+INCS = \
+        email.h      \
+        lang_email.h
+
+SRCS = \
+        email.c      \
+        lang_email.c
+
+OBJS = \
+        email.o      \
+        lang_email.o
+
+EXES = \
+        email-client

@@ -1,0 +1,77 @@
+-*-text-*-
+This is Prospero release Alpha.5.2a.  This release has had a number of
+changes made to it since Beta.5.1.  If you are running an archie
+server, then you almost certainly really want to install your server
+under Beta.5.1, not Alpha.5.2a.  
+
+Installation instructions can be found in the file INSTALLATION_s for
+the client and server, or INSTALLATION_u for the client only.
+
+The most important new features in this version of Prospero are:
+
+(a) A menu-based browser client, similar to the Gopher client
+(b) A gateway server which makes all of Gopherspace available through 
+    Prospero queries. 
+(c) A menu-based browser API interface library to Prospero, which allows
+    one to easily write new browsers that use Prospero to make their underlying
+    calls.
+(d) A new per-server password authentication mechanism, which provides
+    far stronger authentication than before for sites that are not running 
+    Kerberos.
+(e) ACLs have now been implemented for all Prospero objects, not just
+    for links and directories.  You can now control who can set
+    {\sc object} attributes on files and directories.
+
+The menu browser client can be invoked as 'menu'.  It's mostly
+self-documenting, with some additional documentation in the user's
+manual.  It provides a much needed alternative interface to Prospero.
+If you compile the Prospero clients in the easiest way you can, you
+can start it up with 'menu' and explore the default menu at the USC
+Information Sciences Institute guest site.
+
+The menu-based browser supports all of the basic Gopher types:
+searches, text files, data files, and portals (what Gopher calls
+telnet sessions).  It does not yet support sophisticated display of
+binary image files, reading Postscript or MIME documents, playing
+sounds, or automatic decoding of uuencoded, compressed, or tarred
+files.  These enhancements will be added shortly; the protocol
+definitions for them have already been made.
+
+The gateway server is part of the Prospero server, and translates
+Prospero queries into Gopher protocol queries.
+
+The latest release also features:
+
+-- Improvements to the server code so that old xarchie clients don't
+   break (see the CHANGES file).  
+-- Messages to the Prospero server may now be of arbitrary length.
+-- An expanded library reference manual
+-- The user's manual has been updated to reflect the current version
+   of Prospero.  A few things still need to be documented; those are
+   noted in the user's manual.
+-- Improvements to the Kerberos version 5 support
+-- Caching of native directories and reliability improvements to the
+   directory writing code.  OBJECT attributes are cached.  The
+   directory server now treats all links and objects equally, so you
+   can attach attributes to native links and objects too.  The only
+   exception is that you still can't delete native links from a
+   directory.  (If you want this feature available, write to us; we'd
+   like to know if there's any demand for it.)  The directory server
+   now always tells the truth about whether a native link is a FILE or
+   a DIRECTORY.
+
+This release of Prospero includes a standalone client to query archie
+servers.  It is standalone in the sense that, once compiled, it does
+not require Prospero to be installed on the host from which it is to
+be used.  It is installed by default when you build the Prospero
+utilities.  As distributed, no default server is configured for the
+archie client. To specify a default, edit the line ARCHIE_HOST in
+include/archie.h. 
+
+Look at the file CHANGES in this directory for a list of recent changes to
+ Prospero.
+
+Look at the file SUPPORTED in this directory for a list of which
+machines and operating systems Prospero has been compiled on and of
+which are supported.
+

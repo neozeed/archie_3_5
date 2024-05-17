@@ -1,0 +1,95 @@
+This file describes the protocol used by archie arserver processes to
+communicate.
+
+Protocol commands themselves are in ASCII printable characters and <cr>,
+<lf> (ASCII \012 and \015 respectively) although data such as that from the
+archie files database are transmitted as a binary stream in Sun XDR
+format (libraries are freely available for this format). All commands
+must start at the beginning of the line. Intervening whitespace may be
+spaces or tabs or both.
+
+The following commands can be issued to the process while in server mode
+
+Command: 
+	LISTSITES  <db> '<'|'>' <from date> <domainlist> <cr><lf>
+
+	All sites which have been updated in the database named <db>
+more/less recently than <from date> are to be listed. The character '<'
+means less recently, '>' means more recently. <from date> is a date string
+in the format YYYYMMDDHHMMSS in UTC.  All zeros in this field is taken to
+mean that all sites in <db> are to be listed.  Sites listed must also
+match the <domainlist> field. This can either be '*' for any domain or a
+colon separated list of real domains or pseudo domains.  Pseudo-domains
+are user created and reside after installation in the file
+~archie/host_db/domains. See the documentation on psuedo-domains for the
+file format and further explanation. 
+
+Response: 
+	First line of response is
+
+	TUPLELIST <number>
+
+Giving the number of sites matching sites
+
+	If <number> is nonzero the rest of the response is composed of a
+set tuples, <site tuple>, one for each site in the files matching the
+given conditions database one per line. Each tuple uniquely identifies
+that entry across the entire archie system. The tuples consist of the
+following fields in the given order:
+
+source archie host (archie host where original retrieve was performed)
+date of listing retrieve of anonymous ftp host
+primary host name of anonymous ftp host
+preferred host name of anonymous ftp host (if any... empty field otherwise)
+primary IP address of anonymous ftp host
+database name
+
+Fields are separated by colons (:) and terminated by <cr><lf>
+
+Host names are specified in standard RFC 1037 format 
+
+IP addresses are specified in standard 'dotted decimal' notation
+
+The date is specified YYYYMMDDHHMMSS. However this value is
+not examined other than for inequality tests with internal records.
+
+
+Command: 
+	SENDSITE <primary hostname>:<database><cr><lf>
+
+Response:
+
+The server responds with
+
+	SITELIST <port number><cr><lf>
+
+
+The header record following the SITELIST command contains records
+appropriate for that database. For the anonftp database, the server sends
+the header record and then the data in APS (parser standard) format on
+the given <port number>, .  The byte stream itself is converted into XDR
+format before transmission. See the parser documentation for a complete
+description of the APS format [to come].  Thus the client process knows
+how many records it will receive (from the header). Once transmitted the
+server process waits for a STATUS response from the client acknowledging
+receipt of the transmission.
+
+Command:
+	SENDHEADER <primary hostname>:<database><cr><lf>
+
+The header record requested is sent along the command connection.
+
+
+Response:
+	(none)
+
+Command:
+	QUIT<cr><lf>
+
+Response:
+	The server process closes all open files and exits.
+
+
+The server process is also invoked by connections from the retrieval
+subsystem. Its function here is to provide a list of sites determined to
+be ready for update.

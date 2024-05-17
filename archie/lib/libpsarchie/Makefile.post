@@ -1,0 +1,17 @@
+#
+# libpsarchie module.
+#
+
+
+all: libpsarchie.a
+
+
+include $(ARCHIE_ROOT)/Makefile.post
+
+
+libpsarchie.a: $(OBJS)
+	$(AR) r $@ $?
+	$(RANLIB) $@
+
+clean:
+	rm -f *.o libpsarchie.a core

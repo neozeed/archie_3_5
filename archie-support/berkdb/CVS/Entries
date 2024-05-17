@@ -1,0 +1,15 @@
+/Makefile.inc/1.1.1.1/Thu Mar 18 16:50:20 1999//
+/README/1.1.1.1/Thu Mar 18 16:50:20 1999//
+/changelog/1.1.1.1/Thu Mar 18 16:50:20 1999//
+D/PORT////
+D/SunOS-4.1.4////
+D/SunOS-5.4////
+D/btree////
+D/db////
+D/docs////
+D/hash////
+D/include////
+D/man////
+D/mpool////
+D/recno////
+D/test////

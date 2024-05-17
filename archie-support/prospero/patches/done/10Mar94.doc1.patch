@@ -1,0 +1,46 @@
+This patch was created on pand05 at Tue Apr 26 17:02:31 EDT 1994
+The command used to create it was: gnudiff -b -r -c 10Mar94.all 10Mar94+
+
+It is made available on an as-is basis, and carries no guarrantee that
+it even works, much less that it is fit for its purpose.
+
+If you find any problems with it, please report to mitra@pand05
+You may use it as you wish, but if you make it pulicly available anywhere
+please notify me.
+
+To apply the patch cd to the directory with the source in it, and run
+
+patch -l -p1 <patchfile 
+
+diff -b -r -c -N 10Mar94.all/doc/pandora.todolist 10Mar94+/doc/pandora.todolist
+*** 10Mar94.all/doc/pandora.todolist	Tue Apr 26 15:37:58 1994
+--- 10Mar94+/doc/pandora.todolist	Wed Apr 20 19:52:33 1994
+***************
+*** 1,5 ****
+--- 1,6 ----
+  # This is the to do list I have as discussed with BCN @ ietf-Seattle
+  # - Mitra Mar 28, 94
++ # - Mitra Apr 20, 94
+  
+  IMPORT	SIZE	Task
+  1	1	Standardisation of URL's - bcn agreed to return URL's
+***************
+*** 10,18 ****
+  		working group making a decision 
+  1	3	Ftp directory retrieval
+  2	3	Multi-threaded client libraries
+- 3	2	Fix crashes with multi-threaded servers
+  1	2	Gopher+ gateway
+- 3	2	Fix server not restarting
+  1	1	getdomainname efficiency hack
+  2	2	Ability to make a ulink optional (i.e. dont fail if ulink fails
+  2	1	Define interface for replica's 
+--- 11,17 ----
+***************
+*** 24,28 ****
+  2	2	hsonames and gateways  GATEWAY GOPHER ASCII path.net(70)/aaa
+  2	2	Seperation of libraries and removal of dependancies
+  1	3	Charging mechanisms
+- 1	1	Total number of queries not being incremented.
+- 
+--- 23,25 ----

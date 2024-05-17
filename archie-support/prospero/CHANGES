@@ -1,0 +1,268 @@
+Changes since Alpha.5.2b:
+
+Documentation about the list structures is now present in the library manual.
+
+NAMED ACLs are new.
+
+Database internals have changed: dsrobject() format for files.
+Databases now call dsrobject().  Databases now use NAMED acls for
+their database ACLs.
+
+Bug fixed: connection ID now reset upon each fork.
+
+PROSPERO-CONTENTS access method added.
+
+Code ported to SOLARIS and SCO dialects of UNIX.
+
+Changes from Alpha.5.2a to Alpha.5.2b:
+
+Fixed bug where GOPHER-GW would sometimes crash with a segmentation
+fault, depending on your compiler's implementation of ANSI C
+variable-length argument lists.
+
+Made Mail/Save/Print features work correctly in the menu browser.
+They no longer open the same file twice, and they now handle errors
+appropriately.
+
+Changed output format for vls -A; should be less confusing.  Multiple
+tokens in a SEQUENCE are now separated with ' ; '.
+
+ARDP library now works correctly even if you make an ARDP call, then
+fork and make ARDP calls in the child processes.  This used to break.  
+This was causing great trouble to potential collaborators.
+
+Fixed ACL checking bugs in Version 1 backwards compatability stuff
+(server/dirsrv_v1()).  These bugs were introduced in Alpha.5.2.	
+
+Changes from Alpha.5.2 to Alpha.5.2a:
+
+Major bug fix: Message fragmentation and reassembly seem to be
+finally fixed correctly.  They now work even for messages which do not
+contain a newline somewhere within them, and work both for the client
+and for the server.  
+
+Minor bug fixed in way FORWARDED response is given on the server; this
+won't affect current users much, since forwarding pointers are still
+not in widespread use.
+
+Minor bugs fixed in lower levels of ARDP library; these do not affect
+people who were not directly using the ARDP library.
+
+Changes between Beta.5.1 and Alpha.5.2:
+
+The MENU browser interface  and GOPHER-GW gateway are new.  See the README file
+or doc/gopher.ann or the user's manual.  
+
+Link attributes can now be added to all links, including those which
+are stored in native UNIX directories (for example the anonymous FTP
+area).  The link target (FILE/DIRECTORY) is now tested and returned
+for all links in a directory, even if they are in native unix
+directories.  The directory server used to, as an efficiency hack, not
+bother statting big native directories, but would sometimes lie and
+claim directories were actually FILEs.  This information is cached on
+the server for most directories.  If PSRV_CACHE_NATIVE is defined,
+then this cacheing will occur even for entirely native directories.
+OBJECT attributes are cached in cached directories.
+
+Bugs fixed in Kerberos version 5 support.  There is a new definition
+in pserver.h, KERBEROS_SRVTAB.
+
+Disabled return of connection ID for V4 clients.  This change
+compensates for a bug in some V4 clients due to the use of an
+incorrect type (signed long vs. unsigned short) as the connection ID.
+This change has no effect on the V5 protocol.  However, it does make a
+number of older clients, including most versions of the xarchie client,
+work with the new code.
+
+The server's CREATE-OBJECT function with the DIRECTORY option now
+creates the subdirectory first and only then creates a link to it.
+This keeps a link to nowhere from appearing in case of a system crash
+during the directory creation process.
+
+The server function dswdir() that writes out modified directories now
+writes them out to a temporary file and then atomically renames it to
+the correct filename.  This means that in case of running out of disk
+space or other system failure, no information will be lost and the
+directory state will remain consistent.  This feature was inspired
+after PROSPERO.ISI.EDU's main disk filled up and a Prospero directory
+that belonged to the implementor of this feature (swa) was affected.
+
+A number of places in the code which used to store protocol messages
+in static buffers now store them in dynamically allocated buffers.
+Attributes and protocol messages now can have arbitrarily long tokens
+in them.   This change affected enough places in the code that we have
+made the first release containing it an Alpha (Alpha.5.2); the default
+prospero.tar.Z file still points to Beta.5.1.
+
+NEWVS used to work incorrectly when making a new virtual system that
+was to have multiple principals in the initial ACL.  Fixed.
+
+The old pkl and psrvchat commands have been replaced by the new
+'padmin' command.  Padmin can be used to administer a Prospero server
+(kill it, restart it, set the message of the day).  It can also be
+used by a programmer to send raw Prospero protocol messages to the
+server (with the -command option) and by anybody to retrieve the
+message of the day (with the -get MOTD option).  Documentation in the
+user's manual.
+
+p__vfsetup and p__vcd now let you explicitly override your SHELL
+environment variable with '-s sh' or '-s csh' flags.  gen_vfsetup and
+p__vfsetup now generate commands which by default include the -s sh or
+-s csh flag as appropriate.  The old hack of checking your SHELL
+environment variable in the absence of such a flag will stick around
+for a while, but will probably go away in a future release.  This
+feature was inspired by a problem that a user who had renamed his
+shell experienced.
+
+rd_vlink(".") now works correctly; this fixes the behavior of set_acl
+and list_acl.
+
+list_acl and set_acl don't dump core any more when called with
+incorrect arguments.  In addition, they are now more flexible about
+how arguments may be specified.  Fixed case where some legal arguments
+to set_acl sometimes segfaulted.
+
+Compiling with HPUX prototypes used to generate warnings of the form:
+"warning: argument passing of non-const * pointer from const *".  It
+doesn't any more.
+
+Compiling under HPUX used to generate warnings about the arguments to
+select() and bcopy() and wait(); it doesn't any more.  
+
+Enhancement to lib/pfs/p__req.c: userids not in the passwd database
+are sent across the network as uid#<decimal number> instead of as
+*nobody*.
+
+Changes between Alpha.5.1 and Beta.5.1:
+
+One bug fix: The server's CREATE-OBJECT command used to reuse
+directory names even if there were still active links to those
+directories.  It now generates new unique names.  As a result, the
+following sequence will no longer destroy the contents of the new
+directory tlink:
+
+        vmkdir test
+        vln some-file test/some-file
+        vln test tlink
+        vrm test
+        vmkdir test
+
+Changes between Alpha.5.0 and Alpha.5.1:
+
+A special stripped-down FTP only version of the release is now
+available, for sites that want to publish their anonymous FTP archive
+areas through Prospero and don't want to worry about the full gamut of
+configuration options.
+
+The user-level name format has been enhanced.  Special characters in
+user-level names ('#', ':', '/', '(', ')', and now '\') can be quoted
+by preceding them with a backslash ('\').  This change will be useful
+as more new databases with unusual names are integrated into the
+propero naming network.  The library routines p_uln_index() and
+p_uln_rindex() have been added to help in manipulating the new name
+format.
+
+get_vdir() now takes a pointer to a list of tokens as its acomp
+argument instead of a single string with slash separating the multiple
+components.   This makes the code much cleaner and  solves the problem
+of get_vdir() reading  files whose user-level names contain slashes.  
+A similar change has been made to the database function code on the server.
+
+The code sending names across the network has been improved; Spaces in
+file names sent across the network still occasionally caused problems
+in the Alpha 5.0 release; they no longer do in Alpha 5.1.  
+
+A new type of link has been added: INVISIBLE links.  You can make them
+by giving the new '-i' option to vln.  You can list them by giving the
+new '-i' option to vls.  They are just like dot files in UNIX, except
+that their names can have any format.
+
+A new LOCAL access method has been added.  Along with it is a new
+definition in pserver.h called SHARED_PREFIXES.  This definition,
+among other things, makes it very easy to retrieve files through NFS
+on systems that run an automount demon.
+
+VGET can now retrieve files using any access method.  VGET used to not
+know about AFS or NFS.
+
+The psite.h file now also contains a new option for special
+applications, PCOMPAT_SUPPORT_FTP.  If defined, routines linked with
+the pcompat library (such as our version of CAT) will prompt for an
+FTP username and password if necessary in order to access a file.  In
+other words, they, too, can retrieve with any access method.
+
+Some unusual cases involving forwarding of links and expansion of
+union links have been fixed.
+
+The server logging has been improved slightly.
+
+The protocol has been extended so that it is easier to add new types
+of FIELD attributes and so that multiple-component names are sent in a
+cleaner fashion.  Alpha 5.0 clients continue to work, as do pre-5.0 clients.
+
+AIX support for the server has been added.
+
+CHANGES between Beta.4.2 and Alpha.5.0:
+
+This release speaks version 5 and version 1 of the Prospero protocol.
+Previous releases have all spoken only version 1.  The new server is
+backwards-compatable with clients speaking the previous version
+(version 1) of the prospero protocol.  This is described in greater
+depth in the document server/COMPATABILITY.  The clients only speak
+version 5 and will not work with servers still speaking only 
+version 1.  There have been many updates in the new version of the
+protocol. 
+
+This release can be configured to perform authentication of users
+using Kerberos version 5.  Version 5 is still experimental; version 4
+is not supported.
+
+This release supports Archie 3 servers in addition to the older Archie 2.
+
+Quoting of names internally in the Prospero protocol is now fully
+supported (it was not in previous versions of Prospero).  Therefore,
+host-specific object names may now have spaces or other strange
+characters in them, as may attribute names and values and filenames.
+
+This release includes support for PREDEFINED filters that run on the
+server side.  Such filters solve the security problems that have
+plagued filters in the past.  A later release will come with a number
+of predefined standard server and client
+
+This release includes support for remotely modifying link and object
+attributes with the library routines pset_at() and pset_linkat() and
+the user program SET_ATR.   
+
+VLN now handles external links rather differently from the way it used
+to.  To make an external link to a file reachable by anonymous FTP,
+type:
+
+        vln -e AFTP hostname name-on-that-host BINARY new-name
+or
+        vln -e AFTP hostname name-on-that-host TEXT new-name
+
+
+Until we finish revising the user's manual, contact us with questions
+about the new vln and about set_atr.
+
+AF has not been ported to the new release and will probably never be.
+Filters have changed quite a bit.  You can add filters to links by
+using the SET_ATR program with the -linkprec and -filter options to
+modify the FILTER attribute on the link of interest.
+
+Client developers should note that some of the fields in some of the
+structures have been renamed or changed in format.  FILTER and PATTRIB
+structures have been introduced.
+
+See the file doc/v5.announcement for a discussion of additional
+changes. 
+
+This release of Prospero includes a standalone client to query archie
+servers.   See the README file.
+
+This release also includes an alternative ls.  To compile first build
+Prospero (either with or without the compatibility library), then
+connect to the user subdirectory and type make als.  als is still
+under development by Steve Cliffe (steve@cs.uow.edu.au).  Please send
+any comments or bug reports related to als to him.  Eventually, the
+vls command will be replaced by als.

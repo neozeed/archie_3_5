@@ -1,0 +1,86 @@
+
+TODO
+----
+
+List of things that need to be done for the real release..
+
+
+
+AIX
+---
+
+*       - Compile everything on AIX ...
+          Need to access titanic.cs.mcgill.ca ..
+          Talk to Luc...
+
+*        - CVS 
+
+Search
+------
+
+        - Handle OR and AND operators on the search (Problem with states)
+
+*       - Handle Excerpts / Keywords
+
+*       - Stack of sites
+
+        - Accents (must figure out encoding)
+
+*        -New page
+
+
+Patrie
+------
+
+
+        - Handle 16 bits  heights (variable heights ..)
+          (wait to see if we have problem  with size )
+
+*        - Handle hash instead of dbm files for the
+          unindexed portion of strings in append mode.
+
+*        - Regular Expressions
+
+
+Exchange
+--------
+
+        - Handle excerpt files for the exchange of webindex
+
+        - Exchange extern urls ??
+
+        - Handle partial exchanges
+
+
+
+FTP
+---
+
+*        - Need a program(s) that will find all ftp site on the net.
+
+          Program can get list of sites from the netstat info that
+          we have on services.
+
+          For each one it should find if the anonymous ftp site
+          is running there... 
+
+          Build a list of unique sites and figure out if they belong
+          to the same department  according to the name
+          i.e. a.b.c and d.b.c would belong to the same one
+
+
+          This is a one shot deal .. not production code..
+
+        - Script to send mail to a bunch of ftp administrators...
+
+          Given the list, of above, create a script that can send
+          email to all the administrators of the list.
+
+          We will use this to inform that we plan to index them ..
+          they may decide to not be indexed in which case the
+          return address should go to a mailing list.. 
+
+
+
+          
+          

@@ -1,0 +1,21 @@
+/COPYRIGHT/2.0/Tue Aug 20 22:50:33 1996//
+/Makefile.inc/2.0/Tue Aug 20 22:50:33 1996//
+/Makefile.post/2.0/Tue Aug 20 22:50:34 1996//
+/Makefile.pre/2.0/Tue Aug 20 22:50:35 1996//
+/WHATSNEW/2.0/Tue Aug 20 22:50:36 1996//
+/cclass.h/2.0/Tue Aug 20 22:50:37 1996//
+/cname.h/2.0/Tue Aug 20 22:50:37 1996//
+/engine.c/2.0/Tue Aug 20 22:50:38 1996//
+/re_format.7/2.0/Tue Aug 20 22:50:39 1996//
+/regcomp.c/2.0/Tue Aug 20 22:50:40 1996//
+/regerror.c/2.0/Tue Aug 20 22:50:41 1996//
+/regex.3/2.0/Tue Aug 20 22:50:42 1996//
+/regex.h/2.0/Tue Aug 20 22:50:43 1996//
+/regex2.h/2.0/Tue Aug 20 22:50:43 1996//
+/regexec.c/2.0/Tue Aug 20 22:50:44 1996//
+/regfree.c/2.0/Tue Aug 20 22:50:45 1996//
+/utils.h/2.0/Tue Aug 20 22:50:46 1996//
+D/AIX-2////
+D/SunOS-4.1.4////
+D/SunOS-5.4////
+D/sys////

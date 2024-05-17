@@ -1,0 +1,18 @@
+#
+# ppc
+#
+
+BIN_DIRS = \
+        ferretd \
+        weaseld
+
+#
+# Removed tcl and test from list of DIRS, since we aren't currently using
+# them in Archie.
+#
+
+DIRS = \
+        lib     \
+				$(BIN_DIRS)
+
+include $(ARCHIE_ROOT)/Makefile.multi

@@ -1,0 +1,17 @@
+FILES
+Makefile
+closedir.c
+creat.c
+execve.c
+getvdirent.c
+open.c
+opendir.c
+pcompat_init.c
+pfs_access.c
+pfs_default.c
+pfs_quiet.c
+readdir.c
+scandir.c
+seekdir.c
+stat.c
+telldir.c

@@ -1,0 +1,193 @@
+%
+% Copyright (c) 1996 Bunyip Information Systems Inc.
+% All rights reserved
+%
+% Archie 3.5
+% August 1996
+\documentclass[10pt,oneside]{book}
+
+\usepackage{fullpage}
+\usepackage{epsfig}
+\usepackage{longtable}
+
+%\addtolength{\oddsidemargin}{72pt}
+%\addtolength{\textwidth}{-72pt}
+
+%
+%  Do not want any indentation of the paragraphs !!!
+%
+\setlength{\parindent}{0pt}
+
+
+
+\begin{document}
+
+%
+% Defs
+%
+
+\def\HUGE{\@setsize\HUGE{40pt}\xxvpt\@xxvpt}
+
+
+\newcommand{\Chapter}[1]{\hspace{-72pt}\chapter{#1}}
+
+
+\newcommand{\version}{3.5}
+
+\newcommand{\marginnew}[1]{
+  \marginpar[\hfill\begin{minipage}{#1}
+  \epsfig{file=figs/new.eps,width=#1} \end{minipage}]
+  {\begin{minipage}{#1}
+  \epsfig{file=figs/new.eps,width=#1}
+  \end{minipage}}}
+
+\newlength{\marginwidthhalf}
+\setlength{\marginwidthhalf}{\marginparwidth}
+\divide \marginwidthhalf by 2
+\newcommand{\new}{
+ \addtocontents{toc}{\protect\marginnew{\marginwidthhalf}}
+  \marginnew{\marginparwidth}}
+\newcommand{\New}{\marginnew{\marginparwidth}}
+
+
+\newcommand{\NOTE}{\marginpar[\hfill\begin{minipage}{\marginparwidth}
+  \epsfig{file=figs/note.eps} \end{minipage}]{\begin{minipage}{\marginparwidth}
+  \epsfig{file=figs/note.eps} \end{minipage}}}
+
+
+%
+%
+%
+
+\newlength{\alertboxwidth}
+\setlength{\alertboxwidth}{\textwidth}
+\addtolength{\alertboxwidth}{-10pt}
+
+\newcommand{\alertbox}[1]{\vspace{0.1in}\noindent\framebox{\parbox{\alertboxwidth}{#1}}\vspace{0.1in}}
+
+
+\newcommand{\BUGBUG}[1]{\vspace{0.1in}\noindent\framebox{\framebox{\parbox{\alertboxwidth}{#1}}}\vspace{0.1in}}
+
+
+
+\setlength{\parskip}{5pt}
+
+
+\newcommand{\param}[1]{\hspace{0.5in}\texttt{#1}}
+\newcommand{\Param}[1]{\texttt{#1}}
+
+\newcommand{\comm}[1]{\param{\% #1}}
+\newcommand{\Comm}[1]{\Param{\% #1}}
+
+\newcommand{\path}[1]{\param{#1}}
+\newcommand{\Path}[1]{\Param{#1}}
+
+\newcommand{\archie}{\symbol{126}archie}
+\newcommand{\Archie}{<archie home>}
+
+\newenvironment{TTentry}[1]
+ {\begin{list}{}{\renewcommand{\makelabel}[1]{\texttt{##1:}\hfil}%
+   \settowidth{\labelwidth}{\texttt{#1:}}%
+   \setlength{\leftmargin}{\labelwidth}
+   \addtolength{\leftmargin}{\labelsep}
+ }}%
+ {\end{list}}
+
+
+
+%
+%  FAQ Question and Answers defs
+%
+
+\newcommand{\Question}[1]{\noindent\textbf{#1}}
+\newcommand{\Answer}[1]{\begin{quote} #1 \end{quote}}
+
+
+
+%
+%
+%
+%
+%
+
+\newcounter{SidePrintX}
+\setcounter{SidePrintX}{468}
+
+\newcounter{SidePrintY}
+\setcounter{SidePrintY}{144}
+
+
+\newcommand{\SidePrint}[7] {
+  \special{
+    ! userdict begin
+        /CurrentPage 0 def
+        /bop-hook{
+          /CurrentPage CurrentPage 1 add def
+          CurrentPage 1 le
+          { gsave 200 80 translate 90 rotate
+            /Times-Roman findfont
+            #2 scalefont setfont
+            0 0 moveto
+            #3 setgray
+           (#1) show
+            1 setlinewidth
+            0 -5 moveto #4 setgray (#1) stringwidth rlineto stroke
+            /Times-Roman findfont
+            #6 scalefont setfont
+            0 #6 neg moveto #7 setgray (#5) show
+            grestore
+          } if
+        } def
+        end
+     }
+  }
+
+
+%            10 setlinewidth
+%            0 0 moveto 0 setgray (#1) stringwidth rlineto stroke
+
+%
+% Title Page
+%
+
+
+
+\include{title}
+
+
+
+%
+% table of contents
+%
+
+\newpage
+\pagenumbering{roman}
+\setcounter{page}{1}
+\tableofcontents
+
+
+
+%
+% Body of text
+%
+
+\include{intro}
+\include{manual}
+\include{overview}
+\include{db}
+\include{install}                     % Installing the basic Archie system.
+\include{configure}                   % Configuration of the Basic System
+\include{host-manage}
+\include{anonftp}
+\include{clients}
+\include{dirsrv}
+\include{faq}
+
+%
+% Appendix
+%
+
+\include{appendix}
+
+
+\end{document}

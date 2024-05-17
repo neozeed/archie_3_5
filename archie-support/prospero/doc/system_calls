@@ -1,0 +1,142 @@
+This is a list of all the system library functions used by the
+Prospero server when running in multi-threaded mode.  Each function
+has a description of its thread-safe status after it.  This is really
+an internal document, but we are providing it in this prerelease for
+the sake of anyone wanting to work with the multithreaded distribution.
+
+
+.div
+.rem
+___errno
+_exit
+abort	Safe
+alarm	2
+atexit	Safe
+atoi	Safe
+atol	Safe
+bind	Safe
+calloc	Safe
+ceil	Must be compiled with libm.so NOT libm.a
+chdir	2
+chmod	2
+clearerr	Safe
+close	2
+closedir	Safe
+connect	Safe
+crypt	Safe
+dup2	UNSAFE
+	called in a number of places, added assertions - probably fail!
+execv	2
+exit	2
+fclose	Safe
+fcntl	2
+fdopen	Safe
+ferror	Safe
+fflush	Safe
+fgets	Safe
+fileno	Safe
+fopen	Safe
+fork	2
+fprintf	Safe (as long as setlocale not used)
+fputs	Safe
+fread	Safe
+free	Safe
+fseek	Safe
+fstat	2
+ftell	Safe
+fwrite	Safe
+getc	Note its a macro - evaluates arg more than once
+getchar	Safe
+getcwd	Safe
+getdomainname	WEIRD - not in man page
+getenv	Safe
+geteuid	2
+getgrgid	UNSAFE - Use getgrgid_r
+	Write p_th_getgrgid that calls getgrgid_r or mutexes and copies
+	Used in app/ls.c(asserts single thread) & dsrfinfo(unsafely)
+	SWA removed
+gethostbyname	UNSAFE - Use gethostbyname_r
+	Used in various places either asserts single thread 
+	or mutexes GETHOSTBYNAME
+getpid	2
+getpwuid	UNSAFE use getpwuid_r
+	Used in various client things - asserts single thread
+	dsrfinfo UNSAFELY
+	SWA removed
+getservbyname	UNSAFE - Use getservbyname_r
+	Used in various client things - asserts single thread
+getsockopt	Safe
+getuid	2
+gmtime	UNSAFE
+	Mutexed by PFS_TIMETOASN
+inet_addr	Safe
+inet_ntoa	Safe
+isascii	Safe (*setlocale)
+localtime	UNSAFE
+	Mutexed by PFS_TIMETOASN
+malloc	Safe
+memcmp	Safe
+memcpy	Safe
+memmove	Safe
+memset	Safe
+mkdir	2
+mutex_init	Safe
+mutex_lock	Safe
+mutex_trylock	Safe
+mutex_unlock	Safe
+open	2
+opendir	Safe
+perror	Safe
+printf	Safe (as long as setlocale not used)
+putc	Safe (note macro evaluates Streammultiple times)
+rand	UNSAFE use rand_r
+	  SWA to look at this if assertion fails
+	assertions may break wais
+read	2
+readdir	UNSAFE - Use readdir_r
+	Many places - asserts single threaded
+	dsdir UNSAFELY USED
+	scandir UNSAFELY USED, this is called by WAIS
+realloc	Safe
+recvfrom	Safe
+rename	2
+select	Safe
+sendto	Safe
+setsid	2
+setsockopt	Safe
+sigemptyset	Safe
+signal	2
+sigprocmask	2
+sleep	Safe
+socket	Safe
+sprintf	Safe
+srand	UNSAFE
+	see notes on rand
+sscanf	Safe
+stat	2
+strcasecmp	Safe
+strcat	Safe
+strchr	Safe
+strcmp	Safe
+strcpy	Safe
+strerror	Safe
+strlen	Safe
+strncat	Safe
+strncmp	Safe
+strncpy	Safe
+strrchr	Safe
+strstr	Safe
+sysinfo	2
+thr_create	Safe
+thr_getspecific	Safe
+thr_keycreate	Safe
+thr_self	Safe
+thr_setspecific	Safe
+time	2
+toupper	Safe (as long as not using setlocale)
+umask	Safe
+ungetc	Safe
+unlink	2
+vprintf		Asynch-Safe, whatever that means?	ASK SUN
+vsprintf	Safe
+write		2

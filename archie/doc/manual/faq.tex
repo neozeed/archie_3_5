@@ -1,0 +1,390 @@
+%
+% Copyright (c) 1996 Bunyip Information Systems Inc.
+% All rights reserved
+%
+% Archie 3.5
+% August 1996
+%
+% faq.tex
+%
+
+
+\chapter{Frequently Asked Questions}
+
+
+This chapter contains a list of Frequently Asked Questions which have been
+compiled during the operation of Archie over the past several years. It is
+hoped that it can serve as a quick reference to some of the more common
+problems associated with running an Archie server.
+
+We hope to regularly add new questions and answers to this chapter and
+make it available as a stand-alone postscript document in your
+account on ftp.bunyip.com.
+
+\section{General}
+
+
+\Question{We have DNS. Why does Archie need to store the IP address of a
+particular host?} 
+
+\Answer{
+Archie uses IP addresses internally to provide a form of ``unique identifier''
+within the host databases. The Archie system tries to avoid having the same
+physical host listed in the database under different names (which hosts can
+have through CNAME records). One can see why when one realizes that if Archie
+didn't try to do this, then the same host could potentially be indexed several
+times for each one of its several names. As a result, Archie tries to use the
+IP address as a kind of ``unique identifier'' for the host. The system stores
+the primary host name (the DNS A record) as well as the primary IP address for
+that host. In most cases, this IP address changes infrequently and serves the
+purpose. In the case that the host has multiple IP addresses (interfaces) DNS
+will normally return a ``primary'' address: this tends to be the first PTR
+record under DNS. You may notice that in the site files for the anonftp and
+webindex databases, the IP address is used as the name for the site
+file. The system is designed to detect when a primary IP address has changed
+and modify its internal information.
+
+
+In addition to the internal uses of the IP address, some users, particularly
+those on the MILNET don't have access to the DNS. As a result, Fully Qualified
+Domain Names can't be used and the IP addresses are their only route to the
+archives of the world.
+}
+
+
+
+\Question{Can I mount the Archie temporary directory (\archie/db/tmp) on another
+partition?
+}
+
+\Question{Can I mount the Archie catalogs (\archie/db/*) on another partition?
+}
+
+\NOTE
+
+\Answer{Yes and no... The only restriction at this point is to have
+\Path{db/tmp} and \Path{etc} in the same partition. If a database, for example
+\Path{db/anonftp\_db}, resides in a different partition, the files will be
+copied instead of being moved, resulting in slower execution.}
+
+
+\Question{The hostname on my Archie server doesn't contain the fully qualified domain
+name. When I try to collect data from anonymous FTP sites that require a
+password with a FQDN (like foo@bar.com instead of foo@bar) the process
+fails. How do I get the system to send a fully qualified domain name?
+}
+
+\Question{The primary name of my Archie server host is ``foo.bar.com'', but I want the
+Archie system to use the alias ``archie.bar.com'' (CNAME record) when it
+contacts remote sites and for the ``Source:'' line in the host\_manage program
+display. Can this be done?
+}
+
+\Answer{
+Yes, if you create a file called \archie/etc/archie.hostname which just
+contains the hostname that you would like Archie to call itself then
+everything will work the way you would like. Note that the name of that file
+is exactly that ``archie.hostname''. ``hostname'' is not a variable to be replaced
+by some other name.
+}
+
+
+
+\section{Clients}
+
+\Question{Even with the autologout feature, some sessions on the telnet-client still
+seem to hang around even though they have been idle for a long time. Why?
+}
+
+\Answer{
+The problem usually occurs when users suspend the telnet-client in the process of sending data to the tty (remote connection). The client will try to perform the autologout, but can get suspended trying to close the connection at the other end. We are looking into possible solutions.
+}
+
+
+
+\Question{How do I tell how many people are using the system?
+}
+
+\Answer{
+The question here usually is, ``how many queries am I getting?''. The easiest
+way is to look in the file \archie/pfs/pfs.log and count the lines that have
+ARCHIE in them (grep -c will do this for you). If you want to get fancy you
+can separate the lines by date (each line is date and timestamped) to get a
+count on a per-day basis. You can count the number of people using the telnet
+client by using the last(1) command (``last Archie'' should do it) and you can
+count the number of queries and users on the email interface by enabling the
+logging (-u and -l or -L) and counting the lines in there.
+}
+
+
+\Question{How do I restrict the number of concurrent telnet sessions?
+}
+
+\Answer{
+Look in the chapter ``Setting up the anonftp catalog clients'' in the section
+``Limiting the number of telnet sessions'' on page~\pageref{sec:limit}.
+This will explain what you need to know.
+}
+
+
+
+\Question{Why does mail returned from the Archie email interface say that it
+comes from ``archie-errors''?
+}
+
+\Answer{
+This is a historical ``accident'' with no real meaning. The problem addressed is
+that if mail came back ``From: archie'' and it bounced (for whatever reason)
+then the bounced mail would go right back to the Archie server which would
+then try to interpret it. In most cases the email interface would generate a
+help message which would then probably bounce again etc., etc. As a result,
+mail headers get rewritten so that they bounce to a ``bit bucket'' and get lost
+forever. We do not suggest that you point the alias of ``archie-errors'' at a
+file or a person.... it or they will probably get a lot of bounced mail that
+was generated because some user made a typo. The name ``archie-errors'' can be
+changed to anything you like however but it will require a slight modification
+to the system. If you are interested send mail to the Archie contact address
+here at Bunyip and we'll tell you how to do it.
+}
+
+\Question{One of our users is connected to us on a slow (9600 baud) SLIP link and when
+using an Archie client the whole link becomes unusable. Is there a problem
+with Archie on slow links?
+}
+
+\Archie{
+Yes. Archie uses the Prospero system as its transport mechanism. Prospero is a
+UDP based protocol so when errors occur and packets go missing it is the
+responsibility of the dirsrv process to perform the retransmissions. On slow
+links the time allocated for the client to acknowledge receipt of the server
+packets may expire even though the client has received the packet. As a result
+the server and client go into a competition to transmit each other packets and
+this can bring the link to a halt. We know about this and is working on a
+solution to the problem.
+}
+
+\Question{Instead of having the email-client run every time a piece of mail to the Archie address arrives, can I batch the mail and have it processed at off-peak times?
+}
+
+\Answer{
+Yes, you can. The program \archie/bin/batch-email will allow you to do
+this. See the section ``Batching email requests'' on page~\pageref{sec:batch} for an explanation.
+}
+
+
+\section{The Host Database}
+
+\Question{How do I change the primary name of a host in the Host Database?
+}
+
+
+\Answer{
+Because the Archie system ``keys'' on the primary hostname of a host, changing
+its value requires a deletion of the host from the database followed by a
+re-insertion with the new name. See ``Deleting a Data Host'' on page~\pageref{sec:delhost}.
+}
+
+
+
+\Question{How do I add a site to the Host Databases so that I can index that site?
+}
+
+\Answer{
+Details for this procedure can be found in the section ``Adding individual Data Hosts'' on page~\pageref{sec:addhost} of this manual.
+}
+
+\Question{How do I completely delete a site from my Host Database?
+}
+
+\Answer{
+You can either use the host\_manage program. See the manual
+pages for further details.
+}
+
+\section{Parsing}
+
+\Question{Why does the error line number reported by the parser not correspond to the
+actual line number that caused the error?
+}
+
+\Answer{
+This is a bug in the system. Basically, the number of the line reported is
+counted from the start of the listing. However, the Archie header adds 8-10
+additional lines at the top of the file, causing the mis-count. The actual
+line causing the error is in fact the number of lines in the header plus the
+line number reported by the parser. This will be fixed in a patch, soon to be
+released.
+}
+
+\section{Data Exchange}
+
+\Question{I am exchanging data with another Archie server and even though things seem to
+be working OK (I run arexchange with the -v option and data is being
+transferred), I don't get any data files in the \archie/db/tmp
+directory. What's happening?
+}
+
+\Answer{
+The problem results from a combination of things. First, the site with which
+you are exchanging data has a set of catalog entries which have been
+deleted. In order to allow this information to be propagated to sites like
+yourself, the system holds on to these records for a while, until the Archie
+administrator at the remote site physically deletes the information from his
+or her Host Database (with the purge\_hostdb command). When this has not been
+done in a long time (or a lot of catalog entries have been deleted recently),
+these records will be transmitted to you so that your Archie system can delete
+those entries itself. However, your system is smart enough to recognize that
+if you didn't have those entries in the first place there is no need to
+download a ``deletion'' record for them. Therefore the data that you see being
+exchanged is really a set of deletion records but since you don't have those
+entries anyway, your system is ignoring them. The problem comes when you are
+asking for 50 entries at a time from the remote system and they have more than
+50 deleted entries.... you end up with nothing. The solution to the problem is
+to contact the remote Archie administrator and ask them to run the
+purge\_hostdb command and do some garbage collection.
+}
+
+\Question{When I try to do an exchange with a remote Archie server I get a message
+saying ``Network command not terminated with a CR''. What is the problem?  }
+
+\Question{When trying to connect to my local arserver program with arretrieve, I get the message, ``Read EOF from network connection''. What's up?
+}
+
+\Answer{
+The arserver process to which you are talking not starting correctly. For
+example, if arserver sees an option in its command line in
+\Path{/etc/inetd.conf} which it does not understand, it writes the error
+message to stdout. Now inetd connects stdout of the processes it runs to the
+network connection and so you are seeing whatever errors arserver is
+printing. Note that this problem almost only occurs on start-up of the remote
+server before it has time to read its options and open its log file, otherwise
+it would write the errors to its own log file. The solution is to contact the
+Archie admin of the remote site and ask them to look into the problem. If it
+is happening to you with the arretrieve program then the same thing
+applies. Check the information on the command line to arserver in
+\Path{/etc/inetd.conf} and make sure it is OK. You can also check the Archie
+log and search for ``arserver'' and see if wrote any errors there.
+}
+
+
+\section{Prospero and dirsrv}
+\Question{If I have made changes to the databases, do I have to restart the dirsrv
+process?
+}
+
+\Answer{
+If you have just made normal, everyday changes to the database then you don't
+have to restart the dirsrv process. However, if you have added an entire
+catalog (for example, the anonftp catalog) then you will have to kill and
+restart dirsrv. For efficiency, dirsrv keeps certain files open all the time
+(rather than opening and closing them on every query). If you delete the
+catalog, dirsrv won't know about the new entries and will try to reconcile the
+files it has open with the new ones, usually killing the process. You can
+prevent this senseless death by killing and restart the process yourself.
+}
+
+
+\Question{I have noticed the dirsrv process crashing, what's wrong?
+}
+
+\Answer{
+The dirsrv process can crash for one of two reasons: (a) the database is
+corrupt or (b) the database is being updated at the time of the crash. Both
+are due to ``incorrect'' pointers in the database the first possibly being
+permanent the second being transitory. Consistency checking is kept to a
+minimum in order to speed up the searching process.
+
+db\_check attempt to determine if the various
+elements in the catalog are consistent. Unfortunately, due to the complexity
+of the catalog structure it is not always obvious how the errors reported by
+dirsrv are connected to those listed by db\_check. Minor inconsistencies
+given by WARNING messages from db\_check are informational in nature and
+don't affect operations. ERROR messages are more serious. db\_check
+should be run while the catalog is quiescent (not being updated) for a real
+reading of the current status. If it reports errors, I would advise another
+update cycle be run and the catalog checked again before worrying about
+rebuilding it. However, as a rule if pages of errors are reported it is likely
+that the catalog has been corrupted.
+}
+
+\section{Catalogs}
+
+\Question{How do I tell if the one of the catalogs is corrupted?
+}
+
+\Answer{
+Well, there are a number of ways. First, check the log file for the word
+``corrupt''. The dirsrv process does some minor checks to make sure
+everything is okay during its normal operation. (Note that these checks are not very complete as they would slow down the performance of the server and we'd like it as fast as possible). Secondly, if the update cycle fails with programs terminating abnormally, then you could have a problem. For the anonftp catalog (and some others) there is a program called ``check\_<catname>'' where <catname> is the name of a catalog. So, for example, there is a program called ``check\_anonftp''. This program will try to do some comprehensive consistency checking and report what it has found. It may report some messages as ``WARNING'' which usually means that something is a bit out of order, but nothing serious. If you get ``ERROR'' messages however, you probably have a corrupt catalog (if the program crashes you definitely have a corrupt catalog).
+}
+
+
+\Question{How do I fix a corrupt anonftp or webindex catalog?
+}
+
+\Answer{
+Try running the program fix\_start\_db if the program db\_check says so.
+If a single site is corrupt, by re-inserting it, the problem should go away.
+}
+
+
+\Question{What causes the anonftp or webindex catalogs to become to become corrupt?
+}
+
+
+\Answer{
+The catalogs can become corrupted in two main ways:
+
+\begin{itemize}
+\item
+The host crashes or is rebooted during the update phase of the cycle when the
+catalogs are being modified. Therefore it is important therefore that the
+system not be intentionally rebooted when an update is occurring. Of course,
+host crashes are usually unintentional and can't be prevented.
+
+\item The insert\_anonftp or insert\_webindex program terminates abnormally
+during an update. This is rare, but can happen as a result of the system core
+memory being exhausted. The insertion routines are written in such a way that
+once modifications to the catalog files begins, very little memory is required
+from the system. However, if the host has no more available memory, even a
+little will be refused.
+\end{itemize}
+
+In either case, you should perform the routine appropriate for the particular
+catalog to see if it has been corrupted. If it has the restoration procedure
+will have to be invoked. In either case the anonftp or
+(webindex) file will be left around in the \archie/db/locks directory
+to mark this fact. (This will be reported if you have the system set up to
+mail you status reports).  }
+
+
+\Question{Why the database get larger and larger over time?
+}
+
+\Answer{
+Well, for one thing, there are more and more machines on the network. However,
+this is not the only reason. The other major one is that due to the way that
+Archie keeps the strings in the database, ``dead'' information can collect over
+time. For example, one anonymous site contains a filename like ``furglesnort'',
+it is indexed by the anonftp catalog and then the site removes the
+file. However, the anonftp catalog will keep the ``furglesnort'' string in the
+database (marked inactive) for the rest of time. As a result, such strings
+build up in the catalog never to be used. While it would be possible to
+``garbage collect'' in the catalog, the structure would require that enough
+space exist to build a copy of the catalog during the process. The catalog for
+anonftp is on the order of 500 Mb now so this is not really a viable
+option. We recommend that the database be rebuilt ever six months or so to
+remove the dead records.
+}
+
+\section{Database}
+\new
+
+
+\Question{Why does the file Stridx.Lock stay around?}
+
+\Answer{
+The file is used to perform locking through the lock(2) and flock(2)
+mechanisms for building the index file.
+The presence of the file does not indicate that the index is locked.
+}

@@ -1,0 +1,19 @@
+#!/bin/sh
+
+stats=/archie4/wheelan/stats.out
+tmpdir=/archie4/wheelan
+#stats=./stats.out
+#tmpdir=/tmp
+
+time_file() {
+  Test_page -stats -tmpdir $tmpdir $1 $tmpdir/i $tmpdir/l $tmpdir/p 2>> $stats
+  rm -f $tmpdir/i $tmpdir/p
+}
+
+
+echo \#\# `uname -a` > $stats
+echo \#\# `date` >> $stats
+
+for f in $* ; do
+  time_file $f
+done

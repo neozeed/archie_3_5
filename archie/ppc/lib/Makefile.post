@@ -1,0 +1,19 @@
+#
+# ppc/lib
+#
+
+
+_: libppc.a
+
+
+include $(ARCHIE_ROOT)/Makefile.post
+
+
+libppc.a: $(OBJS) main.o
+	$(AR) r $@ $? && $(RANLIB) $@
+
+main.o:
+	$(CC) $(CFLAGS) -c ../main.c
+
+clean:
+	rm -f *.o libppc.a core

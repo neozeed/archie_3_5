@@ -1,0 +1,32 @@
+#
+# webindex/partial module.
+#
+
+#MOD_CFLAGS = -ansi -pedantic -pipe -DSLEEP
+MOD_DEBUG  = -g3
+MOD_WARN   = -Wall -Wtraditional -Wshadow -Wpointer-arith -Wcast-align \
+             -Wnested-externs
+MOD_INCS   = -I$(INCLUDE_MODULE) -I$(WEBINDEX_MODULE)/lib -I$(STRIDX_MODULE) -I.
+MOD_LIBS   = \
+              -L$(LIBARCHIE_MODULE)/$(SYSTYPE)    -larchie     \
+              -L$(STRIDX_MODULE)/$(SYSTYPE)       -larchstridx \
+              -L$(HOSTDB_MODULE)/$(SYSTYPE)       -lhostdb     \
+              -L$(PATRIE_MODULE)/$(SYSTYPE)       -lpatrie     \
+              -L$(WEBINDEX_MODULE)/lib/$(SYSTYPE) -lwebindex
+
+
+include $(ARCHIE_ROOT)/Makefile.pre
+
+
+INCS =
+
+SRCS = \
+        do_partial.c  \
+        partial_web.c 
+
+OBJS = \
+        do_partial.o  \
+        partial_web.o 
+
+EXES = \
+        partial_webindex 

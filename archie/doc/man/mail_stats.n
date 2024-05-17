@@ -1,0 +1,57 @@
+.\" Copyright (c) 1993, 1994, 1996 Bunyip Information Systems Inc.
+.\" All rights reserved.  
+.\"	
+.\" Archie 3.5
+.\" August 1996
+.\"	
+.\"	@(#)mail_stats.n
+.\"
+.TH MAIL_STATS N "August 1996"
+
+.SH NAME
+.B mail_stats
+\- monitor the transactions of the Archie system
+.SH SYNOPSIS
+.B mail_stats
+.SH DESCRIPTION
+\fBmail_stats\fP is a shell script which is designed to periodically be
+run from the
+.BI cron (8)
+process. It sends mail to Archie system maintainers describing the
+transactions of the system, including sites which have been sucessfully
+and unsucessfully retrieved, parsed and updated.
+.SH CONFIGURATION
+In addition to the standard log entries the Archie system will generate
+information on each transaction it performs if the system administrators
+create a file called mail.results in the ~archie/etc directory. This file
+must be readable and writable by the Archie user. The files mail.fail,
+mail.success, mail.add, mail.delete, mail.parse, and mail.retr
+will be created in the same directory.
+
+In order for mail_stats to work correctly, the line
+.IP
+MAIL_PGM=/usr/ucb/mail
+.PP
+should be set to the user mail agent of choice (if the default given is
+not acceptable). The mailer chosen should accept a "-s" command line
+switch with a subject as the argument. Also the line
+.IP
+ARCHIE_USER=archuser
+.PP
+should be changed to the the name of the Archie administration user code
+name if not the given default. Mail to this user should be set to be sent
+to the Archie system administrator(s).
+
+Once run, mail_stats will reset all the mail data files except mail.results
+which remains until the next invokation of the program.
+.SH "SEE ALSO"
+.BR arcontrol (n),
+.SH FILES
+~archie/etc/mail.*
+.SH AUTHOR
+Bunyip Information Systems.
+.br
+Montr\o"\'e"al, Qu\o"\'e"bec, Canada
+.sp
+Archie is a registered trademark of Bunyip Information Systems Inc., Canda,
+1990.

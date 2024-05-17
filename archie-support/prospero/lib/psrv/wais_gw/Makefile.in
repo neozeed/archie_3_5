@@ -1,0 +1,234 @@
+#*****************************************************************************
+#        (c) Copyright 1992,1993 Wide Area Information Servers, Inc          *
+#	   	  of California.   All rights reserved.   	             *
+#									     *
+#  This notice is intended as a precaution against inadvertent publication   *
+#  and does not constitute an admission or acknowledgement that publication  *
+#  has occurred or constitute a waiver of confidentiality.		     *
+#									     *
+#  Wide Area Information Server software is the proprietary and              *
+#  confidential property of Wide Area Information Servers, Inc.              *
+#*****************************************************************************
+# this file has different configuration ideas from the rest of Prospero.
+# this is a problem.
+
+SOURCEBASE=../../..
+include $(SOURCEBASE)/Makefile.config
+
+# Note that not all versions of make will support this construct.
+CFLAGS += $(WCFLAGS) 
+
+# These are needed by the Prospero 'setdependencies' script.
+
+CFILES =	buffalloc.c \
+		ustubs.c \
+		list.c \
+		cutil.c \
+		futil.c \
+		panic.c \
+		waislog.c \
+		irfileio.c \
+		wutil.c \
+		wprot.c \
+		zprot.c \
+		zutil.c \
+		ztype1.c \
+		source.c \
+		sourcealloc.c \
+		sockets.c \
+                inface.c \
+		wmessage.c \
+		ietftype.c \
+		ietftype_parse.c \
+		wais_gw_mutex.c \
+		wais_gw_dsdb.c \
+		sourceparse.c
+
+
+
+# the z3950 protocol and tcp communications
+
+UTIL = 		\
+		buffalloc.o \
+		ustubs.o \
+		list.o \
+		cutil.o \
+		futil.o \
+		panic.o \
+		waislog.o \
+		irfileio.o
+
+OBJS =		\
+		wutil.o \
+		wprot.o \
+		zprot.o \
+		zutil.o \
+		ztype1.o \
+		source.o \
+		sourcealloc.o \
+		sockets.o \
+                inface.o \
+		wmessage.o
+
+GW = 		\
+		ietftype.o \
+		ietftype_parse.o \
+		wais_gw_mutex.o \
+		wais_gw_dsdb.o
+
+OBJECTS = ${UTIL} ${OBJS} ${GW} sourceparse.o
+
+all:	${WAIS_GW_LIB} sourceparse
+
+${WAIS_GW_LIB}: ${OBJS} ${UTIL} ${GW}
+		$(RM) -f $@
+		$(AR) $(ARFLAGS) $@ $(OBJS) $(UTIL) $(GW)
+		$(RANLIB) $@
+
+install:	sourceparse ietftypes
+	-for i in sourceparse ietftypes ; do \
+	    ${INSTALL} -c -m 755 -o ${OWNER} -g ${GROUP} $$i ${P_BINARIES}/$$i${GENERATIONSUFFIX}; \
+	    ${GENERATION} ${P_BINARIES}/$$i ; \
+    	done 
+
+
+sourceparse:	sourceparse.o ${WAIS_GW_LIB} $(PFS_LIBS_DEPENDENCIES) 
+	${CC} ${CFLAGS} -o $@ sourceparse.o $(WAIS_GW_LIB) $(PFS_LIBS) 
+
+# Not clear why this is necessary. --swa
+#-u ${COMPILER_PREPENDS_C_SYMBOLS_WITH_UNDERSCORE}gopher_gw_init_mutexes ${SPLIBS}	
+
+
+# Dependencies
+buffalloc.o : buffalloc.h inface.h \
+  wprot.h cdialect.h zprot.h zutil.h cutil.h \
+  ../../../include/pfs_threads.h ../../../include/pfs_utils.h ztype1.h ../../../include/pfs.h \
+  ../../../include/ardp.h \
+  ../../../include/list_macros.h ../../../include/../lib/ardp/flocks.h \
+  ../../../include/implicit_fixes.h \
+  ../../../include/pmachine.h \
+  ../../../include/mitra_macros.h ../../../include/psrv.h \
+  ../../../include/pparse.h 
+ustubs.o : ustubs.h cdialect.h futil.h cutil.h \
+  ../../../include/pmachine.h \
+  ../../../include/pfs_threads.h ../../../include/pfs_utils.h 
+list.o : list.h cutil.h \
+  cdialect.h 
+cutil.o : \
+  ../../../include/pfs.h \
+  ../../../include/pfs_utils.h ../../../include/ardp.h \
+  ../../../include/pfs_threads.h \
+  ../../../include/list_macros.h ../../../include/../lib/ardp/flocks.h \
+  ../../../include/implicit_fixes.h \
+  ../../../include/pmachine.h \
+  ../../../include/perrno.h cutil.h cdialect.h futil.h 
+futil.o : \
+  futil.h \
+  cdialect.h cutil.h \
+  panic.h ../../../include/pfs_threads.h ../../../include/pfs_utils.h 
+panic.o : \
+  panic.h cdialect.h waislog.h \
+  cutil.h \
+  ../../../include/pfs.h ../../../include/pfs_utils.h \
+  ../../../include/ardp.h ../../../include/pfs_threads.h \
+  ../../../include/list_macros.h ../../../include/../lib/ardp/flocks.h \
+  ../../../include/implicit_fixes.h \
+  ../../../include/pmachine.h \
+  ../../../include/perrno.h 
+waislog.o : 
+irfileio.o : \
+  ../../../include/pfs.h ../../../include/pfs_utils.h \
+  ../../../include/ardp.h \
+  ../../../include/pfs_threads.h \
+  ../../../include/list_macros.h \
+  ../../../include/../lib/ardp/flocks.h ../../../include/implicit_fixes.h \
+  ../../../include/pmachine.h \
+  ../../../include/perrno.h irfileio.h cdialect.h futil.h cutil.h zprot.h zutil.h 
+wutil.o : futil.h cdialect.h cutil.h \
+  zprot.h \
+  zutil.h ../../../include/pfs_threads.h ../../../include/pfs_utils.h \
+  wprot.h ztype1.h \
+  wutil.h 
+wprot.o : wprot.h cdialect.h zprot.h zutil.h cutil.h \
+  ../../../include/pfs_threads.h ../../../include/pfs_utils.h \
+  ztype1.h panic.h 
+zprot.o : zprot.h cdialect.h zutil.h cutil.h \
+  ../../../include/pfs_threads.h ../../../include/pfs_utils.h 
+zutil.o : \
+  zutil.h \
+  cdialect.h cutil.h \
+  ../../../include/pfs_threads.h ../../../include/pfs_utils.h 
+ztype1.o : ztype1.h cdialect.h zutil.h cutil.h \
+  ../../../include/pfs_threads.h ../../../include/pfs_utils.h \
+  panic.h waislog.h 
+source.o : ../../../include/string_with_strcasecmp.h \
+  cutil.h \
+  cdialect.h \
+  futil.h \
+  irfileio.h zprot.h zutil.h ../../../include/pfs_threads.h \
+  ../../../include/pfs_utils.h source.h ../../../include/pfs.h ../../../include/ardp.h \
+  ../../../include/list_macros.h \
+  ../../../include/../lib/ardp/flocks.h ../../../include/implicit_fixes.h \
+  ../../../include/pmachine.h \
+  ../../../include/mitra_macros.h ../../../include/psrv.h \
+  ../../../include/pparse.h 
+sourcealloc.o : buffalloc.h inface.h wprot.h cdialect.h zprot.h \
+  zutil.h cutil.h \
+  ../../../include/pfs_threads.h ../../../include/pfs_utils.h \
+  ztype1.h ../../../include/pfs.h ../../../include/ardp.h \
+  ../../../include/list_macros.h ../../../include/../lib/ardp/flocks.h \
+  ../../../include/implicit_fixes.h \
+  ../../../include/pmachine.h \
+  ../../../include/mitra_macros.h source.h 
+sockets.o : sockets.h cdialect.h cutil.h \
+  ../../../include/posix_signal.h \
+  panic.h waislog.h 
+inface.o : zutil.h cdialect.h cutil.h \
+  ../../../include/pfs_threads.h ../../../include/pfs_utils.h \
+  zprot.h wprot.h ztype1.h wmessage.h inface.h sockets.h \
+  waislog.h \
+  ../../../include/pfs.h ../../../include/ardp.h ../../../include/list_macros.h \
+  ../../../include/../lib/ardp/flocks.h ../../../include/implicit_fixes.h \
+  ../../../include/pmachine.h \
+  ../../../include/perrno.h buffalloc.h 
+wmessage.o : \
+  wmessage.h cdialect.h cutil.h 
+ietftype.o : ietftype.h ../../../include/pfs.h \
+  ../../../include/pfs_utils.h ../../../include/ardp.h \
+  ../../../include/pfs_threads.h \
+  ../../../include/list_macros.h \
+  ../../../include/../lib/ardp/flocks.h ../../../include/implicit_fixes.h \
+  ../../../include/pmachine.h \
+  ../../../include/mitra_macros.h ../../../include/psrv.h \
+  ../../../include/pparse.h 
+ietftype_parse.o : \
+  ../../../include/pfs.h ../../../include/pfs_utils.h \
+  ../../../include/ardp.h ../../../include/pfs_threads.h \
+  ../../../include/list_macros.h \
+  ../../../include/../lib/ardp/flocks.h ../../../include/implicit_fixes.h \
+  ../../../include/pmachine.h \
+  ietftype.h ../../../include/mitra_macros.h 
+wais_gw_mutex.o : ../../../include/pfs_threads.h \
+  ../../../include/pfs_utils.h \
+  ietftype_parse.h ietftype.h ../../../include/pfs.h ../../../include/ardp.h \
+  ../../../include/list_macros.h \
+  ../../../include/../lib/ardp/flocks.h ../../../include/implicit_fixes.h \
+  ../../../include/pmachine.h 
+wais_gw_dsdb.o : \
+  ../../../include/pmachine.h \
+  ../../../include/psite.h \
+  ../../../include/ardp.h \
+  ../../../include/pfs_threads.h ../../../include/pfs_utils.h \
+  ../../../include/list_macros.h ../../../include/../lib/ardp/flocks.h \
+  ../../../include/pfs.h \
+  ../../../include/implicit_fixes.h \
+  ../../../include/pserver.h ../../../include/psrv.h \
+  ../../../include/pparse.h \
+  ../../../include/perrno.h ../../../include/plog.h wprot.h cdialect.h zprot.h \
+  zutil.h cutil.h ztype1.h source.h inface.h wais_gw_dsdb.h ietftype.h ietftype_parse.h 
+sourceparse.o : \
+  source.h ../../../include/pfs.h ../../../include/pfs_utils.h \
+  ../../../include/ardp.h ../../../include/pfs_threads.h \
+  ../../../include/list_macros.h ../../../include/../lib/ardp/flocks.h \
+  ../../../include/implicit_fixes.h \
+  ../../../include/pmachine.h 
